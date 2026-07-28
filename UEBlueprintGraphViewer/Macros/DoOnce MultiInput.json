@@ -1,0 +1,383 @@
+{
+  "Name": "DoOnce MultiInput",
+  "Nodes": [
+    {
+      "Name": "Branch",
+      "NodeType": "K2Node_IfThenElse",
+      "LocationX": 160,
+      "LocationY": 1,
+      "NodeWidth": 197,
+      "NodeHeight": 102,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "0e39d9be-c838-4c3f-b50b-44855c049382",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f89e3b9a-59b5-45e3-a7b7-8b3299abfabb"
+          ]
+        },
+        {
+          "Guid": "5f05f7a3-4999-47f0-bcd7-618cfcd4f5a2",
+          "PinName": "Condition",
+          "PinFriendlyName": "Condition",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "3a8c9e36-a601-4771-94b2-a3b90314461a"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "28197269-e42f-43e9-8808-eba5849d4a6e",
+          "PinName": "then",
+          "PinFriendlyName": "True",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        },
+        {
+          "Guid": "d8cb4df6-25d8-4fed-9994-50241a1dded3",
+          "PinName": "else",
+          "PinFriendlyName": "False",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "852148b8-e729-4dda-a236-b5c620af8c5a"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 522,
+      "LocationY": 32,
+      "NodeWidth": 182,
+      "NodeHeight": 136,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "852148b8-e729-4dda-a236-b5c620af8c5a",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "d8cb4df6-25d8-4fed-9994-50241a1dded3"
+          ]
+        },
+        {
+          "Guid": "65348251-d7e6-4b56-aa62-2e04de2fac6e",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "3a8c9e36-a601-4771-94b2-a3b90314461a"
+          ]
+        },
+        {
+          "Guid": "dd7f6f3e-fae8-4841-8baa-f81fe0dcdad0",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "true",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "e0ce5721-fa44-4fc2-9440-32a5e6af6eb2",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "8b53fe6a-72e5-4207-afa4-a9c24462edf6"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Local Bool",
+      "NodeType": "K2Node_TemporaryVariable",
+      "LocationX": -80,
+      "LocationY": 192,
+      "NodeWidth": 123,
+      "NodeHeight": 68,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [],
+      "Output": [
+        {
+          "Guid": "3a8c9e36-a601-4771-94b2-a3b90314461a",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "5f05f7a3-4999-47f0-bcd7-618cfcd4f5a2",
+            "65348251-d7e6-4b56-aa62-2e04de2fac6e",
+            "67d63b47-8b68-474e-9d9e-ec838d0f16a9"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 165,
+      "LocationY": 160,
+      "NodeWidth": 189,
+      "NodeHeight": 136,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "d77c3ca3-7853-411d-9085-7acf1ee72ff2",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "becc23a5-dafd-4bf9-9499-507e72ac3eb1"
+          ]
+        },
+        {
+          "Guid": "67d63b47-8b68-474e-9d9e-ec838d0f16a9",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "3a8c9e36-a601-4771-94b2-a3b90314461a"
+          ]
+        },
+        {
+          "Guid": "53f65bf5-b3a4-4a0d-aaed-b2e10d837d3a",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "false",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "76bdb9f5-3ab4-4d3c-a79e-4b580817ec77",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "25aa1970-22cf-4d4b-ae2f-90ae7b714d07"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Inputs",
+      "NodeType": "K2Node_Tunnel",
+      "LocationX": -117,
+      "LocationY": 0,
+      "NodeWidth": 100,
+      "NodeHeight": 102,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [],
+      "Output": [
+        {
+          "Guid": "f89e3b9a-59b5-45e3-a7b7-8b3299abfabb",
+          "PinName": "A In",
+          "PinFriendlyName": "A In",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "0e39d9be-c838-4c3f-b50b-44855c049382"
+          ]
+        },
+        {
+          "Guid": "becc23a5-dafd-4bf9-9499-507e72ac3eb1",
+          "PinName": "Reset In",
+          "PinFriendlyName": "Reset In",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "d77c3ca3-7853-411d-9085-7acf1ee72ff2"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Outputs",
+      "NodeType": "K2Node_Tunnel",
+      "LocationX": 796,
+      "LocationY": 128,
+      "NodeWidth": 100,
+      "NodeHeight": 102,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "8b53fe6a-72e5-4207-afa4-a9c24462edf6",
+          "PinName": "A Out",
+          "PinFriendlyName": "A Out",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "e0ce5721-fa44-4fc2-9440-32a5e6af6eb2"
+          ]
+        },
+        {
+          "Guid": "25aa1970-22cf-4d4b-ae2f-90ae7b714d07",
+          "PinName": "Reset Out",
+          "PinFriendlyName": "Reset Out",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "76bdb9f5-3ab4-4d3c-a79e-4b580817ec77"
+          ]
+        }
+      ],
+      "Output": []
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+		mc:Ignorable="d"
+		Width="300"
+        x:Class="UEBlueprintGraphViewer.ProgressWindow"
+		x:DataType="local:ProgressWindowViewModel"
+		SizeToContent="Height"
+		WindowStartupLocation="CenterScreen"
+        Title="Progress">
+	<Grid RowDefinitions="Auto,Auto">
+		<TextBlock Margin="5">
+			<Run x:Name="StatusRun"/>
+			<Run Text="{Binding ProgressValue}"/>
+			<Run Text="/"/>
+			<Run Text="{Binding ProgressMax}"/>
+		</TextBlock>
+		<ProgressBar Value="{Binding ProgressValue}"
+					 Maximum="{Binding ProgressMax}"
+					 Grid.Row="1"
+					 Margin="5,0,5,5"/>
+
+	</Grid>
+</Window>

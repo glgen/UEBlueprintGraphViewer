@@ -1,0 +1,32 @@
+﻿<Window x:Class="UEBlueprintGraphViewer.CompareSettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+        mc:Ignorable="d"
+        Title="Compare game builds settings"
+		x:Name="root"
+        x:DataType="local:CompareSettingsWindow"
+		Width="650" Height="370"
+		MinHeight="370" MaxHeight="370"
+        WindowStartupLocation="CenterOwner">
+    <Window.Styles>
+		<Style Selector="TextBlock.Header">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Padding" Value="0,5"/>
+			<Setter Property="Background" Value="{StaticResource Background3}"/>
+		</Style>
+    </Window.Styles>
+    <Grid Margin="10" RowDefinitions="*,Auto">
+        <StackPanel Grid.Row="0">
+			<TextBlock Text="First game build" Classes="Header"/>
+			<local:GameProfileSettingsView DataContext="{Binding Game1}"
+										   Updated="{Binding #root.CheckIsValid}"/>
+			<TextBlock Text="Second game build" Classes="Header"/>
+			<local:GameProfileSettingsView DataContext="{Binding Game2}"
+										   Updated="{Binding #root.CheckIsValid}"/>
+        </StackPanel>
+        <Button x:Name="ApplyButton" Grid.Row="1" HorizontalAlignment="Center" Content="Apply" Width="100" Click="ApplyButton_Click" />
+    </Grid>
+</Window>

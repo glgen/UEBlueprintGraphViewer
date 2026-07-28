@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="UEBlueprintGraphViewer.Views.AssetInfoPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+             xmlns:vm="clr-namespace:UEBlueprintGraphViewer.ViewModels"
+             x:DataType="vm:AssetViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+	<UserControl.Styles>
+		<Style Selector="ListBox.Func">
+			<Setter Property="ItemTemplate">
+				<Setter.Value>
+					<DataTemplate x:DataType="vm:AssetFunctionViewModel">
+						<TextBlock Text="{Binding Name}"
+						           Padding="5,3"
+						           Background="Transparent"
+						           DoubleTapped="FunctionList_DoubleTapped"
+						           Classes.Comparable="True"
+						           Classes.IsAdded="{Binding ChangeStatus, ConverterParameter=Added, Converter={StaticResource ObjStrToBoolConverter}}"
+						           Classes.IsRemoved="{Binding ChangeStatus, ConverterParameter=Removed, Converter={StaticResource ObjStrToBoolConverter}}"
+						           Classes.IsChanged="{Binding ChangeStatus, ConverterParameter=Changed, Converter={StaticResource ObjStrToBoolConverter}}">
+						</TextBlock>
+					</DataTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style Selector="ListBox.Prop">
+			<Setter Property="ItemTemplate">
+				<Setter.Value>
+					<DataTemplate x:DataType="vm:AssetPropertyViewModel">
+						<StackPanel Orientation="Horizontal">
+							<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+							<TextBlock Text="{Binding Name}"
+							           Padding="5,3"
+							           Background="Transparent"
+							           DoubleTapped="PropertyList_DoubleTapped"
+							           Classes.Comparable="True"
+							           Classes.IsAdded="{Binding ChangeStatus, ConverterParameter=Added, Converter={StaticResource ObjStrToBoolConverter}}"
+							           Classes.IsRemoved="{Binding ChangeStatus, ConverterParameter=Removed, Converter={StaticResource ObjStrToBoolConverter}}"
+							           Classes.IsChanged="{Binding ChangeStatus, ConverterParameter=Changed, Converter={StaticResource ObjStrToBoolConverter}}">
+							</TextBlock>
+						</StackPanel>
+					</DataTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</UserControl.Styles>
+    <Grid Background="{StaticResource Background3}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition MinHeight="50"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition MinHeight="50"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition MinHeight="50"/>
+        </Grid.RowDefinitions>
+		<TextBox Classes="Search" Grid.Row="0" Text="{Binding FilterText}"/>
+        <Grid Grid.Row="1" Grid.RowSpan="2" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+	        <TextBlock Text="Event Graph"
+	                   Grid.Row="0"
+	                   Padding="5"/>
+	        <ListBox x:Name="EventList"
+	                 Classes="Func"
+	                 Grid.Row="1"
+	                 ItemsSource="{Binding EventsFiltered}"/>
+        </Grid>
+        <GridSplitter Grid.Row="2"/>
+        <Grid Grid.Row="3" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+	        <TextBlock Text="Functions"
+	                   Grid.Row="0"
+	                   Padding="5"/>
+	        <ListBox x:Name="FunctionList"
+	                 Classes="Func"
+	                 Grid.Row="1"
+	                 ItemsSource="{Binding FunctionsFiltered}"/>
+        </Grid>
+		<GridSplitter Grid.Row="4"/>
+		<Grid Grid.Row="5" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+			<TextBlock Text="Properties"
+			           Grid.Row="0"
+			           Padding="5"/>
+			<ListBox x:Name="PropertyList"
+			         Classes="Prop"
+			         Grid.Row="1"
+			         ItemsSource="{Binding Properties}"/>
+		</Grid>
+    </Grid>
+</UserControl>

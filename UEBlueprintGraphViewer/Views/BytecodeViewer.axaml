@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="UEBlueprintGraphViewer.Views.BytecodeViewer"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:UEBlueprintGraphViewer.Views"
+             xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+             x:DataType="local:BytecodeViewerViewModel"
+             mc:Ignorable="d"
+             Background="Transparent"
+             x:Name="root"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="100,Auto"
+              ColumnSpacing="5"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Top"
+              Margin="5"
+              IsVisible="{Binding !#root.IsNodeDetails}">
+            <TextBox Text="{Binding JumpToIndex}" PlaceholderText="Enter index"/>
+            <Button Content="Jump to index" Click="JumpToIndexButton_Click" Grid.Column="1"/>
+        </Grid>
+        <avaloniaEdit:TextEditor x:Name="Editor"
+                                 Grid.Row="1"
+                                 ShowLineNumbers="True"
+                                 IsReadOnly="True"
+                                 FontSize="10"
+                                 Background="{StaticResource Background2}"
+                                 FontFamily="avares://UEBlueprintGraphViewer/Resources#Roboto Mono"/>
+    </Grid>
+</UserControl>

@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="UEBlueprintGraphViewer.MacroViewerWindow"
+        WindowStartupLocation="CenterOwner"
+        Title="Macros">
+  <Grid ColumnDefinitions="200,5,*" RowDefinitions="*,Auto" Margin="5">
+	  <ListBox x:Name="MacroList"
+	           Grid.Column="0"
+	           SelectionChanged="MacroList_OnSelectionChanged"
+	           ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+		  <ListBox.Styles>
+			  <Style Selector="ListBoxItem">
+				  <Setter Property="Padding" Value="5,3"/>
+			  </Style>
+			  <Style Selector="TextBlock">
+				  <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+			  </Style>
+		  </ListBox.Styles>
+	  </ListBox>
+	  <Grid Grid.Row="1" RowDefinitions="Auto,Auto" ColumnSpacing="5" RowSpacing="5" ColumnDefinitions="*,*" VerticalAlignment="Bottom" Margin="5">
+		  <Button Grid.ColumnSpan="3" Content="Open folder" Click="OpenFolderButton_OnClick"/>
+		  <Button Grid.Column="0" Grid.Row="1" Content="Save" Click="SaveSelectedButton_OnClick"/>
+		  <Button Grid.Column="1" Grid.Row="1" Content="Reload" Click="ReloadButton_OnClick"/>
+	  </Grid>
+	  <GridSplitter Grid.RowSpan="2" Grid.Column="1"/>
+	  <local:GraphView2 Grid.RowSpan="2" Grid.Column="2" x:Name="Viewer"/>
+  </Grid>
+</Window>

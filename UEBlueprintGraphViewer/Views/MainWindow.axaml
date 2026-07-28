@@ -1,0 +1,134 @@
+﻿<Window x:Class="UEBlueprintGraphViewer.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+	    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+        xmlns:views="clr-namespace:UEBlueprintGraphViewer.Views"
+        xmlns:viewmodels="clr-namespace:UEBlueprintGraphViewer.ViewModels"
+		xmlns:assets="clr-namespace:UEBlueprintGraphViewer.Assets"
+        mc:Ignorable="d" Title="UE Blueprint Graph Viewer"
+		d:DesignWidth="1240" d:DesignHeight="750"
+        MinWidth="600" MinHeight="450"
+        WindowState="Maximized"
+		x:DataType="viewmodels:MainViewModel">
+	<Design.DataContext>
+		<viewmodels:MainViewModel/>
+	</Design.DataContext>
+	<Window.Resources>
+		<ContextMenu x:Key="AssetContextMenu">
+			<MenuItem Header="Open" Click="OpenAsset_OnClick"/>
+			<MenuItem Header="Find references" Click="FindReferences_OnClick"/>
+		</ContextMenu>
+	</Window.Resources>
+    <Grid ColumnDefinitions="280,5,*" Margin="5">
+        <Grid RowDefinitions="30,*">
+			<StackPanel Spacing="5" Orientation="Horizontal" VerticalAlignment="Top">
+				<Button Content="Settings" Width="78" Click="SettingsButton_Click"/>
+				<Button Content="Compare" Width="78" Click="CompareButton_Click"/>
+				<Button Content="Macros" Width="78" Click="MacrosButton_Click"/>
+			</StackPanel>
+			<TabControl x:Name="AssetsTabControl" Grid.Row="1">
+                <TabItem Header="Assets">
+					<Grid RowDefinitions="Auto,Auto,*" RowSpacing="5" Margin="0,5,0,0">
+						<Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="5,0">
+							<Button Grid.Column="0" Content="&lt;" Padding="5,0" FontWeight="SemiBold" Background="Transparent" Command="{Binding NavigateBack}"/>
+							<TextBlock Text="{Binding CurrentDir.FullPath}"
+							           MaxLines="1"
+							           Grid.Column="1"
+							           VerticalAlignment="Center"
+							           TextTrimming="LeadingCharacterEllipsis"/>
+						</Grid>
+						<Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="5,0">
+							<TextBox Margin="0" x:Name="FilterTextBox" Classes="Search" Text="{Binding FilterText}"/>
+							<Grid Grid.Column="1" ColumnDefinitions="Auto,Auto" ColumnSpacing="4" IsVisible="{Binding IsInCompareMode}" Margin="5,0,0,0">
+								<CheckBox x:Name="OnlyChangedCheckBox" IsChecked="{Binding ShowOnlyChanged}" Grid.Column="0" VerticalAlignment="Center"/>
+								<TextBlock Text="Only changed" VerticalAlignment="Center" Grid.Column="1"/>
+							</Grid>
+						</Grid>
+						<ListBox Grid.Row="2"
+						         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+						         ItemsSource="{Binding CurrentDir.ItemsSorted}"
+						         IsVisible="{Binding !#FlatFilesList.IsVisible}">
+							<ListBox.DataTemplates>
+								<DataTemplate x:DataType="assets:AssetDirectory">
+									<Grid DoubleTapped="AssetDirectory_OnDoubleTapped" Background="Transparent" ColumnDefinitions="16,*" Margin="5,0" ColumnSpacing="7">
+										<PathIcon Data="{StaticResource DirectoryIcon}" Width="16" Height="16" Margin="0,3"/>
+										<TextBlock Grid.Column="1"
+										           Text="{Binding Name}"
+										           VerticalAlignment="Center"
+										           TextTrimming="CharacterEllipsis"
+										           Classes.Comparable="True"
+										           Classes.IsAdded="{Binding ChangeStatus, ConverterParameter=Added, Converter={StaticResource ObjStrToBoolConverter}}"
+										           Classes.IsRemoved="{Binding ChangeStatus, ConverterParameter=Removed, Converter={StaticResource ObjStrToBoolConverter}}"
+										           Classes.IsChanged="{Binding ChangeStatus, ConverterParameter=Changed, Converter={StaticResource ObjStrToBoolConverter}}"/>
+									</Grid>
+								</DataTemplate>
+								<DataTemplate x:DataType="assets:AssetFile">
+									<Grid DoubleTapped="AssetsTree_DoubleTapped" Background="Transparent" ColumnDefinitions="Auto,*" Margin="5,0" ColumnSpacing="7" ContextMenu="{StaticResource AssetContextMenu}">
+										<PathIcon Data="{StaticResource FileIcon}" Width="16" Height="16" Margin="0,3"/>
+										<TextBlock Grid.Column="1" Text="{Binding Name}"
+										           VerticalAlignment="Center"
+										           TextTrimming="CharacterEllipsis"
+										           Classes.Comparable="True"
+										           Classes.IsAdded="{Binding ChangeStatus, ConverterParameter=Added, Converter={StaticResource ObjStrToBoolConverter}}"
+										           Classes.IsRemoved="{Binding ChangeStatus, ConverterParameter=Removed, Converter={StaticResource ObjStrToBoolConverter}}"
+										           Classes.IsChanged="{Binding ChangeStatus, ConverterParameter=Changed, Converter={StaticResource ObjStrToBoolConverter}}">
+										</TextBlock>
+									</Grid>
+								</DataTemplate>
+							</ListBox.DataTemplates>
+						</ListBox>
+						<ListBox Grid.Row="2"
+								 x:Name="FlatFilesList"
+								 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+								 ItemsSource="{Binding FlatFilesFiltered}">
+							<ListBox.IsVisible>
+								<MultiBinding Converter="{x:Static BoolConverters.Or}">
+									<Binding Path="#FilterTextBox.Text" Converter="{x:Static StringConverters.IsNotNullOrEmpty}"/>
+									<Binding Path="#OnlyChangedCheckBox.IsChecked"/>
+								</MultiBinding>
+							</ListBox.IsVisible>
+							<ListBox.ItemTemplate>
+								<DataTemplate x:DataType="assets:AssetFile">
+									<TextBlock Text="{Binding FullPath}"
+											   Padding="5,3"
+											   Background="Transparent"
+											   TextTrimming="LeadingCharacterEllipsis"
+											   DoubleTapped="AssetsTree_DoubleTapped"
+											   ContextMenu="{StaticResource AssetContextMenu}"
+											   Classes.Comparable="True"
+											   Classes.IsAdded="{Binding ChangeStatus, ConverterParameter=Added, Converter={StaticResource ObjStrToBoolConverter}}"
+											   Classes.IsRemoved="{Binding ChangeStatus, ConverterParameter=Removed, Converter={StaticResource ObjStrToBoolConverter}}"
+											   Classes.IsChanged="{Binding ChangeStatus, ConverterParameter=Changed, Converter={StaticResource ObjStrToBoolConverter}}">
+									</TextBlock>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <GridSplitter Grid.Column="1"/>
+        <Grid Grid.Column="2">
+            <TabControl x:Name="AssetsTabs">
+				<TabControl.Styles>
+					<Style Selector="TabItem.Closeable">
+						<Setter Property="HeaderTemplate">
+							<DataTemplate x:DataType="x:String">
+								<StackPanel Orientation="Horizontal" Spacing="7" PointerPressed="Tab_OnPointerPressed">
+									<TextBlock Text="{Binding .}"/>
+									<Button Content="x" Background="Transparent" Click="TabClose_OnClick" Padding="0"/>
+								</StackPanel>
+							</DataTemplate>
+						</Setter>
+					</Style>
+				</TabControl.Styles>
+	            
+	            <TabItem Header="Main" Tag="MainTab">
+		            <Button Content="Find unreferenced assets" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Click="FindUnreferenced_OnClick"/>
+	            </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>

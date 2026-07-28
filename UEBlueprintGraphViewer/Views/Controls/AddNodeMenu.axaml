@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:DataType="local:GameSettings"
+             x:Class="UEBlueprintGraphViewer.AddNodeMenu">
+	<UserControl.Styles>
+		<Style Selector="ListBox">
+			<Style Selector="^ /template/ Border#border">
+				<Setter Property="Background" Value="Transparent"/>
+			</Style>
+			<Setter Property="ItemTemplate">
+				<DataTemplate x:DataType="local:AddNodeMenuItemViewModel">
+					<TextBlock Text="{Binding Name}"></TextBlock>
+				</DataTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="ListBoxItem">
+			<Setter Property="Padding" Value="5"/>
+		</Style>
+	</UserControl.Styles>
+	<Grid MaxHeight="300">
+		<ListBox x:Name="DataList" SelectionChanged="DataList_OnSelectionChanged">
+		</ListBox>
+	</Grid>
+</UserControl>

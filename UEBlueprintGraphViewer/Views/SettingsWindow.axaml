@@ -1,0 +1,61 @@
+﻿<Window x:Class="UEBlueprintGraphViewer.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UEBlueprintGraphViewer"
+        x:DataType="local:Settings"
+        mc:Ignorable="d"
+        Title="Settings"
+        x:Name="root"
+		Width="650" Height="370"
+		MinHeight="370" MaxHeight="370"
+        WindowStartupLocation="CenterOwner"
+        Closing="Window_Closing">
+    <Window.Styles>
+		<Style Selector="TextBlock.Header">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Padding" Value="0,5"/>
+			<Setter Property="Background" Value="{StaticResource Background3}"/>
+		</Style>
+		<Style Selector="CheckBox">
+			<Setter Property="Margin" Value="3"/>
+		</Style>
+    </Window.Styles>
+    <Grid Margin="10" RowDefinitions="*,Auto">
+        <StackPanel Grid.Row="0">
+			<Grid>
+				<TextBlock Text="Game settings" Classes="Header"/>
+				<StackPanel Orientation="Horizontal" Spacing="3" Margin="3" HorizontalAlignment="Right">
+					<TextBlock Text="Game profile:" VerticalAlignment="Center"/>
+					<ComboBox ItemsSource="{Binding #root.Profiles}"
+							  SelectedItem="{Binding GameProfileName}"
+							  SelectionChanged="ProfileComboBox_SelectionChanged"
+							  MinWidth="130"/>
+					<Button Content="+" Width="24" Click="NewProfileButton_Click"/>
+				</StackPanel>
+			</Grid>
+			<local:GameProfileSettingsView DataContext="{Binding Game}" Updated="{Binding #root.CheckIsValid}"/>
+
+            <TextBlock Text="Decompiler settings" Classes="Header"/>
+            <Grid ColumnDefinitions="150,*" RowDefinitions="32,32">
+				<TextBlock Grid.Row="0" Text="Reorder events" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" ToolTip.Tip="Events will be decompiled in order of their ubergraph entry points" Classes="Hint"/>
+
+                <TextBlock Grid.Row="1" Text="Selected event first" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" ToolTip.Tip="Selected event will be decompiled first in the ubergraph" Classes="Hint"/>
+
+                <CheckBox IsChecked="{Binding ReorderEvents}" Grid.Column="1" Grid.Row="0"/>
+                <CheckBox IsChecked="{Binding SelectedEventFirst}" Grid.Column="1" Grid.Row="1"/>
+            </Grid>
+			<TextBlock Text="Viewer settings" Classes="Header"/>
+			<Grid ColumnDefinitions="150,*" RowDefinitions="32,32">
+				<TextBlock Grid.Row="0" Text="Enable MSAGL layout" VerticalAlignment="Center"/>
+				<TextBlock Grid.Row="0" ToolTip.Tip="MSAGL library will be used to layout nodes in graph. Might be mode chaotic or the opposite. Much longer to compute." Classes="Hint"/>
+
+				<CheckBox IsChecked="{Binding IsMSAGL}" Grid.Column="1" Grid.Row="0"/>
+			</Grid>
+        </StackPanel>
+        <Button x:Name="ApplyButton" Grid.Row="1" HorizontalAlignment="Center" Content="Apply" Width="100" Click="ApplyButton_Click" />
+    </Grid>
+</Window>

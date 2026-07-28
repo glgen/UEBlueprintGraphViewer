@@ -1,0 +1,21 @@
+﻿<Application x:Class="UEBlueprintGraphViewer.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:UEBlueprintGraphViewer.Converters"
+			 RequestedThemeVariant="Dark">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="avares://UEBlueprintGraphViewer/Views/Styles/ControlColors.axaml" />
+				<ResourceInclude Source="avares://UEBlueprintGraphViewer/Views/Styles/Icons.axaml" />
+			</ResourceDictionary.MergedDictionaries>
+	        <converters:ObjStrToBoolConverter x:Key="ObjStrToBoolConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+	
+	<Application.Styles>
+        <SimpleTheme />
+		<StyleInclude Source="avares://UEBlueprintGraphViewer/Views/Styles/ControlStyles.axaml"/>
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
+    </Application.Styles>
+</Application>
