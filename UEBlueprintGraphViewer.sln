@@ -12,8 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UEBlueprintGraphViewer.Tests", "UEBlueprintGraphViewer.Tests\UEBlueprintGraphViewer.Tests.csproj", "{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Verbose|Any CPU = Debug Verbose|Any CPU
@@ -33,12 +31,6 @@ Global
 		{E44438A6-2EEF-4495-817E-BD49ED7311D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E44438A6-2EEF-4495-817E-BD49ED7311D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E44438A6-2EEF-4495-817E-BD49ED7311D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Debug Verbose|Any CPU.ActiveCfg = Debug|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Debug Verbose|Any CPU.Build.0 = Debug|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B44D19A7-0F96-459C-BA74-A5C17EFFDA3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
