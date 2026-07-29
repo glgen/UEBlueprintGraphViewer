@@ -110,7 +110,8 @@ namespace UEBlueprintGraphViewer.Decompiler
                         toRemove.Add(assignments[0]);
                         var usagePin = node.VarPin.LinkedTo.First(o => o.ParentNode is not K2Node_AssignmentStatement);
                         usagePin.Value = assignments[0].ValuePin.Value;
-                        usagePin.LinkedTo = assignments[0].ValuePin.LinkedTo;
+                        foreach (var graphPin in assignments[0].ValuePin.LinkedTo)
+                            Connect(graphPin, usagePin);
                     }
                 }
             }
