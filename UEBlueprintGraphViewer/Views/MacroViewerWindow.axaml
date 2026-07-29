@@ -27,6 +27,8 @@
 		  <Button Grid.Column="1" Grid.Row="1" Content="Reload" Click="ReloadButton_OnClick"/>
 	  </Grid>
 	  <GridSplitter Grid.RowSpan="2" Grid.Column="1"/>
-	  <local:GraphView2 Grid.RowSpan="2" Grid.Column="2" x:Name="Viewer"/>
+	  <Grid Grid.RowSpan="2" Grid.Column="2">
+		  <local:GraphView2 x:Name="Viewer"/>
+	  </Grid>
   </Grid>
 </Window>
