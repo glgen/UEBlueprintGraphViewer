@@ -23,7 +23,7 @@
 		<TextBlock Grid.Row="3" Text="Mappings file" VerticalAlignment="Center"/>
 
 		<TextBlock Grid.Row="2" ToolTip.Tip="Object dump .txt file obtained from UE4SS" Classes="Hint"/>
-		<TextBlock Grid.Row="3" ToolTip.Tip=".usmap file for UE5 games" Classes="Hint"/>
+		<TextBlock Grid.Row="3" ToolTip.Tip=".usmap or .jmap file for UE5 games" Classes="Hint"/>
 
 
 		<TextBox Text="{Binding PaksFolder}" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0"/>

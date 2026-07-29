@@ -94,8 +94,8 @@ public partial class GameProfileSettingsView : UserControl
     {
         var files = await storageProvider.OpenFilePickerAsync(new()
         {
-            Title = "Select .usmap file",
-            FileTypeFilter = [new("Mappings file") { Patterns = ["*.usmap"] }]
+            Title = "Select .usmap/.jmap file",
+            FileTypeFilter = [new("Mappings file") { Patterns = ["*.usmap", "*.jmap"] }]
         });
 
         if (files.Any())

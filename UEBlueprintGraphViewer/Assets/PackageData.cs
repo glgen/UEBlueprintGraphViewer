@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CUE4Parse.UE4.Objects.Core.Misc;
-using CUE4Parse.MappingsProvider;
 using CUE4Parse.Encryption.Aes;
 using System.Threading.Tasks;
 using UEBlueprintGraphViewer.Assets;
 using CUE4Parse.Compression;
 using System;
+using CUE4Parse.MappingsProvider.Jmap;
+using CUE4Parse.MappingsProvider.Usmap;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Pak.Objects;
 
@@ -26,7 +27,10 @@ namespace UEBlueprintGraphViewer
             Provider = new DefaultFileProvider(game.PaksFolder, SearchOption.TopDirectoryOnly, new VersionContainer(game.UEVersion));
             if (!string.IsNullOrEmpty(game.Mappings))
             {
-                Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(game.Mappings);
+                if (game.Mappings.EndsWith(".usmap", StringComparison.OrdinalIgnoreCase))
+                    Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(game.Mappings);
+                else if (game.Mappings.EndsWith(".jmap", StringComparison.OrdinalIgnoreCase))
+                    Provider.MappingsContainer = new JmapTypeMappingsProvider(game.Mappings);
             }
             Provider.Initialize();
             Provider.SubmitKey(new FGuid(), new FAesKey(new byte[32]));
