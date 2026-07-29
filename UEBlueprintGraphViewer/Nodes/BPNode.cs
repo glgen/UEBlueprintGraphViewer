@@ -162,7 +162,7 @@ namespace UEBlueprintGraphViewer.Nodes
             }
 
             NodeWidth = InputPadding + InputSize + BodySize + OutputSize + OutputPadding;
-            NodeWidth = Math.Max(NodeWidth, Name.Length * CharSize);
+            NodeWidth = Math.Max(NodeWidth, Name.Length * CharSize + 20);
             NodeHeight += Math.Max(InputPinsHeight, OutputPinsHeight);
         }
 
