@@ -11,7 +11,7 @@
         x:DataType="l:DialogWindow"
         Title="DialogWindow">
 	<Grid RowDefinitions="*,*,Auto">
-		<TextBlock Text="{Binding MessageText}"
+		<SelectableTextBlock Text="{Binding MessageText}"
 				   TextWrapping="Wrap"
 				   Grid.Row="0"
 				   Margin="10"/>
