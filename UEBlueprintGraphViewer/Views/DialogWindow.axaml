@@ -2,11 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="clr-namespace:UEBlueprintGraphViewer"
         mc:Ignorable="d" Width="400"
 		WindowStartupLocation="CenterScreen"
 		SizeToContent="Height"
 		DataContext="{Binding $self}"
         x:Class="UEBlueprintGraphViewer.DialogWindow"
+        x:DataType="l:DialogWindow"
         Title="DialogWindow">
 	<Grid RowDefinitions="*,*,Auto">
 		<TextBlock Text="{Binding MessageText}"
