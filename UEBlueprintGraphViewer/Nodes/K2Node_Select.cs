@@ -12,6 +12,7 @@ namespace UEBlueprintGraphViewer.Nodes
         public List<GraphPin> Cases;
         public K2Node_Select(GraphPin IndexPin, List<GraphPin> Cases, KismetExpression Instr) : base("Select", Instr)
         {
+            Pure = true;
             this.IndexPin = IndexPin;
             this.Cases = Cases;
             MakePins();

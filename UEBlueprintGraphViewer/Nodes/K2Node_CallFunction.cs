@@ -69,6 +69,7 @@ namespace UEBlueprintGraphViewer.Nodes
                     parm.IsNameHidden = true;
             }
             Name = op;
+            Pure = true;
         }
 
         public string GetFunctionName()

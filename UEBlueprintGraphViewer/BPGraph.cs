@@ -131,6 +131,7 @@ namespace UEBlueprintGraphViewer
                             continue;
 
                         HashSet<BPNode> prev = node.Input
+                            .Where(o => o.PinType.PinCategory == PinType.exec)
                             .SelectMany(o => o.LinkedTo)
                             .Select(o => o.ParentNode)
                             .Where(o => !o.Pure)// && !o.HeaderHidden)
@@ -171,8 +172,9 @@ namespace UEBlueprintGraphViewer
                         var nextl = next.Select((o=> layers[o]));
                         if (nextl.Contains(int.MinValue))
                         {
+                            nextl = nextl.Where(o => o != int.MinValue);
                             found = true;
-                            continue;
+                            //continue;
                         }
                         
                         if (nextl.Any())

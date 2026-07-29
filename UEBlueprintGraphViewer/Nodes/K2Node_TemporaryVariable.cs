@@ -12,6 +12,7 @@ namespace UEBlueprintGraphViewer.Nodes
         public GraphPin VarPin;
         public K2Node_TemporaryVariable(string varName, GraphPinType type, KismetExpression? instr) : base($"Local {type.PinCategory}{GetNamePostfix(varName)}", instr)
         {
+            Pure = true;
             this.Type = type;
             MakePins();
         }
