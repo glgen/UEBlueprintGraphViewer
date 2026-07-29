@@ -17,7 +17,6 @@ namespace UEBlueprintGraphViewer
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                SystemUtils.FixAvaloniaFPSLimit();
                 MainWindow = new MainWindow();
                 desktop.MainWindow = MainWindow;
             }
