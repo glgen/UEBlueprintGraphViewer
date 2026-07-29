@@ -86,42 +86,38 @@ namespace UEBlueprintGraphViewer.Decompiler
 
             CheckUnreachedPoints();
             
-            // // remove temp variables if only used once
-            // List<BPNode> toRemove = [];
-            // foreach (var node in Graph.Nodes.OfType<K2Node_TemporaryVariable>())
-            // {
-            //     var assignments = node.VarPin.LinkedTo.Select(o => o.ParentNode).OfType<K2Node_AssignmentStatement>().ToArray();
-            //     // all assignments to a dynamic value
-            //     var assignmentsDynamic = assignments.Where(o => o.ValuePin.IsConnected).ToArray();
-            //     // all assignments to a static value
-            //     var assignmentsStatic = assignments.Where(o => !o.ValuePin.IsConnected).ToArray();
-            //     
-            //     // check if this variable is used only once and have only one static value in this graph
-            //     // 0 static - default value, 1 static - constant value
-            //     if (assignmentsStatic.Length <= 1 && assignmentsDynamic.Length == 0 &&
-            //         node.VarPin.LinkedTo.Count - assignments.Length == 1)
-            //     {
-            //         toRemove.Add(node);
-            //         if (assignmentsStatic.Length == 1)
-            //         {
-            //             assignmentsStatic[0].ExecPin!.LinkedTo[0].Disconnect(assignmentsStatic[0].ExecPin!);
-            //             if (assignmentsStatic[0].ExecOutPin!.LinkedTo.FirstOrDefault() != null)
-            //             {
-            //                 assignmentsStatic[0].ExecOutPin!.LinkedTo[0].Disconnect(assignmentsStatic[0].ExecOutPin!);
-            //                 Connect(assignmentsStatic[0].ExecPin!.LinkedTo[0], assignmentsStatic[0].ExecOutPin!.LinkedTo[0]);
-            //             }
-            //             toRemove.Add(assignmentsStatic[0]);
-            //             node.VarPin.LinkedTo.First(o => o.ParentNode is not K2Node_AssignmentStatement).Value =
-            //                 assignmentsStatic[0].ValuePin.Value;
-            //         }
-            //     }
-            // }
-            //
-            // foreach (var node in toRemove)
-            //     Graph.RemoveNode(node);
-            
             if (GlobalContext.IsParsingMacros)
                 Graph.ProcessMacros();
+            
+            // remove temp variables if only used once
+            List<BPNode> toRemove = [];
+            foreach (var node in Graph.Nodes.OfType<K2Node_TemporaryVariable>())
+            {
+                var assignments = node.VarPin.LinkedTo.Select(o => o.ParentNode).OfType<K2Node_AssignmentStatement>().ToArray();
+                // check if this variable is used only once and have only one static value in this graph
+                // 0 static - default value, 1 static - constant value
+                if (assignments.Length <= 1 && node.VarPin.LinkedTo.Count - assignments.Length == 1)
+                {
+                    toRemove.Add(node);
+                    if (assignments.Length == 1)
+                    {
+                        assignments[0].ExecPin!.LinkedTo[0].Disconnect(assignments[0].ExecPin!);
+                        if (assignments[0].ExecOutPin!.LinkedTo.FirstOrDefault() != null)
+                        {
+                            assignments[0].ExecOutPin!.LinkedTo[0].Disconnect(assignments[0].ExecOutPin!);
+                            Connect(assignments[0].ExecPin!.LinkedTo[0], assignments[0].ExecOutPin!.LinkedTo[0]);
+                        }
+                        toRemove.Add(assignments[0]);
+                        var usagePin = node.VarPin.LinkedTo.First(o => o.ParentNode is not K2Node_AssignmentStatement);
+                        usagePin.Value = assignments[0].ValuePin.Value;
+                        usagePin.LinkedTo = assignments[0].ValuePin.LinkedTo;
+                    }
+                }
+            }
+            
+            foreach (var node in toRemove)
+                Graph.RemoveNode(node);
+            
             if (Graph.Nodes.Any(o => o is K2Node_TemporaryVariable or K2Node_AssignmentStatement))
                 _result.AddProblem($"Found direct local variables calls. There is probably some unknown macro or unsupported special node.", null, false);
 
