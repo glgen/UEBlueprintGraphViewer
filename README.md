@@ -4,6 +4,27 @@ A tool for viewing compiled blueprint code of Unreal Engine 4-5 games. 4.25 and 
 
 ![screenshot.png](screenshot.png)
 
+### Features roadmap
+Blueprint decompilation:
+- Basic decompilation: done
+- Loops: done
+- Macros: mostly done (some built-in macros are missing)
+- Timelines: done
+- Input events: partially done
+- Delegates: done
+- Functions with multiple exec pins: not yet
+- Anim BPs: not yet
+
+References search:
+- Basic asset reference search: done
+- Search for unreferenced assets: done but might be inaccurate
+- Search for variable or function usage: not yet
+- Search inside a graph: not yet
+
+Not sure if i will do that:
+- Blueprints compilation
+- Runtime blueprint debugger
+
 ### How to use
 
 1. Install dev version of [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS) and a C++ mod for it to dump reflection data.
