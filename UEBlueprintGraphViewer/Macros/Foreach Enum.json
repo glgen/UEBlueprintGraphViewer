@@ -1,0 +1,1209 @@
+{
+  "Name": "Foreach Enum",
+  "Nodes": [
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 489,
+      "LocationY": -122,
+      "NodeWidth": 168,
+      "NodeHeight": 130,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "18752803-c74f-446a-9298-31fe7eb40ee0",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "74e955dd-0eb6-47c4-ad5a-878dc643cc96"
+          ]
+        },
+        {
+          "Guid": "16bc23a4-0dc1-478a-af5d-210ae4976fca",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "a77b455f-83a4-4662-b7ab-ef2307d80e93"
+          ]
+        },
+        {
+          "Guid": "bcc37314-fc93-486b-ade0-a584dd16465e",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "0",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "69c14bfd-2f61-437a-91d3-4fc62eca9b09",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f65fd822-6e64-4050-a6b2-dacbfe85b9ac"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 930,
+      "LocationY": -122,
+      "NodeWidth": 168,
+      "NodeHeight": 130,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "f65fd822-6e64-4050-a6b2-dacbfe85b9ac",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "69c14bfd-2f61-437a-91d3-4fc62eca9b09"
+          ]
+        },
+        {
+          "Guid": "63a26737-3778-4966-954e-3c232abb0466",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "b9cefcb2-0a27-48b9-a7fb-dbf936692af3"
+          ]
+        },
+        {
+          "Guid": "fbd63ad2-f424-495d-a4b6-11fe69240e31",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "0",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "7ee5d84c-5ff1-4c0f-bc0b-c1936021334b",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f1a5a89f-853b-49e3-a3c9-22401d0ff30c"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Local Int",
+      "NodeType": "K2Node_TemporaryVariable",
+      "LocationX": -136,
+      "LocationY": 238,
+      "NodeWidth": 123,
+      "NodeHeight": 66,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [],
+      "Output": [
+        {
+          "Guid": "a77b455f-83a4-4662-b7ab-ef2307d80e93",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "16bc23a4-0dc1-478a-af5d-210ae4976fca",
+            "8a9c78c7-d083-46ae-b89e-f6d66701bc4d",
+            "4c040f0d-fd5e-4078-b792-cbae756527f5",
+            "f6f3ddd2-abd8-4560-9999-650691796af0",
+            "e0ddbf2f-7af7-4751-ac25-8eb4c51ba6d8"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Local Int",
+      "NodeType": "K2Node_TemporaryVariable",
+      "LocationX": -135,
+      "LocationY": 478,
+      "NodeWidth": 123,
+      "NodeHeight": 66,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [],
+      "Output": [
+        {
+          "Guid": "b9cefcb2-0a27-48b9-a7fb-dbf936692af3",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "63a26737-3778-4966-954e-3c232abb0466",
+            "877f004b-ba46-480a-b95a-b58621081e6a",
+            "2195eba5-3f0b-4ed4-9529-43a42415b39d"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 505,
+      "LocationY": 238,
+      "NodeWidth": 99,
+      "NodeHeight": 32,
+      "HeaderHidden": true,
+      "HeaderCenter": false,
+      "ShowNameAsBody": true,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "4c040f0d-fd5e-4078-b792-cbae756527f5",
+          "PinName": "inInt",
+          "PinFriendlyName": "inInt",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "a77b455f-83a4-4662-b7ab-ef2307d80e93"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "26fff252-30e2-453a-aacd-428a5077ecb5",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "3a3b2bca-d26f-414e-939d-5cac15121315"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "MakeLiteralInt",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 505,
+      "LocationY": 64,
+      "NodeWidth": 245,
+      "NodeHeight": 66,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "723a2435-e0f9-4a53-9372-30ff85341221",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "74e955dd-0eb6-47c4-ad5a-878dc643cc98"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "adde8503-9b58-4c92-bd73-b9a6ced5812d",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "15c9a1c6-84cb-4acd-89ab-112ee86eaaa9"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "<",
+      "NodeType": "K2Node_PromotableOperator",
+      "LocationX": 1010,
+      "LocationY": 62,
+      "NodeWidth": 99,
+      "NodeHeight": 64,
+      "HeaderHidden": true,
+      "HeaderCenter": false,
+      "ShowNameAsBody": true,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "8a9c78c7-d083-46ae-b89e-f6d66701bc4d",
+          "PinName": "A",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "a77b455f-83a4-4662-b7ab-ef2307d80e93"
+          ]
+        },
+        {
+          "Guid": "15c9a1c6-84cb-4acd-89ab-112ee86eaaa9",
+          "PinName": "B",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "adde8503-9b58-4c92-bd73-b9a6ced5812d"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "95d6df95-9d68-4e6e-84eb-a046a01b932c",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "c08c8f78-8369-49b7-a437-5f71a78714f1"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "GetEnumeratorValueFromIndex",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 1010,
+      "LocationY": 176,
+      "NodeWidth": 343,
+      "NodeHeight": 98,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "182105f8-2957-4966-8153-1a70b053d239",
+          "PinName": "Enum",
+          "PinFriendlyName": "Enum",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 18,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "74e955dd-0eb6-47c4-ad5a-878dc643cc97"
+          ]
+        },
+        {
+          "Guid": "3a3b2bca-d26f-414e-939d-5cac15121315",
+          "PinName": "EnumeratorIndex",
+          "PinFriendlyName": "EnumeratorIndex",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "26fff252-30e2-453a-aacd-428a5077ecb5"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "12e40c33-2f81-4d24-b22a-0f47d1ef84a9",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "6ac25d86-a688-4631-bd36-0e0afe927afd"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Branch",
+      "NodeType": "K2Node_IfThenElse",
+      "LocationX": 1495,
+      "LocationY": 0,
+      "NodeWidth": 197,
+      "NodeHeight": 98,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "f1a5a89f-853b-49e3-a3c9-22401d0ff30c",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "7ee5d84c-5ff1-4c0f-bc0b-c1936021334b",
+            "d8e2bb8c-260f-43a8-a9aa-0e07b32bf0b4"
+          ]
+        },
+        {
+          "Guid": "c08c8f78-8369-49b7-a437-5f71a78714f1",
+          "PinName": "Condition",
+          "PinFriendlyName": "Condition",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 2,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "95d6df95-9d68-4e6e-84eb-a046a01b932c"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "42f62124-cc33-4f37-88f7-e877813dadf1",
+          "PinName": "then",
+          "PinFriendlyName": "True",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "2ac0ce3f-7268-4288-b23c-65e764a502d2"
+          ]
+        },
+        {
+          "Guid": "b78aa556-519a-4341-bf99-69e0ec3e3efe",
+          "PinName": "else",
+          "PinFriendlyName": "False",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f19b0417-2995-4003-aaa5-2de310a2a6d1"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 1495,
+      "LocationY": 148,
+      "NodeWidth": 99,
+      "NodeHeight": 32,
+      "HeaderHidden": true,
+      "HeaderCenter": false,
+      "ShowNameAsBody": true,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "6ac25d86-a688-4631-bd36-0e0afe927afd",
+          "PinName": "InByte",
+          "PinFriendlyName": "InByte",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "12e40c33-2f81-4d24-b22a-0f47d1ef84a9"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "b7589a67-f570-4e26-98d7-cd38078dda13",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "34bea32a-f0f8-4b74-b5b3-c6efd08a33f1"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 2000,
+      "LocationY": 0,
+      "NodeWidth": 155,
+      "NodeHeight": 130,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "2ac0ce3f-7268-4288-b23c-65e764a502d2",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "42f62124-cc33-4f37-88f7-e877813dadf1"
+          ]
+        },
+        {
+          "Guid": "877f004b-ba46-480a-b95a-b58621081e6a",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "b9cefcb2-0a27-48b9-a7fb-dbf936692af3"
+          ]
+        },
+        {
+          "Guid": "34bea32a-f0f8-4b74-b5b3-c6efd08a33f1",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "b7589a67-f570-4e26-98d7-cd38078dda13"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "d41638e6-395f-432d-9a22-3cfd2f038e5b",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "6be8aecf-1630-4db4-8740-d298f9fb1783"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Sequence",
+      "NodeType": "K2Node_ExecutionSequence",
+      "LocationX": 2344,
+      "LocationY": 0,
+      "NodeWidth": 141,
+      "NodeHeight": 98,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "6be8aecf-1630-4db4-8740-d298f9fb1783",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "d41638e6-395f-432d-9a22-3cfd2f038e5b"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "5bb85d49-561a-4dac-9a5a-7642d234b3b0",
+          "PinName": "Then 0",
+          "PinFriendlyName": "Then 0",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f19b0417-2995-4003-aaa5-2de310a2a6d0"
+          ]
+        },
+        {
+          "Guid": "17704218-3d74-4f89-9d15-7bbfcb94d236",
+          "PinName": "Then 1",
+          "PinFriendlyName": "Then 1",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "159bbda2-cdf3-43d4-a272-fcca1613a533"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Assign",
+      "NodeType": "K2Node_AssignmentStatement",
+      "LocationX": 2849,
+      "LocationY": 276,
+      "NodeWidth": 155,
+      "NodeHeight": 130,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": false,
+      "Input": [
+        {
+          "Guid": "159bbda2-cdf3-43d4-a272-fcca1613a533",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "17704218-3d74-4f89-9d15-7bbfcb94d236"
+          ]
+        },
+        {
+          "Guid": "e0ddbf2f-7af7-4751-ac25-8eb4c51ba6d8",
+          "PinName": "Variable",
+          "PinFriendlyName": "Variable",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "a77b455f-83a4-4662-b7ab-ef2307d80e93"
+          ]
+        },
+        {
+          "Guid": "53af8697-cf2a-4439-b193-4615eb1f160f",
+          "PinName": "Value",
+          "PinFriendlyName": "Value",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "648ffbe4-97fd-4c18-9bd9-b592275a32c8"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "d8e2bb8c-260f-43a8-a9aa-0e07b32bf0b4",
+          "PinName": "then",
+          "PinFriendlyName": "then",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "f1a5a89f-853b-49e3-a3c9-22401d0ff30c"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "+",
+      "NodeType": "K2Node_PromotableOperator",
+      "LocationX": 2344,
+      "LocationY": 370,
+      "NodeWidth": 133,
+      "NodeHeight": 64,
+      "HeaderHidden": true,
+      "HeaderCenter": false,
+      "ShowNameAsBody": true,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "f6f3ddd2-abd8-4560-9999-650691796af0",
+          "PinName": "A",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "a77b455f-83a4-4662-b7ab-ef2307d80e93"
+          ]
+        },
+        {
+          "Guid": "f0d07590-bec1-40a1-b05c-298305587316",
+          "PinName": "B",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "1",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": []
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "648ffbe4-97fd-4c18-9bd9-b592275a32c8",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "53af8697-cf2a-4439-b193-4615eb1f160f"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 2344,
+      "LocationY": 518,
+      "NodeWidth": 99,
+      "NodeHeight": 32,
+      "HeaderHidden": true,
+      "HeaderCenter": false,
+      "ShowNameAsBody": true,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "2195eba5-3f0b-4ed4-9529-43a42415b39d",
+          "PinName": "inInt",
+          "PinFriendlyName": "inInt",
+          "PinType": {
+            "PinSubCategoryObject": "",
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "b9cefcb2-0a27-48b9-a7fb-dbf936692af3"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "9b40f540-67c7-456b-9797-ae53fc13e8c4",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "7f34cef9-2477-4b30-829e-5923721292ad"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "GetValidValue",
+      "NodeType": "K2Node_CallFunction",
+      "LocationX": 2849,
+      "LocationY": 456,
+      "NodeWidth": 343,
+      "NodeHeight": 98,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "b5610684-a841-46db-a5de-2c29b2bf0dfe",
+          "PinName": "Enum",
+          "PinFriendlyName": "Enum",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 18,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "74e955dd-0eb6-47c4-ad5a-878dc643cc97"
+          ]
+        },
+        {
+          "Guid": "7f34cef9-2477-4b30-829e-5923721292ad",
+          "PinName": "EnumeratorValue",
+          "PinFriendlyName": "EnumeratorValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "9b40f540-67c7-456b-9797-ae53fc13e8c4"
+          ]
+        }
+      ],
+      "Output": [
+        {
+          "Guid": "21acb4d8-0e2f-41d0-8f6d-573dbb663e5e",
+          "PinName": "ReturnValue",
+          "PinFriendlyName": "ReturnValue",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "ac317dc5-6750-46d5-805f-7ded70efddf2"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Inputs",
+      "NodeType": "K2Node_Tunnel",
+      "LocationX": -159,
+      "LocationY": 0,
+      "NodeWidth": 109,
+      "NodeHeight": 66,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [],
+      "Output": [
+        {
+          "Guid": "74e955dd-0eb6-47c4-ad5a-878dc643cc96",
+          "PinName": "exec",
+          "PinFriendlyName": "",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "18752803-c74f-446a-9298-31fe7eb40ee0"
+          ]
+        },
+        {
+          "Guid": "74e955dd-0eb6-47c4-ad5a-878dc643cc97",
+          "PinName": "Enum",
+          "PinFriendlyName": "Enum",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 18,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "182105f8-2957-4966-8153-1a70b053d239",
+            "b5610684-a841-46db-a5de-2c29b2bf0dfe"
+          ]
+        },
+        {
+          "Guid": "74e955dd-0eb6-47c4-ad5a-878dc643cc98",
+          "PinName": "Max index",
+          "PinFriendlyName": "Max index",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 5,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "723a2435-e0f9-4a53-9372-30ff85341221"
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Outputs",
+      "NodeType": "K2Node_Tunnel",
+      "LocationX": 3242,
+      "LocationY": 0,
+      "NodeWidth": 123,
+      "NodeHeight": 98,
+      "HeaderHidden": false,
+      "HeaderCenter": false,
+      "ShowNameAsBody": false,
+      "Pure": true,
+      "Input": [
+        {
+          "Guid": "f19b0417-2995-4003-aaa5-2de310a2a6d0",
+          "PinName": "execute",
+          "PinFriendlyName": "execute",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": true,
+          "IsHidden": false,
+          "LinkedTo": [
+            "5bb85d49-561a-4dac-9a5a-7642d234b3b0"
+          ]
+        },
+        {
+          "Guid": "ac317dc5-6750-46d5-805f-7ded70efddf2",
+          "PinName": "Enum value",
+          "PinFriendlyName": "Enum value",
+          "PinType": {
+            "PinSubCategoryObject": "None",
+            "PinCategory": 3,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "21acb4d8-0e2f-41d0-8f6d-573dbb663e5e"
+          ]
+        },
+        {
+          "Guid": "f19b0417-2995-4003-aaa5-2de310a2a6d1",
+          "PinName": "Completed",
+          "PinFriendlyName": "Completed",
+          "PinType": {
+            "PinSubCategoryObject": null,
+            "PinCategory": 1,
+            "PinSubCategory": 0,
+            "ContainerType": 0,
+            "IsReference": false
+          },
+          "Value": "",
+          "IsNameHidden": false,
+          "IsHidden": false,
+          "LinkedTo": [
+            "b78aa556-519a-4341-bf99-69e0ec3e3efe"
+          ]
+        }
+      ],
+      "Output": []
+    }
+  ]
+}
