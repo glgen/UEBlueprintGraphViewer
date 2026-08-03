@@ -8,8 +8,8 @@
         mc:Ignorable="d"
         Title="Settings"
         x:Name="root"
-		Width="650" Height="370"
-		MinHeight="370" MaxHeight="370"
+		Width="650" Height="390"
+		MinHeight="390" MaxHeight="390"
         WindowStartupLocation="CenterOwner"
         Closing="Window_Closing">
     <Window.Styles>

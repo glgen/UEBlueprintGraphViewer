@@ -92,13 +92,16 @@ namespace UEBlueprintGraphViewer
         public string ProfileName { get; set; }
 
         [ObservableProperty]
-        private string paksFolder;
+        private string _paksFolder;
 
         [ObservableProperty]
-        private string objectDump;
+        private string _objectDump;
 
         [ObservableProperty]
-        private string mappings;
+        private string _mappings;
+        
+        [ObservableProperty]
+        private string _encryptionKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
         [ObservableProperty]
         private EGame _UEVersion = EGame.GAME_UE5_5;
@@ -122,6 +125,7 @@ namespace UEBlueprintGraphViewer
             ObjectDump = game.ObjectDump;
             Mappings = game.Mappings;
             UEVersion = game.UEVersion;
+            EncryptionKey = game.EncryptionKey;
         }
 
         public void LoadParamDumpings()

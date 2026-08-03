@@ -123,4 +123,9 @@ public partial class GameProfileSettingsView : UserControl
     {
         game.Mappings = "";
     }
+    
+    private void EraseAESButton_Click(object sender, RoutedEventArgs e)
+    {
+        game.EncryptionKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    }
 }

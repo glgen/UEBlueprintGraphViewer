@@ -33,8 +33,9 @@ namespace UEBlueprintGraphViewer
                     Provider.MappingsContainer = new JmapTypeMappingsProvider(game.Mappings);
             }
             Provider.Initialize();
-            Provider.SubmitKey(new FGuid(), new FAesKey(new byte[32]));
+            Provider.SubmitKey(new FGuid(), new FAesKey(game.EncryptionKey));
             Provider.TryChangeCulture("en");
+            Provider.PostMount();
             Provider.LoadVirtualPaths();
             Provider.ReadScriptData = true;
             Provider.SkipReferencedTextures = true;
