@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia;
@@ -14,6 +15,7 @@ using UEBlueprintGraphViewer.Engine;
 using UEBlueprintGraphViewer.Nodes;
 using UEBlueprintGraphViewer.ViewModels;
 using UEBlueprintGraphViewer.Views;
+using UEBlueprintGraphViewer.Views.Controls;
 using UEBlueprintGraphViewer.Views.Renderers;
 
 namespace UEBlueprintGraphViewer;
@@ -35,10 +37,28 @@ public class GraphView2 : ContentControl
         get => editor;
         set
         {
+            editor?.PropertyChanged -= EditorOnPropertyChanged;
             editor = value;
             editor?.SelectedNodes.Clear();
             mouseOverNode = null;
             InvalidateVisual();
+            GraphViewSearch search = new() { DataContext = editor };
+            Content = search;
+            editor?.PropertyChanged += EditorOnPropertyChanged;
+        }
+    }
+    
+    private void EditorOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(EditorViewModel.SearchResult))
+        {
+            InvalidateVisual();
+        }
+        else if (e.PropertyName == nameof(EditorViewModel.SearchResultIndex))
+        {
+            var node = Editor?.SearchResult.ElementAtOrDefault(Editor.SearchResultIndex);
+            if (node != null)
+                Autopanner.PanToCentered(new(node.X, node.Y));
         }
     }
     
@@ -98,6 +118,14 @@ public class GraphView2 : ContentControl
     {
         Translation = translation;
         InvalidateVisual();
+    }
+    
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.F)
+        {
+            Editor?.IsSearchVisible = !Editor.IsSearchVisible;
+        }
     }
     
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -300,6 +328,7 @@ public class GraphView2 : ContentControl
         static SKPaint nodeRemovedBackg = SkiaUtils.MakePaint(136,40,40);
         static SKPaint nodeBorder = SkiaUtils.MakeStroke(SKColors.Black, 1);
         static SKPaint nodeSelectedBorder = SkiaUtils.MakeStroke(SKColors.Orange, 1);
+        static SKPaint nodeSearchResultBorder = SkiaUtils.MakeStroke(SKColors.White, 3);
         static SKPaint nodeValue = SkiaUtils.MakePaint(34,34,34);
         private static SKPaint nodeValueBorder = SkiaUtils.MakeStroke(1, 153, 153, 153);
         static SKPaint selection = SkiaUtils.MakePaint(30,50,80, 70);
@@ -367,7 +396,13 @@ public class GraphView2 : ContentControl
                         foreach (var node in view.Editor.SelectedNodes)
                         {
                             canvas.DrawRoundRect(node.X, node.Y,
-                                node.NodeWidth, node.NodeHeight, 5,5, nodeSelectedBorder);
+                                node.NodeWidth, node.NodeHeight, 5, 5, nodeSelectedBorder);
+                        }
+                        
+                        foreach (var node in view.Editor.SearchResult)
+                        {
+                            canvas.DrawRoundRect(node.X, node.Y,
+                                node.NodeWidth, node.NodeHeight, 5, 5, nodeSearchResultBorder);
                         }
                     }
                 }

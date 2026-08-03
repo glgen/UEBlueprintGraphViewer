@@ -39,7 +39,28 @@ namespace UEBlueprintGraphViewer.Views
             FirstViewer.OnPanned += delta => PanAnotherViewer(delta, FirstViewer, SecondViewer);
             SecondViewer.OnPanned += delta => PanAnotherViewer(delta, SecondViewer, FirstViewer);
             
+            AssetInfoPanel.OnPropertySearchInCurrentGraph += OnPropertySearchInCurrentGraph;
+            AssetInfoPanel.OnFunctionSearchInCurrentGraph += OnFunctionSearchInCurrentGraph;
+            
             UpdateSecondViewerState();
+        }
+        
+        private void OnPropertySearchInCurrentGraph(object? sender, string e)
+        {
+            GraphViewModel.IsSearchExact = true;
+            GraphViewModel.IsSearchingVariable = true;
+            GraphViewModel.IsSearchingFunction = false;
+            GraphViewModel.SearchTerm = e;
+            GraphViewModel.IsSearchVisible = true;
+        }
+        
+        private void OnFunctionSearchInCurrentGraph(object? sender, string e)
+        {
+            GraphViewModel.IsSearchExact = true;
+            GraphViewModel.IsSearchingVariable = false;
+            GraphViewModel.IsSearchingFunction = true;
+            GraphViewModel.SearchTerm = e;
+            GraphViewModel.IsSearchVisible = true;
         }
 
         public BPGraphViewer(AssetViewModel asset) : this()

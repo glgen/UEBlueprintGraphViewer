@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Linq;
@@ -30,6 +31,27 @@ namespace UEBlueprintGraphViewer.ViewModels
 
         [ObservableProperty]
         private double _viewportZoom = 1;
+        
+        [ObservableProperty]
+        private bool _isSearchVisible;
+        
+        [ObservableProperty]
+        private string _searchTerm;
+        
+        [ObservableProperty]
+        private bool _isSearchingFunction;
+        
+        [ObservableProperty]
+        private bool _isSearchingVariable;
+        
+        [ObservableProperty]
+        private bool _isSearchExact;
+        
+        [ObservableProperty]
+        private List<BPNode> _searchResult = [];
+        
+        [ObservableProperty]
+        private int _searchResultIndex;
 
         public void RemoveNode(BPNode node)
         {
@@ -71,6 +93,49 @@ namespace UEBlueprintGraphViewer.ViewModels
         {
             if (!Connections.Any(x => x.Source == from && x.Target == to))
                 Connections.Add(new ConnectionViewModel(from, to));
+        }
+        
+        partial void OnSearchTermChanged(string? oldValue, string newValue) => UpdateSearchResult();
+
+        partial void OnIsSearchingFunctionChanged(bool value) => UpdateSearchResult();
+
+        partial void OnIsSearchingVariableChanged(bool value) => UpdateSearchResult();
+
+        partial void OnIsSearchExactChanged(bool value) => UpdateSearchResult();
+
+        private void UpdateSearchResult()
+        {
+            SearchResultIndex = 0;
+            
+            if (string.IsNullOrEmpty(SearchTerm))
+            {
+                SearchResult = [];
+                return;
+            }
+            
+            SearchResult = Nodes.Where(o =>
+            {
+                if (IsSearchingFunction && o is K2Node_CallFunction or K2Node_FunctionEntry && Compare(o.Name))
+                    return true;
+                if (IsSearchingVariable && (
+                        (o is K2Node_VariableGet get && Compare(get.VarPin.PinFriendlyName)) ||
+                        (o is K2Node_VariableSet set && Compare(set.ValuePin.PinFriendlyName))))
+                    return true;
+                
+                if (!IsSearchingVariable && !IsSearchingFunction)
+                    return Compare(o.Name) || 
+                           o.Input.Any(o => !o.IsHidden && (Compare(o.PinFriendlyName) || Compare(o.Value))) ||
+                           o.Output.Any(o => !o.IsHidden && Compare(o.PinFriendlyName));
+
+                return false;
+            }).ToList();
+
+            bool Compare(string source)
+            {
+                if (IsSearchExact)
+                    return source == SearchTerm;
+                return source.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 }

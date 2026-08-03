@@ -5,7 +5,7 @@ namespace UEBlueprintGraphViewer.Nodes
     public class K2Node_VariableSet : BPNode
     {
         // Variable
-        private GraphPin ValuePin;
+        public GraphPin ValuePin;
 
         // Object to set this variable
         private GraphPin? ContextPin;

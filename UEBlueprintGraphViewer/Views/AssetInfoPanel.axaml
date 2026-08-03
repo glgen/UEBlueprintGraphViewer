@@ -64,7 +64,14 @@
 	        <ListBox x:Name="EventList"
 	                 Classes="Func"
 	                 Grid.Row="1"
-	                 ItemsSource="{Binding EventsFiltered}"/>
+	                 ItemsSource="{Binding EventsFiltered}">
+		        <ListBox.ContextMenu>
+			        <ContextMenu>
+				        <MenuItem Header="Search in current graph"
+				                  Click="EventSearchInCurrentGraph_OnClick"/>
+			        </ContextMenu>
+		        </ListBox.ContextMenu>
+	        </ListBox>
         </Grid>
         <GridSplitter Grid.Row="2"/>
         <Grid Grid.Row="3" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
@@ -74,7 +81,14 @@
 	        <ListBox x:Name="FunctionList"
 	                 Classes="Func"
 	                 Grid.Row="1"
-	                 ItemsSource="{Binding FunctionsFiltered}"/>
+	                 ItemsSource="{Binding FunctionsFiltered}">
+		        <ListBox.ContextMenu>
+			        <ContextMenu>
+				        <MenuItem Header="Search in current graph"
+				                  Click="FunctionSearchInCurrentGraph_OnClick"/>
+			        </ContextMenu>
+		        </ListBox.ContextMenu>
+	        </ListBox>
         </Grid>
 		<GridSplitter Grid.Row="4"/>
 		<Grid Grid.Row="5" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
@@ -84,7 +98,14 @@
 			<ListBox x:Name="PropertyList"
 			         Classes="Prop"
 			         Grid.Row="1"
-			         ItemsSource="{Binding Properties}"/>
+			         ItemsSource="{Binding Properties}">
+				<ListBox.ContextMenu>
+					<ContextMenu>
+						<MenuItem Header="Search in current graph"
+						          Click="PropertySearchInCurrentGraph_OnClick"/>
+					</ContextMenu>
+				</ListBox.ContextMenu>
+			</ListBox>
 		</Grid>
     </Grid>
 </UserControl>

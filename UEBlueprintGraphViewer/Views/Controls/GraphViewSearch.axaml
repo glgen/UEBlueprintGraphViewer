@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:UEBlueprintGraphViewer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             IsVisible="{Binding IsSearchVisible}"
+             PropertyChanged="Root_OnPropertyChanged"
+             x:DataType="vm:EditorViewModel"
+             x:Class="UEBlueprintGraphViewer.Views.Controls.GraphViewSearch">
+    <Border Background="{StaticResource Background2}"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left">
+        <Grid>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
+                <TextBox Text="{Binding SearchTerm}" x:Name="SearchTextBox" KeyDown="InputElement_OnKeyDown" Classes="Search" Width="200" Margin="0" VerticalAlignment="Center"/>
+                <CheckBox Content="Exact" IsChecked="{Binding IsSearchExact}"/>
+                <CheckBox Content="Function" IsChecked="{Binding IsSearchingFunction}"/>
+                <CheckBox Content="Variable" IsChecked="{Binding IsSearchingVariable}"/>
+                <TextBlock VerticalAlignment="Center">
+                    <Run Text="{Binding SearchResult.Count}"/>
+                    <Run Text="results"/>
+                </TextBlock>
+                <Button Content="&lt;" VerticalAlignment="Center" Click="BackButton_OnClick"/>
+                <Button Content="&gt;" VerticalAlignment="Center" Click="NextButton_OnClick"/>
+                <Button Content="X" VerticalAlignment="Center" Click="CloseButton_OnClick"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
