@@ -23,11 +23,11 @@
 	</Window.Resources>
     <Grid ColumnDefinitions="280,5,*" Margin="5">
         <Grid RowDefinitions="30,*">
-			<StackPanel Spacing="5" Orientation="Horizontal" VerticalAlignment="Top">
-				<Button Content="Settings" Width="78" Click="SettingsButton_Click"/>
-				<Button Content="Compare" Width="78" Click="CompareButton_Click"/>
-				<Button Content="Macros" Width="78" Click="MacrosButton_Click"/>
-			</StackPanel>
+			<Grid ColumnSpacing="5" ColumnDefinitions="*,*,*" VerticalAlignment="Top">
+				<Button Grid.Column="0" Content="Settings" Click="SettingsButton_Click"/>
+				<Button Grid.Column="1" Content="Compare" Click="CompareButton_Click"/>
+				<Button Grid.Column="2" Content="Macros" Click="MacrosButton_Click"/>
+			</Grid>
 			<TabControl x:Name="AssetsTabControl" Grid.Row="1">
                 <TabItem Header="Assets">
 					<Grid RowDefinitions="Auto,Auto,*" RowSpacing="5" Margin="0,5,0,0">
@@ -126,7 +126,10 @@
 				</TabControl.Styles>
 	            
 	            <TabItem Header="Main" Tag="MainTab">
-		            <Button Content="Find unreferenced assets" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Click="FindUnreferenced_OnClick"/>
+		            <Grid>
+			            <TextBlock Text="{Binding StatusText}" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			            <Button Content="Find unreferenced assets" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Click="FindUnreferenced_OnClick"/>
+		            </Grid>
 	            </TabItem>
             </TabControl>
         </Grid>

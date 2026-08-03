@@ -49,6 +49,9 @@ namespace UEBlueprintGraphViewer.ViewModels
         }
 
 
+        [ObservableProperty]
+        private string _statusText;
+        
         public void PopulateTree(List<string> assets, List<string>? added = null, List<string>? removed = null, List<string>? modified = null)
         {
             Stopwatch sw = Stopwatch.StartNew();

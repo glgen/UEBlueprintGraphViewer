@@ -90,13 +90,16 @@ namespace UEBlueprintGraphViewer
                     await TryLoadPackage(Settings.Instance.Game) is not {} p)
                     return;
 
+                viewModel.StatusText = "Building directory tree...";
                 Package = p;
                 viewModel.PopulateTree([.. Package.Assets.Select(o => o.Path)]);
+                viewModel.StatusText = "";
             }
         }
 
-        private static async Task<PackageData?> TryLoadPackage(GameSettings game)
+        private async Task<PackageData?> TryLoadPackage(GameSettings game)
         {
+            viewModel.StatusText = "Loading package...";
             try
             {
                 return await PackageData.LoadPackageAsync(game);
@@ -108,11 +111,12 @@ namespace UEBlueprintGraphViewer
             }
         }
 
-        private static async Task<bool> TryLoadDump(GameSettings game)
+        private async Task<bool> TryLoadDump(GameSettings game)
         {
+            viewModel.StatusText = "Reading .jmap...";
             try
             {
-                game.LoadParamDumpings();
+                await Task.Run(game.LoadParamDumpings);
                 return true;
             }
             catch (Exception e)
@@ -176,7 +180,7 @@ namespace UEBlueprintGraphViewer
                 await LoadDumpAndPackage();
             
 
-            static async Task<bool> LoadDumpAndPackage()
+            async Task<bool> LoadDumpAndPackage()
             {
                 if (!await TryLoadDump(Settings.Instance.CompareGame1!) ||
                     !await TryLoadDump(Settings.Instance.CompareGame2!) ||
