@@ -27,16 +27,28 @@ Not sure if i will do that:
 
 ### How to use
 
-1. Install dev version of [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS) and a C++ mod for it to dump reflection data.
-Mod was tested on [zDEV-UE4SS_v3.0.1-1016-g6c26f038.zip](https://github.com/UE4SS-RE/RE-UE4SS/releases/download/experimental/zDEV-UE4SS_v3.0.1-1016-g6c26f038.zip). It may not work in different versions.
+To use the tool you need to create a dump from the game process using [jmap_dumper](https://github.com/trumank/jmap). jmap_dumper 0.1.1 is missing interface dumping so you need to build the dumper yourself until the next release with this feature.
 
-2. Make a dump. Open a UE Function Dump tab in UE4SS debug window, check "Load all assets into memory" (unless game crashes before dump is completed, or you don't have enough RAM), press "Dump" and wait. The dump will be located in Win64 folder and called dump.txt. You need to create a new dump when the game updates.
+1. Install rust language for your system
 
-3. Launch the program and create new profile for your game. Provide a .usmap or .jmap mappings if needed.
+2. Make a dump using [jmap_dumper](https://github.com/trumank/jmap)
+   
+   Clone jmap repository
+   ```
+   git clone https://github.com/trumank/jmap.git
+   ```
+   
+   Navigate to jmap_dumper folder
+   ```
+   cd jmap/jmap_dumper/
+   ```
 
-### Reflection dumper
+   Make a dump file replacing 12345 with your game process id
+   ```
+   cargo run --release -- --pid 12345 output.jmap
+   ```
 
-To correctly display function parameters, types and more we need to get some reflection data about classes, functions and properties. Especially for native classes. Unfortunately, we can't use .usmap and .jmap files because they are not providing enough information.
+3. Launch the program and create new profile for your game. Provide a .jmap file you just generated.
 
 ### Loops and macros
 
