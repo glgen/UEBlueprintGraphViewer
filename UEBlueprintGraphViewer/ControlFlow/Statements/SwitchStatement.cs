@@ -31,7 +31,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             KismetExpression instr = Context.GetInstr();
             GraphPin condition = GetSwitchConditionPin();
             if (_nodeType == SwitchNodeType.Enum)
-                _enumData = Context.ParamsDump.TryFindEnum(condition.PinType.PinSubCategoryObject);
+                _enumData = Context.Jmap.TryFindEnum(condition.PinType.PinSubCategoryObject);
 
             // for some reason UE allows to compile switch with same case statements
             List<KeyValuePair<string, BlockJump?>> cases = [];
@@ -90,8 +90,8 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
         private string GetSwitchCaseName()
         {
             string name = GetConditionCallMathPin(1).Value;
-            if (_enumData != null && _enumData.Elements.TryGetValue(Convert.ToInt64(name), out string? enumElemName))
-                name = enumElemName!;
+            if (_enumData != null && _enumData.Elements.FirstOrDefault(o => o.Value == Convert.ToInt64(name)).Key is { } enumElemName)
+                name = enumElemName;
             return name;
         }
 

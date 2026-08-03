@@ -96,9 +96,6 @@ namespace UEBlueprintGraphViewer
 
         [ObservableProperty]
         private string _objectDump;
-
-        [ObservableProperty]
-        private string _mappings;
         
         [ObservableProperty]
         private string _encryptionKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -107,7 +104,7 @@ namespace UEBlueprintGraphViewer
         private EGame _UEVersion = EGame.GAME_UE5_5;
 
         [JsonIgnore]
-        public ParamMappings ParamsDump;
+        public JmapData Jmap;
 
         public static GameSettings ReadConfig(string profileName)
         {
@@ -123,7 +120,6 @@ namespace UEBlueprintGraphViewer
             ProfileName = game.ProfileName;
             PaksFolder = game.PaksFolder;
             ObjectDump = game.ObjectDump;
-            Mappings = game.Mappings;
             UEVersion = game.UEVersion;
             EncryptionKey = game.EncryptionKey;
         }
@@ -131,7 +127,7 @@ namespace UEBlueprintGraphViewer
         public void LoadParamDumpings()
         {
             if (File.Exists(ObjectDump))
-                ParamsDump = new ParamMappings(ObjectDump);
+                Jmap = new JmapData(ObjectDump);
         }
 
         public void WriteConfig()

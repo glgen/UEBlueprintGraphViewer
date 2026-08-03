@@ -74,6 +74,8 @@ namespace UEBlueprintGraphViewer
             AssetsTabs.Items.Clear();
             AssetsTabs.Items.Add(mainTab);
 
+            await Task.Delay(10);
+            
             if (Settings.Instance.IsInCompareMode)
             {
                 if (!await CheckConfigPathsValid(Settings.Instance.CompareGame1!) ||
@@ -123,10 +125,11 @@ namespace UEBlueprintGraphViewer
         private async Task<bool> CheckConfigPathsValid(GameSettings game)
         {
             if (!Directory.Exists(game.PaksFolder) ||
-                !File.Exists(game.ObjectDump) ||
-                (!string.IsNullOrEmpty(game.Mappings) && !File.Exists(game.Mappings)))
+                string.IsNullOrWhiteSpace(game.ObjectDump) ||
+                game.ObjectDump.EndsWith(".txt") ||
+                !File.Exists(game.ObjectDump))
             {
-                await DialogWindow.Show("Some paths specified in game profile not exists", "Failed to load config");
+                await DialogWindow.Show("Some paths specified in game profile are invalid", "Failed to load config");
                 OpenSettings();
                 return false;
             }

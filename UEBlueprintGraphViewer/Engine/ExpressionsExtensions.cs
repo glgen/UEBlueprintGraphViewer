@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse.UE4.Objects.UObject;
 using UEBlueprintGraphViewer.Decompiler;
 using static UEBlueprintGraphViewer.Engine.Utils;
 
@@ -34,8 +35,18 @@ namespace UEBlueprintGraphViewer.Engine
         
         public static string GetStructValue(this EX_StructConst ex, GameSettings game)
         {
-            if (!game.ParamsDump.TryFindProperties(ex.Struct, out List<PropertyData>? properties))
+            List<string>? properties = null;
+            var struc = ex.Struct.Load();
+            
+            if (struc is UScriptClass or UScriptStruct && game.Jmap.TryFindProperties(ex.Struct, out List<PropertyData>? props))
+                properties = [.. props!.Select(o => o.Name)];
+            
+            if (properties == null && struc is UStruct str)
+                properties = [.. str.ChildProperties.Select(o => o.Name.ToString())];
+            
+            if (properties == null)
                 throw new DecompilerException($"Failed to find struct EX_StructConst is referencing to. Struct: {PackageIndexToName(ex.Struct)}");
+            
             if (properties?.Count != ex.Properties.Length)
                 throw new DecompilerException($"Struct member count mismatch. Found {properties.Count} members in dump, expected in EX_StructConst: {ex.Properties.Length} Struct: {PackageIndexToName(ex.Struct)}");
             
@@ -43,7 +54,7 @@ namespace UEBlueprintGraphViewer.Engine
             for (int i = 0; i < ex.Properties.Length; i++)
             {
                 ParseConstExpr(ex.Properties[i], game, out string value, out _);
-                parms.Add($"{properties![i].Name}={value}");
+                parms.Add($"{properties![i]}={value}");
             }
 
             return $"({string.Join("; ", parms)})";

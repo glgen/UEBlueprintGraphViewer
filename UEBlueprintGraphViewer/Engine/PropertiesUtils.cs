@@ -4,6 +4,7 @@ using CUE4Parse.UE4.Objects.UObject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CUE4Parse.UE4.Assets.Exports;
 using UEBlueprintGraphViewer.Decompiler;
 
 namespace UEBlueprintGraphViewer.Engine
@@ -38,19 +39,12 @@ namespace UEBlueprintGraphViewer.Engine
             throw new DecompilerException($"Failed to find property local var {name}");
         }
 
-        private static PropertyData ResolvedObjectToFunctionProperty(GameSettings game, string name, ResolvedObject ownerResolved)
+        public static PropertyData ResolvedObjectToFunctionProperty(GameSettings game, string name, ResolvedObject ownerResolved)
         {
             string objName = ownerResolved.Outer.Name.ToString();
             string funcName = ownerResolved.Name.ToString();
-            List<PropertyData> props;
-            if (game.ParamsDump.IsObjectNameUnique(objName))
-            {
-                props = game.ParamsDump.GetFunction(objName, funcName).Params;
-            }
-            else
-            {
-                props = game.ParamsDump.GetFunctionPathName(ownerResolved.Outer.GetPathName(), funcName).Params;
-            }
+            List<PropertyData> props = ResolvedObjectToFuncProps(game, ownerResolved, funcName);
+            
             PropertyData? localVar = props.Find(o => o.Name.EqualsFName(name));
             if (localVar == null)
                 throw new DecompilerException($"Failed to find local var {name} in {objName}.{funcName}");
@@ -58,6 +52,28 @@ namespace UEBlueprintGraphViewer.Engine
             return localVar;
         }
 
+        public static List<PropertyData> ResolvedObjectToFuncProps(GameSettings game, ResolvedObject ownerResolved, string funcName)
+        {
+            List<PropertyData> props;
+            string pathName = ownerResolved.Outer.GetPathName();
+            if (pathName.Starts("/Script/") && game.Jmap.GetFunctionData(pathName, funcName) is {} functionData)
+            {
+                props = functionData.Params;
+            }
+            else
+            {
+                UObject? outer = ownerResolved.Outer.Load();
+                props = GetUFunctionProperties(ownerResolved.Load() as UFunction, outer);
+            }
+
+            return props;
+        }
+
+        public static List<PropertyData> GetUFunctionProperties(UFunction function, UObject outer)
+        {
+            return function.ChildProperties.Select(o => new PropertyData(o as FProperty, outer)).ToList();
+        }
+        
         // Get property data from kismet pointer using caching
         public static PropertyData KismetPointerToProperty(FKismetPropertyPointer pointer, GlobalDecompilerContext global)
         {
@@ -82,15 +98,12 @@ namespace UEBlueprintGraphViewer.Engine
                         }
                     }
 
-                    if (global.Game.ParamsDump.TryFindProperty(name, ownerObj, out PropertyData? prop))
-                    {
+                    if (ownerObj.ResolvedObject?.GetPathName().Starts("/Script/") == true && global.Game.Jmap.TryFindProperty(name, ownerObj, out PropertyData? prop))
                         return prop!;
-                    }
                 }
             }
-
+            
             PropertyData newProp = ToProperty(pointer);
-            //global.Game.ParamsDump.AddProperty(newProp);
             return newProp;
         }
 
@@ -110,7 +123,7 @@ namespace UEBlueprintGraphViewer.Engine
                     }
                     else
                     {
-                        if (game.ParamsDump.TryFindProperty(ToName(pointer), ownerObj, out PropertyData? prop))
+                        if (game.Jmap.TryFindProperty(ToName(pointer), ownerObj, out PropertyData? prop))
                         {
                             return prop!;
                         }
@@ -179,7 +192,7 @@ namespace UEBlueprintGraphViewer.Engine
             {
                 case UScriptClass:
                     // cannot properly get property of UScriptClass
-                    throw new DecompilerException($"UScriptClass property not found in dump:\nUScriptClass: {field.Name}\nProperty: {fFieldPath.Path[0]}");
+                    throw new DecompilerException($"UScriptClass property not found in dump:\nUScriptClass: {field.GetPathName()}\nProperty: {fFieldPath.Path[0]}");
                 case UStruct struc when fFieldPath.Path.Length > 0 && struc.GetProperty(fFieldPath.Path[0], out var prop):
                     return prop;
             }

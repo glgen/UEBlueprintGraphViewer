@@ -8,8 +8,8 @@
         Title="Compare game builds settings"
 		x:Name="root"
         x:DataType="local:CompareSettingsWindow"
-		Width="650" Height="430"
-		MinHeight="430" MaxHeight="430"
+		Width="650" Height="370"
+		MinHeight="370" MaxHeight="370"
         WindowStartupLocation="CenterOwner">
     <Window.Styles>
 		<Style Selector="TextBlock.Header">

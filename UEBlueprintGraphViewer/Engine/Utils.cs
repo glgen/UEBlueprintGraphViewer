@@ -73,20 +73,6 @@ namespace UEBlueprintGraphViewer.Engine
             return (import!.Name.ToString(), import.Outer!.Name.ToString());
         }
 
-        public static FunctionData GetFuncDataOfFuncCall(EX_FinalFunction instr, ParamMappings dump)
-        {
-            (string name, string outer) = instr.GetNameAndOuter();
-
-            if (dump.IsObjectNameUnique(outer))
-            {
-                return dump.GetFunction(outer, name);
-            }
-            else
-            {
-                return dump.GetFunctionPathName(instr.StackNode.ResolvedObject!.Outer!.GetPathName(), name);
-            }
-        }
-
 
         // gets object resource for non-iostore games
         // used for getting names without resolving the objects

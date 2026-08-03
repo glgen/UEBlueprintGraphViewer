@@ -90,26 +90,12 @@ public partial class GameProfileSettingsView : UserControl
         }
     }
 
-    private async void LoadUsmapButton_Click(object sender, RoutedEventArgs e)
-    {
-        var files = await storageProvider.OpenFilePickerAsync(new()
-        {
-            Title = "Select .usmap/.jmap file",
-            FileTypeFilter = [new("Mappings file") { Patterns = ["*.usmap", "*.jmap"] }]
-        });
-
-        if (files.Any())
-        {
-            game.Mappings = files.First().Path.LocalPath;
-        }
-    }
-
     private async void LoadDumpButton_Click(object sender, RoutedEventArgs e)
     {
         var files = await storageProvider.OpenFilePickerAsync(new()
         {
-            Title = "Select dump.txt file",
-            FileTypeFilter = [new("Object dump file") { Patterns = ["*.txt"] }]
+            Title = "Select .jmap file",
+            FileTypeFilter = [new(".jmap file") { Patterns = ["*.jmap"] }]
         });
 
         if (files.Any())
@@ -119,10 +105,6 @@ public partial class GameProfileSettingsView : UserControl
         }
     }
 
-    private void EraseUsmapButton_Click(object sender, RoutedEventArgs e)
-    {
-        game.Mappings = "";
-    }
     
     private void EraseAESButton_Click(object sender, RoutedEventArgs e)
     {

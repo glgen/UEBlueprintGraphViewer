@@ -22,7 +22,7 @@ namespace UEBlueprintGraphViewer.Decompiler
         
         public uint? EntryPoint;
 
-        public ParamMappings ParamsDump { get => Game.ParamsDump; }
+        public JmapData Jmap => Game.Jmap;
 
         public KismetExpression GetInstr()
         {

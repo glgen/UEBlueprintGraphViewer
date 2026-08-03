@@ -25,13 +25,7 @@ namespace UEBlueprintGraphViewer
         public PackageData(GameSettings game)
         {
             Provider = new DefaultFileProvider(game.PaksFolder, SearchOption.TopDirectoryOnly, new VersionContainer(game.UEVersion));
-            if (!string.IsNullOrEmpty(game.Mappings))
-            {
-                if (game.Mappings.EndsWith(".usmap", StringComparison.OrdinalIgnoreCase))
-                    Provider.MappingsContainer = new FileUsmapTypeMappingsProvider(game.Mappings);
-                else if (game.Mappings.EndsWith(".jmap", StringComparison.OrdinalIgnoreCase))
-                    Provider.MappingsContainer = new JmapTypeMappingsProvider(game.Mappings);
-            }
+            Provider.MappingsContainer = new JmapTypeMappingsProvider(game.ObjectDump);
             Provider.Initialize();
             Provider.SubmitKey(new FGuid(), new FAesKey(game.EncryptionKey));
             Provider.TryChangeCulture("en");

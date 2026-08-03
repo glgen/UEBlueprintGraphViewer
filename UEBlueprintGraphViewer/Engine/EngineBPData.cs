@@ -1,5 +1,6 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Generic;
+using CUE4Parse.UE4.Assets.Exports;
 using UEBlueprintGraphViewer.Nodes;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
 
@@ -220,6 +221,10 @@ namespace UEBlueprintGraphViewer.Engine
         public GraphPin Delegate;
         public string Name;
         public string Owner;
+        public UObject? OwnerObject;
+        public string? SignatureName;
+        public string? SignaturePath;
+        public UObject? SignatureObject;
     }
 
     public enum SpawnNodeType

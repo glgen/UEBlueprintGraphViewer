@@ -2,6 +2,7 @@
 using CUE4Parse.UE4.Objects.UObject;
 using System;
 using System.Linq;
+using UEBlueprintGraphViewer.Decompiler;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
 using static UEBlueprintGraphViewer.Engine.Utils;
@@ -15,9 +16,15 @@ namespace UEBlueprintGraphViewer.Engine
 
         public EPropertyFlags Flags;
 
+        public UObject? OwnerObject;
         public string Owner;
 
         public GraphPinType PinType;
+        
+        public FPackageIndex? PropertyClassPackageIndex;
+        public string DelegateSignatureFunction;
+        public string DelegateSignatureObjectPath;
+        public UObject? DelegateSignatureObject;
 
         public override string ToString()
         {
@@ -56,20 +63,39 @@ namespace UEBlueprintGraphViewer.Engine
 
             Name = prop.GetName();
             Owner = owner.GetPathName();
+            OwnerObject = owner;
             Flags = prop.GetFlags();
             MakePinType(prop);
+            if (prop.New is FMulticastInlineDelegateProperty d)
+            {
+                DelegateSignatureFunction = d.SignatureFunction.Name;
+                DelegateSignatureObjectPath = d.SignatureFunction.ResolvedObject?.Outer?.GetPathName() ??
+                                              throw new DecompilerException("Delegate signature function object is null");
+                DelegateSignatureObject = d.SignatureFunction.ResolvedObject.Outer.Load();
+            }
             prop.Clear();
         }
 
-        public PropertyData(string name, string owner, string type, EPropertyFlags flags, string className, string innerProp, string valueProp)
+        public PropertyData(
+            string name,
+            string owner,
+            string type,
+            EPropertyFlags flags,
+            string className,
+            string innerProp,
+            string valueProp,
+            string delegateSignatureFunction,
+            string delegateSignatureObject)
         {
             Name = name;
             Owner = owner;
             Flags = flags;
+            DelegateSignatureFunction = delegateSignatureFunction;
+            DelegateSignatureObjectPath = delegateSignatureObject;
             MakePinType(type, innerProp, valueProp, className);
         }
 
-        private static string GetClassName(PropertyContainer prop)
+        private string GetClassName(PropertyContainer prop)
         {
             FPackageIndex? index;
             if (prop.IsNew)
@@ -102,7 +128,8 @@ namespace UEBlueprintGraphViewer.Engine
             }
 
             if (index == null || index.IsNull) { return ""; };
-            return PackageIndexToName(index);
+            PropertyClassPackageIndex = index;
+            return index.ResolvedObject?.GetPathName() ?? "";
         }
 
         // Make pin type for this property
@@ -158,7 +185,7 @@ namespace UEBlueprintGraphViewer.Engine
                 _ => EPinContainerType.None,
             };
 
-            PinType.PinCategory = PropTypeToPinType(inner == None ? type : inner);
+            PinType.PinCategory = PropTypeToPinType(inner == None || type == "EnumProperty" ? type : inner);
             if (PinType.ContainerType == EPinContainerType.Map)
                 PinType.PinSubCategory = PropTypeToPinType(value);
             PinType.PinSubCategoryObject = className == None ? None : className;

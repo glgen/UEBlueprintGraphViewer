@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CUE4Parse.UE4.Assets.Exports;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.ControlFlow;
 using UEBlueprintGraphViewer.ControlFlow.Statements;
@@ -590,8 +591,11 @@ namespace UEBlueprintGraphViewer.Decompiler
                         List<GraphPin> cases = [];
                         foreach (FKismetSwitchCase caseExpr in exp.Cases)
                         {
-                            string caseValue = ArgToPin(caseExpr.CaseIndexValueTerm).Value;
-                            cases.Add(ArgToPin(caseExpr.CaseTerm, caseValue));
+                            var casePin = ArgToPin(caseExpr.CaseIndexValueTerm);
+                            string caseValue = casePin.Value;
+                            var caseTermPin = ArgToPin(caseExpr.CaseTerm, caseValue);
+                            cases.Add(caseTermPin);
+                            property ??= caseTermPin.Property;
                         }
                         K2Node_Select selectNode = new K2Node_Select(indexPin, cases, exp);
                         Graph.AddNode(selectNode);
@@ -641,44 +645,64 @@ namespace UEBlueprintGraphViewer.Decompiler
             return Pin;
         }
 
-        public BPNode? InstrToNodes(KismetExpression instr, string TargetConstName = "")
+        public BPNode? InstrToNodes(KismetExpression instr, UObject? targetConst = null, string targetConstPathName = "")
         {
             switch (instr)
             {
                 case EX_FinalFunction finalFunc: // also EX_CallMath
                     {
-                        var func = GetFuncDataOfFuncCall(finalFunc, GlobalContext.Game.ParamsDump);
+                        var func = FindFunctionInAsset(finalFunc.StackNode.ResolvedObject.Outer.Load(), finalFunc.StackNode.ResolvedObject.Outer.GetPathName(),finalFunc.StackNode.Name);
 
                         List<GraphPin> parms = ParseArgs(finalFunc.Parameters, func.Params);
 
                         if (finalFunc is EX_CallMath &&
                             finalFunc.Parameters.Length == 2 &&
-                            func.Outer.Name is "KismetMathLibrary" or "KismetInputLibrary" or "KismetSystemLibrary" or "InputDeviceLibrary" &&
+                            func.Outer.Name is "/Script/Engine.KismetMathLibrary" or "/Script/Engine.KismetInputLibrary" or "/Script/Engine.KismetSystemLibrary" or "/Script/Engine.InputDeviceLibrary" &&
                             PromotableOperators.Any(o => func.Name.Starts($"{o.Key}_")))
                             return new K2Node_PromotableOperator(func.Name, parms, instr);
 
-                        if (func.Outer.Name == "KismetArrayLibrary" && func.Name.Starts("Array_"))
+                        if (func.Outer.Name == "/Script/Engine.KismetArrayLibrary" && func.Name.Starts("Array_"))
                             return new K2Node_CallArrayFunction(func, parms, instr, func.IsPure);
                         
-                        return new K2Node_CallFunction(func, TargetConstName, parms, instr, func.IsPure);
+                        return new K2Node_CallFunction(func.Name, func.Outer.Name, parms, instr, func.IsPure);
                     }
                 case EX_VirtualFunction virtualFunc:
                     {
-                        string FuncName = virtualFunc.VirtualFunctionName.ToString();
+                        string funcName = virtualFunc.VirtualFunctionName.ToString();
 
                         // if not specified then target is self
-                        if (string.IsNullOrEmpty(TargetConstName))
-                            TargetConstName = GlobalContext.CurrentAsset.ObjectName;
+                        if (targetConst == null)
+                            targetConst = GlobalContext.CurrentAsset.GeneratedClass;
 
-                        var func = GlobalContext.Game.ParamsDump.GetFunction(TargetConstName, FuncName);
+                        FunctionData? func = null;
+                        if (targetConst is UClass s)
+                        {
+                            UObject obj = s;
+                            func = FindFunctionInAsset(obj, targetConstPathName, funcName);
+                        }
+
+                        if (func == null)
+                        {
+                            func = GlobalContext.Game.Jmap.GetFunctionData(targetConstPathName, funcName);
+                        }
+                        
                         List<GraphPin> parms = ParseArgs(virtualFunc.Parameters, func.Params);
 
-                        return new K2Node_CallFunction(func, TargetConstName, parms, instr, func.IsPure);
+                        return new K2Node_CallFunction(funcName, targetConst.Name, parms, instr, func.IsPure);
                     }
                 case EX_CallMulticastDelegate callDelegate:
                     {
                         DelegateData data = GetDelegateInfo(callDelegate.Delegate, null);
-                        List<PropertyData> properties = GlobalContext.Game.ParamsDump.GetFunctionPathName(data.Owner, $"{data.Name}__DelegateSignature").Params;
+                        List<PropertyData> properties;
+                        if (data.SignatureObject != null)
+                        {
+                            var func = FindFunctionInAsset(data.SignatureObject, data.SignaturePath, data.SignatureName);
+                            properties = func.Params;
+                        }
+                        else
+                        {
+                            properties = GlobalContext.Game.Jmap.GetFunctionData(data.SignaturePath, data.SignatureName).Params;
+                        }
                         List<GraphPin> parms = ParseArgs(callDelegate.Parameters, properties);
                         return new K2Node_CallDelegate(data, parms, instr);
                     }
@@ -725,23 +749,32 @@ namespace UEBlueprintGraphViewer.Decompiler
                     {
                         GraphPin contextPin = ArgToPin(context.ObjectExpression, "Target");
 
-                        string targetName = "";
+                        UObject? target = null;
+                        string targetPath = null;
                         if (!contextPin.IsConnected)
                         {
-                            contextPin.HidePin();
-                            if (contextPin.Value != "self")
+                            if (context.ObjectExpression is EX_ObjectConst objConst)
                             {
-                                targetName = contextPin.Value;
-                                if (targetName.Starts("Default__"))
-                                    targetName = targetName["Default__".Length..];
+                                target = objConst.Value.ResolvedObject.Class.Load();
+                                targetPath = objConst.Value.ResolvedObject.Class.GetPathName();
                             }
+                            contextPin.HidePin();
                         }
                         else
                         {
-                            targetName = contextPin.Property == null ? contextPin.PinType.PinSubCategoryObject : contextPin.Property.PinType.PinSubCategoryObject;
+                            if (contextPin.Property.PropertyClassPackageIndex == null)
+                            {
+                                target = new UObject() { Name = contextPin.Property.PinType.PinSubCategoryObject };
+                                targetPath = contextPin.Property.PinType.PinSubCategoryObject;
+                            }
+                            else
+                            {
+                                target = contextPin.Property.PropertyClassPackageIndex.Load();
+                                targetPath = contextPin.Property.PropertyClassPackageIndex.ResolvedObject.GetPathName();
+                            }
                         }
 
-                        if (InstrToNodes(context.ContextExpression, targetName) is not BPNode Node)
+                        if (InstrToNodes(context.ContextExpression, target, targetPath) is not BPNode Node)
                             throw new DecompilerException($"InstrToNodes: ContextExpression was not decompiled to node - {context.ContextExpression.StatementIndex}");
 
                         Node.NodeInstr = context;
@@ -781,6 +814,41 @@ namespace UEBlueprintGraphViewer.Decompiler
                     return new UnknownNode(instr.Token.ToString(), instr);
             }
         }
+        
+        public FunctionData? FindFunctionInAsset(UObject obj, string pathName, string funcName)
+        {
+            if (obj is UScriptClass)
+            {
+                return GlobalContext.Game.Jmap.GetFunctionData(pathName, funcName);
+            }
+
+            if (obj is UClass cl)
+            {
+                var func = cl.FuncMap.FirstOrDefault(o => o.Key.Text == funcName).Value?.Load() as UFunction;
+                if (func is { })
+                    return ToFuncData(func, cl);
+                if (cl.SuperStruct is null) return null;
+                if (FindFunctionInAsset(cl.SuperStruct.Load(), cl.SuperStruct.ResolvedObject.GetPathName(), funcName) is { } f)
+                    return f;
+                foreach (var fImplementedInterface in cl.Interfaces)
+                {
+                    var i = fImplementedInterface.Class.Load();
+                    if (FindFunctionInAsset(i, i.GetPathName(), funcName) is { } f2)
+                        return f2;
+                }
+            }
+
+            return null;
+
+            FunctionData ToFuncData(UFunction func, UObject outer)
+            {
+                return new FunctionData(func.Name, func.FunctionFlags)
+                {
+                    Params = GetUFunctionProperties(func, outer),
+                    Outer = new ObjectData(outer)
+                };
+            }
+        }
 
         private DelegateData GetDelegateInfo(KismetExpression delegateExpr, KismetExpression? delegateToAddExpr)
         {
@@ -791,7 +859,11 @@ namespace UEBlueprintGraphViewer.Decompiler
             {
                 Name = Delegate.Name,
                 ContextInputPin = contextInputPin,
-                Owner = Delegate.Owner
+                Owner = Delegate.Owner,
+                OwnerObject = Delegate.OwnerObject,
+                SignatureName = Delegate.DelegateSignatureFunction,
+                SignaturePath = Delegate.DelegateSignatureObjectPath,
+                SignatureObject = Delegate.DelegateSignatureObject
             };
 
             if (delegateToAddExpr != null)
