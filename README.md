@@ -27,25 +27,13 @@ Not sure if i will do that:
 
 ### How to use
 
-To use the tool you need to create a dump from the game process using [jmap_dumper](https://github.com/trumank/jmap). jmap_dumper 0.1.1 is missing interface dumping so you need to build the dumper yourself until the next release with this feature.
+To use the tool you need to create a dump from the game process using [jmap_dumper](https://github.com/trumank/jmap).
 
-1. Install rust language for your system
+1. Download and extract [jmap_dumper](https://github.com/trumank/jmap) v0.2.0 or above.
 
-2. Make a dump using [jmap_dumper](https://github.com/trumank/jmap)
-   
-   Clone jmap repository
+2. Make a .jmap dump file replacing 12345 with your game process id
    ```
-   git clone https://github.com/trumank/jmap.git
-   ```
-   
-   Navigate to jmap_dumper folder
-   ```
-   cd jmap/jmap_dumper/
-   ```
-
-   Make a dump file replacing 12345 with your game process id
-   ```
-   cargo run --release -- --pid 12345 output.jmap
+   jmap_dumper --pid 12345 output.jmap
    ```
 
 3. Launch the program and create new profile for your game. Provide a .jmap file you just generated.
