@@ -688,7 +688,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                         
                         List<GraphPin> parms = ParseArgs(virtualFunc.Parameters, func.Params);
 
-                        return new K2Node_CallFunction(funcName, targetConst.Name, parms, instr, func.IsPure);
+                        return new K2Node_CallFunction(funcName, targetConst.GetPathName(), parms, instr, func.IsPure);
                     }
                 case EX_CallMulticastDelegate callDelegate:
                     {

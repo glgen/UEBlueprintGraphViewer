@@ -2,18 +2,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:a="clr-namespace:UEBlueprintGraphViewer.Assets"
+             xmlns:r="clr-namespace:UEBlueprintGraphViewer.ReferencesSearch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UEBlueprintGraphViewer.Views.AssetReferencesResultView">
     <Grid RowDefinitions="Auto,*" RowSpacing="10" Margin="10">
         <TextBlock x:Name="MessageText"/>
         <ListBox Grid.Row="1" x:Name="ResultListBox">
             <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="a:AssetFile">
+                <DataTemplate x:DataType="r:ReferenceResult">
                     <TextBlock Padding="5,3"
                                TextTrimming="LeadingCharacterEllipsis"
-                               Text="{Binding FullPath}"
-                               DoubleTapped="InputElement_OnDoubleTapped"/>
+                               DoubleTapped="InputElement_OnDoubleTapped">
+                        <Run Text="{Binding File.FullPath}"/>
+                        <Run Text="{Binding Function}"/>
+                    </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

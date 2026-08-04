@@ -67,8 +67,11 @@
 	                 ItemsSource="{Binding EventsFiltered}">
 		        <ListBox.ContextMenu>
 			        <ContextMenu>
-				        <MenuItem Header="Search in current graph"
+				        <MenuItem Header="Find in current graph"
 				                  Click="EventSearchInCurrentGraph_OnClick"/>
+				        <MenuItem Header="Find globally"
+				                  DataContext="{Binding #EventList.SelectedItem}"
+				                  Click="FunctionSearchGlobal_OnClick"/>
 			        </ContextMenu>
 		        </ListBox.ContextMenu>
 	        </ListBox>
@@ -86,6 +89,9 @@
 			        <ContextMenu>
 				        <MenuItem Header="Search in current graph"
 				                  Click="FunctionSearchInCurrentGraph_OnClick"/>
+				        <MenuItem Header="Find globally"
+				                  DataContext="{Binding #FunctionList.SelectedItem}"
+				                  Click="FunctionSearchGlobal_OnClick"/>
 			        </ContextMenu>
 		        </ListBox.ContextMenu>
 	        </ListBox>

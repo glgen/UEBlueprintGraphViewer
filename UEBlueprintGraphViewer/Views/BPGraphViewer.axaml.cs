@@ -104,7 +104,18 @@ namespace UEBlueprintGraphViewer.Views
             view.Autopanner.PanToCentered(new Point(functionStart?.X ?? 0, functionStart?.Y ?? 0));
         }
 
+        public void RepositionViewport(int statementIndex)
+        {
+            var n = Graph.Nodes.FirstOrDefault(o => o.StatementIndex == statementIndex);
+            FirstViewer.Autopanner.PanToCentered(new Point(n?.X ?? 0, n?.Y ?? 0));
+        }
+
         public async void AssetInfoPanel_FunctionChoosen(AssetFunctionViewModel func)
+        {
+            OpenFunction(func);
+        }
+
+        public async Task OpenFunction(AssetFunctionViewModel func)
         {
             if (Settings.Instance.IsInCompareMode)
             {

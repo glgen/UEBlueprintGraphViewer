@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using UEBlueprintGraphViewer.Assets;
+using UEBlueprintGraphViewer.ReferencesSearch;
 
 namespace UEBlueprintGraphViewer.Views;
 
@@ -13,7 +14,7 @@ public partial class AssetReferencesResultView : UserControl
         InitializeComponent();
     }
 
-    public AssetReferencesResultView(string text, List<AssetFile> assets) : this()
+    public AssetReferencesResultView(string text, List<ReferenceResult> assets) : this()
     {
         MessageText.Text = text;
         ResultListBox.ItemsSource = assets;
@@ -21,7 +22,9 @@ public partial class AssetReferencesResultView : UserControl
     
     private async void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is Visual { DataContext: AssetFile file })
-            await MainWindow.Instance.LoadAsset(file);
+        if (sender is Visual { DataContext: ReferenceResult result })
+        {
+            await MainWindow.Instance.LoadAsset(result.File, result.Function ?? "", result.NodeStatementIndex);
+        }
     }
 }

@@ -9,11 +9,13 @@ namespace UEBlueprintGraphViewer.Nodes
 {
     internal class K2Node_CallFunction : BPNode
     {
-        private string FunctionName;
+        public string FunctionName;
+        public string OuterName;
         public K2Node_CallFunction(string funcName, string outerName, List<GraphPin> Parms, KismetExpression Instr, bool isPure) : base(outerName == "" ? funcName : $"{funcName} ({outerName.SubstringAfterLast('.')})", Instr)
         {
             FunctionName = funcName;
-
+            OuterName = outerName;
+            
             CheckCustomLook(funcName, outerName, Parms);
             
             MakePins(!isPure, !isPure, Parms);

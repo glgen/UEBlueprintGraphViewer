@@ -12,6 +12,7 @@ using Avalonia.Utilities;
 using Avalonia.VisualTree;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
+using UEBlueprintGraphViewer.Nodes;
 using UEBlueprintGraphViewer.ReferencesSearch;
 using UEBlueprintGraphViewer.ViewModels;
 using UEBlueprintGraphViewer.Views;
@@ -23,9 +24,9 @@ namespace UEBlueprintGraphViewer
         public static MainWindow Instance { get; private set; }
         
         MainViewModel viewModel = new();
-        static PackageData? Package;
-        static PackageData? PackageCompare1;
-        static PackageData? PackageCompare2;
+        public static PackageData? Package { get; private set; }
+        public static PackageData? PackageCompare1 { get; private set; }
+        public static PackageData? PackageCompare2 { get; private set; }
 
         public MainWindow()
         {
@@ -200,7 +201,7 @@ namespace UEBlueprintGraphViewer
                 await LoadAsset(item);
         }
 
-        public async Task LoadAsset(AssetFile item)
+        public async Task LoadAsset(AssetFile item, string function = "", int? statementIndex = null)
         {
             if (AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag == item.FullPath) is { } foundTab)
             {
@@ -233,16 +234,27 @@ namespace UEBlueprintGraphViewer
                 {
                     asset = new(await Package.LoadAssetAndCheck(item.FullPath, name));
                 }
-
-                TabItem tab = new()
+                
+                var viewer = new BPGraphViewer(asset) { Margin = new Thickness(0, 5, 0, 0) };
+                
+                AddTab(new()
                 {
                     Header = name,
                     Tag = item.FullPath,
                     Classes = { "Closeable" },
-                    Content = new BPGraphViewer(asset) { Margin = new Thickness(0, 5, 0, 0) }
-                };
-                AssetsTabs.Items.Add(tab);
-                AssetsTabs.SelectedItem = tab;
+                    Content = viewer
+                });
+                
+                if (!string.IsNullOrEmpty(function) && asset.Asset != null)
+                {
+                    var func = asset.Asset.UbergraphFunction?.Name == function
+                        ? asset.Asset.SortedEvents.FirstOrDefault()
+                        : asset.Asset.Functions.FirstOrDefault(o => o.Name == function);
+                    await viewer.OpenFunction(new(function, func));
+                    await Task.Delay(10);
+                    if (statementIndex is {} index)
+                        viewer.RepositionViewport(index);
+                }
             }
             catch (Exception ex)
             {
@@ -285,15 +297,17 @@ namespace UEBlueprintGraphViewer
                 var dialog = new ProgressWindow("Search", "Finding references:");
                 dialog.Open(this);
                 var result = await ReferencesSearcher.FindAssetReference(Package, Package.Assets.First(o => o.Path == asset.FullPath), dialog.Update);
-                TabItem newTab = new()
+                AddTab(new()
                 {
                     Header = $"References of {asset.Name}",
                     Classes = { "Closeable" },
                     Content = new AssetReferencesResultView($"Found {result.Length} references of {asset.Name}",
-                        result.Select(o => new AssetFile(o.Name, o.Path)).ToList())
-                };
-                AssetsTabs.Items.Add(newTab);
-                AssetsTabs.SelectedItem = newTab;
+                        result.Select(o => new ReferenceResult()
+                        {
+                            File = new(o.Name, o.Path), 
+                            Function = ""
+                        }).ToList())
+                });
                 
                 dialog.Close();
             }
@@ -322,21 +336,29 @@ namespace UEBlueprintGraphViewer
             AssetsTabs.Items.Remove(child.GetVisualAncestors().OfType<TabItem>().FirstOrDefault());
         }
 
+        public void AddTab(TabItem newTab)
+        {
+            AssetsTabs.Items.Add(newTab);
+            AssetsTabs.SelectedItem = newTab;
+        }
+
         private async void FindUnreferenced_OnClick(object? sender, RoutedEventArgs e)
         {
             var dialog = new ProgressWindow("Search", "Finding references:");
             dialog.Open(this);
             var result = await ReferencesSearcher.FindUnreferencedAssets(Package, dialog.Update);
-            TabItem newTab = new()
+            AddTab(new()
             {
                 Header = $"Unreferenced assets",
                 Classes = { "Closeable" },
                 Content = new AssetReferencesResultView(
                     $"Found {result.Length} unreferenced assets with total size of {(result.Sum(o => o.Size) / 1024d / 1024d):N2} MB",
-                    result.Select(o => new AssetFile(o.Name, o.Path)).ToList())
-            };
-            AssetsTabs.Items.Add(newTab);
-            AssetsTabs.SelectedItem = newTab;
+                    result.Select(o => new ReferenceResult()
+                    {
+                        File = new(o.Name, o.Path),
+                        Function = ""
+                    }).ToList())
+            });
                 
             dialog.Close();
         }

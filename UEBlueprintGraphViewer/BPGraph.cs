@@ -789,7 +789,7 @@ namespace UEBlueprintGraphViewer
                 
                 sw.Stop();
                 
-                Trace.WriteLine($"MACRO: {macro.Key} count: {results.Count} (done in {sw.ElapsedMilliseconds} ms)");
+                // Trace.WriteLine($"MACRO: {macro.Key} count: {results.Count} (done in {sw.ElapsedMilliseconds} ms)");
             }
 
             bool TypesEqual(BPNode a, BPNode b)

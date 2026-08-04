@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Objects.UObject;
 using UEBlueprintGraphViewer.Assets;
+using UEBlueprintGraphViewer.ReferencesSearch;
 using UEBlueprintGraphViewer.ViewModels;
 
 namespace UEBlueprintGraphViewer.Views
@@ -62,6 +65,36 @@ namespace UEBlueprintGraphViewer.Views
         {
             if (FunctionList.SelectedItem is AssetFunctionViewModel func)
                 OnFunctionSearchInCurrentGraph?.Invoke(this, func.Name);
+        }
+        
+        private async void FunctionSearchGlobal_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (Settings.Instance.IsInCompareMode)
+            {
+                await DialogWindow.Show("Finding assets references is not available in compare mode", "Search");
+                return;
+            }
+            
+            if (sender is Visual { DataContext: AssetFunctionViewModel func } && DataContext is AssetViewModel asset)
+            {
+                var dialog = new ProgressWindow("Search", "Finding references:");
+                dialog.Open(MainWindow.Instance);
+                var result = await ReferencesSearcher.FindFunctionReferences(MainWindow.Package, Settings.Instance.Game, asset.Asset, func.Name, dialog.Update);
+                MainWindow.Instance.AddTab(new()
+                {
+                    Header = $"References of {asset.Asset.ObjectName}:{func.Name}",
+                    Classes = { "Closeable" },
+                    Content = new AssetReferencesResultView($"Found {result.Length} references of {asset.Asset.ObjectName}:{func.Name}",
+                        result.Select(o => new ReferenceResult()
+                        {
+                            File = new AssetFile(o.Item1.Name, o.Item1.Path),
+                            Function = o.Item2,
+                            NodeStatementIndex = o.Item3
+                        }).ToList())
+                });
+                
+                dialog.Close();
+            }
         }
     }
 }

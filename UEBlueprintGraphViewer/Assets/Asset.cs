@@ -17,13 +17,14 @@ namespace UEBlueprintGraphViewer.Assets
     public class Asset
     {
         public string ObjectName = null!;
+        public string Name = null!;
         public bool IsBP;
         public UBlueprintGeneratedClass? GeneratedClass;
 
         public UFunction? UbergraphFunction;
 
         private readonly List<UFunction> _events = [];
-        public List<UFunction> SortedEvents;
+        public List<UFunction> SortedEvents = [];
         public Dictionary<string, UFunction> Events = [];
         public readonly List<UFunction> Functions = [];
         public readonly Dictionary<string, PropertyData> LoadedProperties = new(StringComparer.OrdinalIgnoreCase);
@@ -33,6 +34,8 @@ namespace UEBlueprintGraphViewer.Assets
         
         public Asset(IPackage package, string name)
         {
+            Name = package.Name;
+            
             // try to find generated class with the name "{FileName}_C"
             int index = package.GetExportIndex($"{name}_C", StringComparison.OrdinalIgnoreCase);
         
