@@ -170,7 +170,8 @@ public class ReferencesSearcher
         
         await Parallel.ForEachAsync(allAssets, _parallelOptions, async (file, token) =>
         {
-            update?.Invoke(counter, allAssets.Length);
+            if (counter % 20 == 0)
+                update?.Invoke(counter, allAssets.Length);
             counter++;
             
             try
@@ -199,6 +200,7 @@ public class ReferencesSearcher
                 return Task.Run(() =>
                 {
                     var decompiler = new FunctionDecompiler(asset, game, func);
+                    decompiler.GlobalContext.IsParsingMacros = false;
                     decompiler.Decompile(null);
                     return decompiler;
                 });
