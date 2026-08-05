@@ -10,12 +10,13 @@
         <ListBox Grid.Row="1" x:Name="ResultListBox">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="r:ReferenceResult">
-                    <TextBlock Padding="5,3"
-                               TextTrimming="LeadingCharacterEllipsis"
-                               DoubleTapped="InputElement_OnDoubleTapped">
-                        <Run Text="{Binding File.FullPath}"/>
-                        <Run Text="{Binding Function}"/>
-                    </TextBlock>
+                    <Border Background="Transparent" DoubleTapped="InputElement_OnDoubleTapped">
+                        <TextBlock Padding="5,3"
+                                   TextTrimming="LeadingCharacterEllipsis">
+                            <Run Text="{Binding File.FullPath}"/>
+                            <Run Text="{Binding Function}"/>
+                        </TextBlock>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
