@@ -146,6 +146,21 @@ public class ReferencesSearcher
         });
         return result.ToArray();
     }
+    
+    public static async Task<(GameFile, string, int)[]> FindPropertyReferences(PackageData package, GameSettings game, Asset asset, string propName, UpdateProgress? update)
+    {
+        BlockingCollection<(GameFile, string, int)> result = [];
+        await IterateInstructions(package, game, update, (file, func, graph) =>
+        {
+            foreach (var node in graph.Nodes)
+            {
+                if ((node is K2Node_VariableGet getter && getter.Property.Owner.SubstringBeforeLast('.') == asset.Name && getter.Property.Name == propName) ||
+                    (node is K2Node_VariableSet setter && setter.Property.Owner.SubstringBeforeLast('.') == asset.Name && setter.Property.Name == propName))
+                    result.Add((file, func, node.StatementIndex));
+            }
+        });
+        return result.ToArray();
+    }
 
     private static async Task IterateInstructions(PackageData package, GameSettings game, UpdateProgress? update, Action<GameFile, string, BPGraph> action)
     {

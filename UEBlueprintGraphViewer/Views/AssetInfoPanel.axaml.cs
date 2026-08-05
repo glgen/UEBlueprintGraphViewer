@@ -96,5 +96,35 @@ namespace UEBlueprintGraphViewer.Views
                 dialog.Close();
             }
         }
+        
+        private async void PropertySearchGlobal_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (Settings.Instance.IsInCompareMode)
+            {
+                await DialogWindow.Show("Finding references is not available in compare mode", "Search");
+                return;
+            }
+            
+            if (sender is Visual { DataContext: AssetPropertyViewModel prop } && DataContext is AssetViewModel asset)
+            {
+                var dialog = new ProgressWindow("Search", "Finding references:");
+                dialog.Open(MainWindow.Instance);
+                var result = await ReferencesSearcher.FindPropertyReferences(MainWindow.Package, Settings.Instance.Game, asset.Asset, prop.Name, dialog.Update);
+                MainWindow.Instance.AddTab(new()
+                {
+                    Header = $"References of {asset.Asset.ObjectName}:{prop.Name}",
+                    Classes = { "Closeable" },
+                    Content = new AssetReferencesResultView($"Found {result.Length} references of {asset.Asset.ObjectName}:{prop.Name}",
+                        result.Select(o => new ReferenceResult()
+                        {
+                            File = new AssetFile(o.Item1.Name, o.Item1.Path),
+                            Function = o.Item2,
+                            NodeStatementIndex = o.Item3
+                        }).ToList())
+                });
+                
+                dialog.Close();
+            }
+        }
     }
 }

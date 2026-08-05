@@ -87,7 +87,7 @@
 	                 ItemsSource="{Binding FunctionsFiltered}">
 		        <ListBox.ContextMenu>
 			        <ContextMenu>
-				        <MenuItem Header="Search in current graph"
+				        <MenuItem Header="Find in current graph"
 				                  Click="FunctionSearchInCurrentGraph_OnClick"/>
 				        <MenuItem Header="Find globally"
 				                  DataContext="{Binding #FunctionList.SelectedItem}"
@@ -107,8 +107,11 @@
 			         ItemsSource="{Binding Properties}">
 				<ListBox.ContextMenu>
 					<ContextMenu>
-						<MenuItem Header="Search in current graph"
+						<MenuItem Header="Find in current graph"
 						          Click="PropertySearchInCurrentGraph_OnClick"/>
+						<MenuItem Header="Find globally"
+						          DataContext="{Binding #PropertyList.SelectedItem}"
+						          Click="PropertySearchGlobal_OnClick"/>
 					</ContextMenu>
 				</ListBox.ContextMenu>
 			</ListBox>

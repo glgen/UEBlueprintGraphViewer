@@ -1,4 +1,5 @@
 ﻿using CUE4Parse.UE4.Kismet;
+using UEBlueprintGraphViewer.Engine;
 
 namespace UEBlueprintGraphViewer.Nodes
 {
@@ -9,8 +10,12 @@ namespace UEBlueprintGraphViewer.Nodes
 
         // Object to set this variable
         private GraphPin? ContextPin;
-        public K2Node_VariableSet(GraphPin ValuePin, GraphPin? ContextPin, KismetExpression Instr) : base("SET", Instr)
+        
+        public PropertyData Property;
+        
+        public K2Node_VariableSet(PropertyData data, GraphPin ValuePin, GraphPin? ContextPin, KismetExpression Instr) : base("SET", Instr)
         {
+            Property = data;
             HeaderCenter = true;
             this.ValuePin = ValuePin;
             this.ContextPin = ContextPin;

@@ -559,7 +559,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                         ParseContext(ex, out GraphPin contextPin, out property);
                         
                         string name = ex is EX_StructMemberContext ? StructMemberNameToFriendlyName(property.Name) : property.Name;
-                        K2Node_VariableGet getNode = new K2Node_VariableGet(name, property.PinType, contextPin, ex);
+                        K2Node_VariableGet getNode = new K2Node_VariableGet(property, name, contextPin, ex);
                         Graph.AddNode(getNode);
                         valueVarPin = getNode.GetFirstOutputParam()!;
                         break;
@@ -582,6 +582,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                         GraphPin indexPin = ArgToPin(exp.ArrayIndex);
                         K2Node_GetArrayItem node = new K2Node_GetArrayItem(arrayPin, indexPin, exp);
                         Graph.AddNode(node);
+                        property = arrayPin.Property;
                         valueVarPin = node.VarPin;
                         break;
                     }
@@ -627,7 +628,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                         if (valueVar.IsTempVar())
                             _result.AddProblem($"Temp variable value is not assigned. Var - {valueVar.Name} (instr - {ex.StatementIndex})", null, false);
                         // Instance variable
-                        K2Node_VariableGet getNode = new K2Node_VariableGet(valueVar.Name, valueVar.PinType, null, exp);
+                        K2Node_VariableGet getNode = new K2Node_VariableGet(valueVar, valueVar.Name, null, exp);
                         Graph.AddNode(getNode);
                         valueVarPin = getNode.VarPin;
                     }
@@ -919,7 +920,8 @@ namespace UEBlueprintGraphViewer.Decompiler
         {
             if (variable is EX_ArrayGetByRef)
             {
-                return new K2Node_VariableSet(ArgToPin(assignment, "New value"), ArgToPin(variable, "Reference"), instr);
+                var variablePin = ArgToPin(variable, "Reference");
+                return new K2Node_VariableSet(variablePin.Property, ArgToPin(assignment, "New value"), variablePin, instr);
             }
 
             GetVarWithTarget(variable, out PropertyData property, out GraphPin? contextInputPin);
@@ -959,7 +961,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                 return new K2Node_AssignmentStatement(variableIn, valuePin, instr);
             }
 
-            return new K2Node_VariableSet(valuePin, contextInputPin, instr);
+            return new K2Node_VariableSet(property, valuePin, contextInputPin, instr);
         }
 
         private BPNode LetFunctionValue(KismetExpression ex, PropertyData prop)
