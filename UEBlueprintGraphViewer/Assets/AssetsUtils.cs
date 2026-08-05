@@ -4,7 +4,7 @@ using UEBlueprintGraphViewer.Engine;
 
 namespace UEBlueprintGraphViewer.Assets;
 
-public class AssetsUtils
+public static class AssetsUtils
 {
     public static string FixAssetPath(string path)
     {

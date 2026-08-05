@@ -60,7 +60,7 @@ namespace UEBlueprintGraphViewer.Assets
             var functions = GeneratedClass.FuncMap.Select(o => o.Value.ResolvedObject?.Object?.Value).OfType<UFunction>().ToArray();
             
             // finding ubergraph
-            UbergraphFunction = functions.FirstOrDefault(o => o.FunctionFlags.HasFlag(EFunctionFlags.FUNC_UbergraphFunction));
+            UbergraphFunction = GeneratedClass.UberGraphFunction?.Load<UFunction>();
 
             // finding events/functions
             foreach (UFunction func in functions)
@@ -78,21 +78,17 @@ namespace UEBlueprintGraphViewer.Assets
             SortedEvents = Settings.Instance.ReorderEvents ? _events.OrderBy(o => GetUbergraphEntryPoint(o.ScriptBytecode)).ToList() : _events;
             Events = SortedEvents.ToDictionary(o => o.Name, o => o);
 
-            if (GetPropValue<UScriptArray>(GeneratedClass, "DynamicBindingObjects") is { } array)
+            foreach (var index in GeneratedClass.DynamicBindingObjects)
             {
-                foreach (var index in GetPropsValues<FPackageIndex>(array))
+                if (index.ResolvedObject?.Object?.Value.Class?.Name.ToString() == "ComponentDelegateBinding")
                 {
-                    if (index.ResolvedObject?.Object?.Value.Class?.Name.ToString() == "ComponentDelegateBinding")
-                    {
-                        // TODO
-                    }
-                    else
-                    {
-                        InputEvents.AddRange(GetInputEvents(index.ResolvedObject?.Object?.Value));
-                    }
+                    // TODO
+                }
+                else
+                {
+                    InputEvents.AddRange(GetInputEvents(index.ResolvedObject?.Object?.Value));
                 }
             }
-
             foreach (var inputEvent in InputEvents.Where(o => o.FunctionName != "None"))
             {
                 Events.Remove(inputEvent.FunctionName);
@@ -102,12 +98,9 @@ namespace UEBlueprintGraphViewer.Assets
                 }
             }
 
-            if (GetPropValue<UScriptArray>(GeneratedClass, "Timelines") is { } array2)
+            foreach (var index in GeneratedClass.Timelines)
             {
-                foreach (var index in GetPropsValues<FPackageIndex>(array2))
-                {
-                    Timelines.Add(GetTimelineData(index.ResolvedObject?.Object?.Value));
-                }
+                Timelines.Add(GetTimelineData(index.ResolvedObject?.Object?.Value));
             }
 
             foreach (var timeline in Timelines)

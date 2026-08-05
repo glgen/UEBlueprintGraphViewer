@@ -24,7 +24,7 @@ public class GraphView2 : ContentControl
 {
     public GraphView2()
     {
-        customDrawOperation = new(this);
+        _customDrawOperation = new(this);
         ClipToBounds = true;
         Focusable = true;
         Autopanner = new(this);
@@ -40,7 +40,7 @@ public class GraphView2 : ContentControl
             editor?.PropertyChanged -= EditorOnPropertyChanged;
             editor = value;
             editor?.SelectedNodes.Clear();
-            mouseOverNode = null;
+            _mouseOverNode = null;
             InvalidateVisual();
             GraphViewSearch search = new() { DataContext = editor };
             Content = search;
@@ -71,46 +71,46 @@ public class GraphView2 : ContentControl
     
     public SelectionChanged OnSelectionChanged;
     
-    readonly CustomDrawOperation customDrawOperation;
+    private readonly CustomDrawOperation _customDrawOperation;
 
     public double CustomDrawOperationTime;
-    private double lastTime;
-    private double deltaTimeMs;
+    private double _lastTime;
+    private double _deltaTimeMs;
     
     public Vector Translation { get; private set; } = new(0, 0);
     
 
     public float Scaling = 1;
     
-    public Point MousePosition => lastMousePosition;
+    public Point MousePosition => _lastMousePosition;
 
 
-    private bool isDragging;
-    private bool isDraggingNode;
-    private bool isSelecting;
-    private Point lastMousePosition;
-    private Point mousePosOnGraph;
-    private Point mousePosOnGraphOnPress;
+    private bool _isDragging;
+    private bool _isDraggingNode;
+    private bool _isSelecting;
+    private Point _lastMousePosition;
+    private Point _mousePosOnGraph;
+    private Point _mousePosOnGraphOnPress;
     
-    private List<BPNode> selectedNodesBeforeSelection = [];
-    private BPNode? mouseOverNode;
+    private List<BPNode> _selectedNodesBeforeSelection = [];
+    private BPNode? _mouseOverNode;
 
     public bool DisableMoving;
 
-    private int gridSnap = 8;
+    private int _gridSnap = 8;
     
-    private object updateLock = new();
+    private object _updateLock = new();
     
     public override void Render(DrawingContext context)
     {
         double elapsed = (double)Stopwatch.GetTimestamp() / (Stopwatch.Frequency / 1000f);
-        deltaTimeMs = elapsed - lastTime;
-        lastTime = elapsed;
+        _deltaTimeMs = elapsed - _lastTime;
+        _lastTime = elapsed;
         
         if (IsEffectivelyVisible)
         {
-            customDrawOperation.Bounds = Bounds;
-            context.Custom(customDrawOperation);
+            _customDrawOperation.Bounds = Bounds;
+            context.Custom(_customDrawOperation);
         }
     }
 
@@ -131,27 +131,27 @@ public class GraphView2 : ContentControl
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var props = e.GetCurrentPoint(this).Properties;
-        mousePosOnGraphOnPress = mousePosOnGraph;
+        _mousePosOnGraphOnPress = _mousePosOnGraph;
         if (props.IsLeftButtonPressed)
         {
             UpdateNodesSelection(e);
-            isDraggingNode = mouseOverNode != null;
-            isSelecting = !isDraggingNode;
-            if (isSelecting)
+            _isDraggingNode = _mouseOverNode != null;
+            _isSelecting = !_isDraggingNode;
+            if (_isSelecting)
             {
                 if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
                 {
-                    selectedNodesBeforeSelection = [..Editor?.SelectedNodes ?? []];
+                    _selectedNodesBeforeSelection = [..Editor?.SelectedNodes ?? []];
                 }
                 else
                 {
-                    selectedNodesBeforeSelection = [];
+                    _selectedNodesBeforeSelection = [];
                 }
             }
         }
         if (props.IsRightButtonPressed || props.IsMiddleButtonPressed)
         {
-            isDragging = !DisableMoving;
+            _isDragging = !DisableMoving;
         }
         
         InvalidateVisual();
@@ -161,21 +161,21 @@ public class GraphView2 : ContentControl
     {
         if (e.InitialPressMouseButton == MouseButton.Right)
         {
-            if (mousePosOnGraphOnPress == mousePosOnGraph)
+            if (_mousePosOnGraphOnPress == _mousePosOnGraph)
             {
                 UpdateNodesSelection(e);
                 var flyout = new Flyout() {FlyoutPresenterClasses = { "ContextMenu" }};
-                flyout.Content = mouseOverNode != null ? new NodeContextMenu(this, flyout) : new AddNodeMenu();
+                flyout.Content = _mouseOverNode != null ? new NodeContextMenu(this, flyout) : new AddNodeMenu();
                 flyout.ShowAt(this, true);
             }
         }
         
-        if (isSelecting)
+        if (_isSelecting)
             OnSelectionChanged?.Invoke();
         
-        isDragging = false;
-        isDraggingNode = false;
-        isSelecting = false;
+        _isDragging = false;
+        _isDraggingNode = false;
+        _isSelecting = false;
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -183,33 +183,33 @@ public class GraphView2 : ContentControl
         var newPos = e.GetPosition(this);
         var newGraphPos = (newPos + Translation) / Scaling;
 
-        mouseOverNode = Editor?.Nodes.FirstOrDefault(o => 
-            mousePosOnGraph.X > o.X && mousePosOnGraph.Y > o.Y &&
-            mousePosOnGraph.X < o.Right && mousePosOnGraph.Y < o.Bottom);
+        _mouseOverNode = Editor?.Nodes.FirstOrDefault(o => 
+            _mousePosOnGraph.X > o.X && _mousePosOnGraph.Y > o.Y &&
+            _mousePosOnGraph.X < o.Right && _mousePosOnGraph.Y < o.Bottom);
         
-        if (mouseOverNode != null)
+        if (_mouseOverNode != null)
         {
-            if (mousePosOnGraph.Y > mouseOverNode.Y + (mouseOverNode.HeaderHidden ? 0 : 30))
+            if (_mousePosOnGraph.Y > _mouseOverNode.Y + (_mouseOverNode.HeaderHidden ? 0 : 30))
             {
-                List<GraphPin> pins = mousePosOnGraph.X < mouseOverNode.X + mouseOverNode.NodeWidth / 2f
-                    ? mouseOverNode.Input
-                    : mouseOverNode.Output;
-                Editor?.MouseOverPin = pins.FirstOrDefault(o => !o.IsHidden && mousePosOnGraph.Y < o.Y + 16);
+                List<GraphPin> pins = _mousePosOnGraph.X < _mouseOverNode.X + _mouseOverNode.NodeWidth / 2f
+                    ? _mouseOverNode.Input
+                    : _mouseOverNode.Output;
+                Editor?.MouseOverPin = pins.FirstOrDefault(o => !o.IsHidden && _mousePosOnGraph.Y < o.Y + 16);
             }
         }
         
-        if (isDragging)
+        if (_isDragging)
         {
-            var delta = lastMousePosition - newPos;
+            var delta = _lastMousePosition - newPos;
             Translation += delta;
             if (!e.KeyModifiers.HasFlag(KeyModifiers.Shift))
                 OnPanned?.Invoke(delta);
         }
         
-        if (isDraggingNode)
+        if (_isDraggingNode)
         {
-            float offsetX = (float)(Math.Floor(newGraphPos.X / gridSnap) * gridSnap - Math.Floor(mousePosOnGraph.X / gridSnap) * gridSnap);
-            float offsetY = (float)(Math.Floor(newGraphPos.Y / gridSnap) * gridSnap - Math.Floor(mousePosOnGraph.Y / gridSnap) * gridSnap);
+            float offsetX = (float)(Math.Floor(newGraphPos.X / _gridSnap) * _gridSnap - Math.Floor(_mousePosOnGraph.X / _gridSnap) * _gridSnap);
+            float offsetY = (float)(Math.Floor(newGraphPos.Y / _gridSnap) * _gridSnap - Math.Floor(_mousePosOnGraph.Y / _gridSnap) * _gridSnap);
             
             foreach (var node in Editor?.SelectedNodes ?? [])
             {
@@ -217,30 +217,30 @@ public class GraphView2 : ContentControl
             }
         }
         
-        if (isSelecting && Editor != null)
+        if (_isSelecting && Editor != null)
         {
-            var minX = Math.Min(mousePosOnGraphOnPress.X, mousePosOnGraph.X);
-            var minY = Math.Min(mousePosOnGraphOnPress.Y, mousePosOnGraph.Y);
-            var maxX = Math.Max(mousePosOnGraphOnPress.X, mousePosOnGraph.X);
-            var maxY = Math.Max(mousePosOnGraphOnPress.Y, mousePosOnGraph.Y);
+            var minX = Math.Min(_mousePosOnGraphOnPress.X, _mousePosOnGraph.X);
+            var minY = Math.Min(_mousePosOnGraphOnPress.Y, _mousePosOnGraph.Y);
+            var maxX = Math.Max(_mousePosOnGraphOnPress.X, _mousePosOnGraph.X);
+            var maxY = Math.Max(_mousePosOnGraphOnPress.Y, _mousePosOnGraph.Y);
 
             var selected = Editor.Nodes.Where(o =>
                 o.X < maxX && minX < o.Right &&
                 o.Y < maxY && minY < o.Bottom).ToList();
-            var toAdd = selected.Where(o => !selectedNodesBeforeSelection.Contains(o));
-            var toRemove = selected.Where(o => selectedNodesBeforeSelection.Contains(o));
+            var toAdd = selected.Where(o => !_selectedNodesBeforeSelection.Contains(o));
+            var toRemove = selected.Where(o => _selectedNodesBeforeSelection.Contains(o));
             
-            lock (updateLock)
+            lock (_updateLock)
             {
                 Editor.SelectedNodes.Clear();
-                Editor.SelectedNodes.AddRange(selectedNodesBeforeSelection);
+                Editor.SelectedNodes.AddRange(_selectedNodesBeforeSelection);
                 Editor.SelectedNodes.AddRange(toAdd);
                 Editor.SelectedNodes.RemoveAll(o => toRemove.Contains(o));
             }
         }
         
-        lastMousePosition = newPos;
-        mousePosOnGraph = newGraphPos;
+        _lastMousePosition = newPos;
+        _mousePosOnGraph = newGraphPos;
         
         InvalidateVisual();
     }
@@ -249,21 +249,21 @@ public class GraphView2 : ContentControl
     {
         if (Editor == null) return;
         Editor.SelectedPin = Editor.MouseOverPin;
-        if (!Editor.SelectedNodes.Contains(mouseOverNode))
+        if (!Editor.SelectedNodes.Contains(_mouseOverNode))
         {
             if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
                 Editor.SelectedNodes.Clear();
             }
             
-            if (mouseOverNode != null)
+            if (_mouseOverNode != null)
             {
-                Editor.SelectedNodes.Add(mouseOverNode);
+                Editor.SelectedNodes.Add(_mouseOverNode);
             }
         }
         else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
-            Editor.SelectedNodes.Remove(mouseOverNode);
+            Editor.SelectedNodes.Remove(_mouseOverNode);
         }
         OnSelectionChanged?.Invoke();
     }
@@ -271,7 +271,7 @@ public class GraphView2 : ContentControl
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         var origTranslation = Translation;
-        Zoom(e.Delta.Y, lastMousePosition);
+        Zoom(e.Delta.Y, _lastMousePosition);
         OnPanned?.Invoke(Translation - origTranslation);
     }
 
@@ -318,26 +318,26 @@ public class GraphView2 : ContentControl
 
         public bool HitTest(Point p) => Bounds.Contains(p);
 
-        static SKColor backgroundColor = new SKColor(30,30,30);
-        static SKPaint darkerBackgroundPaint = SkiaUtils.MakePaint(21, 21, 21);
-        static SKPaint gridPaint = SkiaUtils.MakeStroke(1, 51,51,51, 128);
-        static SKPaint gridPaint2 = SkiaUtils.MakeStroke(2, 51,51,51);
-        static SKPaint nodeBackg = SkiaUtils.MakePaint(40,40,40);
-        static SKPaint nodeAddedBackg = SkiaUtils.MakePaint(40,88,40);
-        static SKPaint nodeChangedBackg = SkiaUtils.MakePaint(136,136,40);
-        static SKPaint nodeRemovedBackg = SkiaUtils.MakePaint(136,40,40);
-        static SKPaint nodeBorder = SkiaUtils.MakeStroke(SKColors.Black, 1);
-        static SKPaint nodeSelectedBorder = SkiaUtils.MakeStroke(SKColors.Orange, 1);
-        static SKPaint nodeSearchResultBorder = SkiaUtils.MakeStroke(SKColors.White, 3);
-        static SKPaint nodeValue = SkiaUtils.MakePaint(34,34,34);
-        private static SKPaint nodeValueBorder = SkiaUtils.MakeStroke(1, 153, 153, 153);
-        static SKPaint selection = SkiaUtils.MakePaint(30,50,80, 70);
-        static SKPaint selectionBorder = SkiaUtils.MakeStroke(1, 30,80,150);
-        private static SKPaint textPaint = SkiaUtils.MakePaint(255, 255, 255, 255);
-        private static SKPaint textPaint2 = SkiaUtils.MakePaint(255, 255, 255, 128);
+        private static readonly SKColor BackgroundColor = new SKColor(30,30,30);
+        private static readonly SKPaint DarkerBackgroundPaint = SkiaUtils.MakePaint(21, 21, 21);
+        private static readonly SKPaint GridPaint = SkiaUtils.MakeStroke(1, 51,51,51, 128);
+        private static readonly SKPaint GridPaint2 = SkiaUtils.MakeStroke(2, 51,51,51);
+        private static readonly SKPaint NodeBackg = SkiaUtils.MakePaint(40,40,40);
+        private static readonly SKPaint NodeAddedBackg = SkiaUtils.MakePaint(40,88,40);
+        private static readonly SKPaint NodeChangedBackg = SkiaUtils.MakePaint(136,136,40);
+        private static readonly SKPaint NodeRemovedBackg = SkiaUtils.MakePaint(136,40,40);
+        private static readonly SKPaint NodeBorder = SkiaUtils.MakeStroke(SKColors.Black, 1);
+        private static readonly SKPaint NodeSelectedBorder = SkiaUtils.MakeStroke(SKColors.Orange, 1);
+        private static readonly SKPaint NodeSearchResultBorder = SkiaUtils.MakeStroke(SKColors.White, 3);
+        private static readonly SKPaint NodeValue = SkiaUtils.MakePaint(34,34,34);
+        private static readonly SKPaint NodeValueBorder = SkiaUtils.MakeStroke(1, 153, 153, 153);
+        private static readonly SKPaint Selection = SkiaUtils.MakePaint(30,50,80, 70);
+        private static readonly SKPaint SelectionBorder = SkiaUtils.MakeStroke(1, 30,80,150);
+        private static readonly SKPaint TextPaint = SkiaUtils.MakePaint(255, 255, 255, 255);
+        private static readonly SKPaint TextPaint2 = SkiaUtils.MakePaint(255, 255, 255, 128);
 
-        private static SKFont textFont = SkiaUtils.MakeFont(12.5f);
-        static SKFont textFontBody = SkiaUtils.MakeFont( 28);
+        private static readonly SKFont TextFont = SkiaUtils.MakeFont(12.5f);
+        private static readonly SKFont TextFontBody = SkiaUtils.MakeFont( 28);
         
         
         public void Render(ImmediateDrawingContext context)
@@ -352,7 +352,7 @@ public class GraphView2 : ContentControl
                 canvas.Save();
                 
                 // Fill background of entire control
-                canvas.Clear(backgroundColor);
+                canvas.Clear(BackgroundColor);
                 
                 RenderGrid(canvas);
                 
@@ -391,41 +391,41 @@ public class GraphView2 : ContentControl
                             RenderNode(canvas, node);
                     }
                     
-                    lock (view.updateLock)
+                    lock (view._updateLock)
                     {
                         foreach (var node in view.Editor.SelectedNodes)
                         {
                             canvas.DrawRoundRect(node.X, node.Y,
-                                node.NodeWidth, node.NodeHeight, 5, 5, nodeSelectedBorder);
+                                node.NodeWidth, node.NodeHeight, 5, 5, NodeSelectedBorder);
                         }
                         
                         foreach (var node in view.Editor.SearchResult)
                         {
                             canvas.DrawRoundRect(node.X, node.Y,
-                                node.NodeWidth, node.NodeHeight, 5, 5, nodeSearchResultBorder);
+                                node.NodeWidth, node.NodeHeight, 5, 5, NodeSearchResultBorder);
                         }
                     }
                 }
 
-                if (view.mouseOverNode is not null && view.Editor?.MouseOverPin is {} mouseOverPin)
+                if (view._mouseOverNode is not null && view.Editor?.MouseOverPin is {} mouseOverPin)
                     RenderPinSelection(mouseOverPin, canvas);
                 
                 canvas.Restore();
 
-                if (view.isSelecting)
+                if (view._isSelecting)
                 {
-                    var start = view.mousePosOnGraphOnPress * view.Scaling - view.Translation;
-                    var end = view.mousePosOnGraph * view.Scaling - view.Translation;
+                    var start = view._mousePosOnGraphOnPress * view.Scaling - view.Translation;
+                    var end = view._mousePosOnGraph * view.Scaling - view.Translation;
                     
                     SKRect rect = new((float)start.X, (float)start.Y, (float)end.X, (float)end.Y);
-                    canvas.DrawRect(rect, selection);
-                    canvas.DrawRect(rect, selectionBorder);
+                    canvas.DrawRect(rect, Selection);
+                    canvas.DrawRect(rect, SelectionBorder);
                 }
 
-                canvas.DrawRect( new SKRect(0, (float)Bounds.Height - 25, (float)Bounds.Width, (float)Bounds.Height), darkerBackgroundPaint);
+                canvas.DrawRect( new SKRect(0, (float)Bounds.Height - 25, (float)Bounds.Width, (float)Bounds.Height), DarkerBackgroundPaint);
                 float textY = (float)Bounds.Height - 8;
-                canvas.DrawText($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, textFont, textPaint);
-                canvas.DrawText($"FPS: {Math.Round(1000f / view.deltaTimeMs)}", 120, textY, SKTextAlign.Left, textFont, textPaint);
+                canvas.DrawText($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText($"FPS: {Math.Round(1000f / view._deltaTimeMs)}", 120, textY, SKTextAlign.Left, TextFont, TextPaint);
                 
                 stopWatch.Stop();
                 view.CustomDrawOperationTime = stopWatch.Elapsed.TotalMilliseconds;
@@ -442,9 +442,9 @@ public class GraphView2 : ContentControl
             float width = 35;
             if (!pin.IsNameHidden)
             {
-                width += textFont.MeasureText(pin.PinFriendlyName);
+                width += TextFont.MeasureText(pin.PinFriendlyName);
                 if (pin.IsInput && !pin.IsConnected)
-                    width += Math.Clamp(textFont.MeasureText(pin.Value), 30, 400) + 10;
+                    width += Math.Clamp(TextFont.MeasureText(pin.Value), 30, 400) + 10;
             }
 
             if (pin.IsOutput)
@@ -467,14 +467,14 @@ public class GraphView2 : ContentControl
 
             if (pin.Value.Length > 55)
             {
-                SKRect popupRect = new SKRect((float)view.mousePosOnGraph.X, (float)view.mousePosOnGraph.Y + 15,
-                    (float)view.mousePosOnGraph.X + 400, (float)view.mousePosOnGraph.Y + 200);
+                SKRect popupRect = new SKRect((float)view._mousePosOnGraph.X, (float)view._mousePosOnGraph.Y + 15,
+                    (float)view._mousePosOnGraph.X + 400, (float)view._mousePosOnGraph.Y + 200);
                 string formatted = JsonConvert.SerializeObject(pin.Value).Trim('"');
-                SkiaUtils.DrawTextWithWrapping(canvas, formatted, popupRect, textFont, textPaint, height =>
+                SkiaUtils.DrawTextWithWrapping(canvas, formatted, popupRect, TextFont, TextPaint, height =>
                 {
                     SKRect popupRect2 = new SKRect(popupRect.Left - 5, popupRect.Top - 5, popupRect.Right + 5, popupRect.Top + 5 + height);
-                    canvas.DrawRoundRect(popupRect2, 5, 5, nodeValue);
-                    canvas.DrawRoundRect(popupRect2, 5, 5, nodeValueBorder);
+                    canvas.DrawRoundRect(popupRect2, 5, 5, NodeValue);
+                    canvas.DrawRoundRect(popupRect2, 5, 5, NodeValueBorder);
                 });
             }
         }
@@ -513,11 +513,11 @@ public class GraphView2 : ContentControl
 
             SKPaint backg = node.ChangeStatus switch
             {
-                ChangeStatus.None => nodeBackg,
-                ChangeStatus.Added => nodeAddedBackg,
-                ChangeStatus.Removed => nodeRemovedBackg,
-                ChangeStatus.Changed => nodeChangedBackg,
-                _ => nodeBackg,
+                ChangeStatus.None => NodeBackg,
+                ChangeStatus.Added => NodeAddedBackg,
+                ChangeStatus.Removed => NodeRemovedBackg,
+                ChangeStatus.Changed => NodeChangedBackg,
+                _ => NodeBackg,
             };
             
             if (view.Scaling > 0.2)
@@ -534,7 +534,7 @@ public class GraphView2 : ContentControl
                     using SKRoundRect a = new(nodeHeaderRect, 0);
                     a.SetNinePatch(nodeHeaderRect, 5,5,5,0);
                     canvas.DrawRoundRect(a, headerPaint);
-                    canvas.DrawText(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, textFont, textPaint);
+                    canvas.DrawText(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, TextFont, TextPaint);
                 }
                 else
                 {
@@ -545,9 +545,9 @@ public class GraphView2 : ContentControl
             if (view.Scaling > 0.2)
             {
                 if (node.ShowNameAsBody)
-                    canvas.DrawText(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, textFontBody, textPaint2);
+                    canvas.DrawText(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
 
-                canvas.DrawRoundRect(nodeRect, 5,5, nodeBorder);
+                canvas.DrawRoundRect(nodeRect, 5,5, NodeBorder);
 
                 foreach (var pin in node.Input)
                     RenderPin(node, pin, canvas);
@@ -571,35 +571,35 @@ public class GraphView2 : ContentControl
             float nameWidth = 35;
             if (!pin.IsNameHidden)
             {
-                canvas.DrawText(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, textFont, textPaint);
-                nameWidth = textFont.MeasureText(pin.PinFriendlyName) + 35;
+                canvas.DrawText(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, TextFont, TextPaint);
+                nameWidth = TextFont.MeasureText(pin.PinFriendlyName) + 35;
             }
             
             if (pin is { IsInput: true, IsConnected: false, PinType.PinCategory: not EngineBPData.PinType.exec })
             {
                 var valueFormatted = JsonConvert.SerializeObject(pin.Value).Trim('"');
-                var valueWidth = Math.Clamp(textFont.MeasureText(valueFormatted), 30, 400) + 10;
+                var valueWidth = Math.Clamp(TextFont.MeasureText(valueFormatted), 30, 400) + 10;
                 var rect = SKRect.Create(nameWidth + 5, connectorY - 10, valueWidth, 20);
-                canvas.DrawRoundRect(rect, 5,5, nodeValue);
-                canvas.DrawRoundRect(rect, 5,5, nodeValueBorder);
+                canvas.DrawRoundRect(rect, 5,5, NodeValue);
+                canvas.DrawRoundRect(rect, 5,5, NodeValueBorder);
                     
                 string value = valueFormatted.Length > 55 ? $"{valueFormatted[..55]}..." : valueFormatted;
-                canvas.DrawText(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, textFont, textPaint);
+                canvas.DrawText(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, TextFont, TextPaint);
             }
         }
         
         private void RenderGrid(SKCanvas canvas)
         {
             if (view.Scaling > 0.4)
-                RenderLines(16, gridPaint);
+                RenderLines(16, GridPaint);
 
             if (view.Scaling > 0.3)
-                RenderLines(128, gridPaint2);
+                RenderLines(128, GridPaint2);
 
             if (view.Scaling is <= 0.3f and > 0.05f)
             {
-                RenderLines(128, gridPaint);
-                RenderLines(1024, gridPaint2);
+                RenderLines(128, GridPaint);
+                RenderLines(1024, GridPaint2);
             }
             
             return;

@@ -11,7 +11,6 @@ using UEBlueprintGraphViewer.Assets;
 using CUE4Parse.Compression;
 using System;
 using CUE4Parse.MappingsProvider.Jmap;
-using CUE4Parse.MappingsProvider.Usmap;
 using CUE4Parse.UE4.Assets;
 using CUE4Parse.UE4.Pak.Objects;
 
@@ -19,7 +18,7 @@ namespace UEBlueprintGraphViewer
 {
     public class PackageData : IDisposable
     {
-        public List<GameFile> Assets = [];
+        public List<GameFile> Assets;
         public DefaultFileProvider Provider;
 
         public PackageData(GameSettings game)
@@ -50,14 +49,14 @@ namespace UEBlueprintGraphViewer
             return Task.Run(() => new PackageData(game) );
         }
 
-        public Task<Asset> LoadAsset(string Path, string Name)
+        public Task<Asset> LoadAsset(string path, string name)
         {
-            return Task.Run(() => new Asset(Provider.LoadPackage(Path), Name));
+            return Task.Run(() => new Asset(Provider.LoadPackage(path), name));
         }
         
-        public Task<IPackage> LoadPackage(string Path)
+        public Task<IPackage> LoadPackage(string path)
         {
-            return Task.Run(() => Provider.LoadPackage(Path));
+            return Task.Run(() => Provider.LoadPackage(path));
         }
         public Task<IPackage> LoadImportsOnlyPackageAsync(GameFile file)
         {
@@ -73,9 +72,9 @@ namespace UEBlueprintGraphViewer
             throw new NotImplementedException($"type {file.GetType()} is not supported");
         }
         
-        public async Task<Asset> LoadAssetAndCheck(string Path, string Name)
+        public async Task<Asset> LoadAssetAndCheck(string path, string name)
         {
-            Asset asset = await LoadAsset(Path, Name);
+            Asset asset = await LoadAsset(path, name);
             if (!asset.IsBP) throw new AssetIsNotBlueprintException();
             return asset;
         }

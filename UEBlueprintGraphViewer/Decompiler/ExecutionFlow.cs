@@ -1,10 +1,7 @@
 ﻿using CUE4Parse.UE4.Kismet;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UEBlueprintGraphViewer.ControlFlow;
 using static UEBlueprintGraphViewer.Engine.Utils;
-using static UEBlueprintGraphViewer.Engine.PropertiesUtils;
 
 namespace UEBlueprintGraphViewer.Decompiler
 {
@@ -236,13 +233,6 @@ namespace UEBlueprintGraphViewer.Decompiler
         {
             var a = Blocks.Find(o => o.IsInside(statementIndex));
             return new(source, a, statementIndex);
-        }
-
-        public (InstrBlock, int) FindInBlocks(uint statementIndex)
-        {
-            var startBlock = Blocks.Find(o => o.IsInside(statementIndex));
-            var startIndex = startBlock.GetIndex(statementIndex);
-            return (startBlock, startIndex);
         }
 
     }

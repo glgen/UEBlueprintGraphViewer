@@ -47,7 +47,7 @@ namespace UEBlueprintGraphViewer.Engine
             if (properties == null)
                 throw new DecompilerException($"Failed to find struct EX_StructConst is referencing to. Struct: {PackageIndexToName(ex.Struct)}");
             
-            if (properties?.Count != ex.Properties.Length)
+            if (properties.Count != ex.Properties.Length)
                 throw new DecompilerException($"Struct member count mismatch. Found {properties.Count} members in dump, expected in EX_StructConst: {ex.Properties.Length} Struct: {PackageIndexToName(ex.Struct)}");
             
             List<string> parms = [];

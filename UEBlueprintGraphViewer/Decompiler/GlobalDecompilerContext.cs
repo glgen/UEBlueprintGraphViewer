@@ -1,5 +1,4 @@
 ﻿using CUE4Parse.UE4.Objects.UObject;
-using System;
 using System.Collections.Generic;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Engine;

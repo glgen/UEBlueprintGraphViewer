@@ -14,11 +14,9 @@ namespace UEBlueprintGraphViewer;
 
 public class JmapData
 {
-    private readonly Dictionary<string, ObjectData> ObjectsLookup = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, FunctionData> FunctionsLookup = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, ObjectData> ObjectsPathLookup = new(StringComparer.OrdinalIgnoreCase);
-    private readonly List<EnumData> Enums = [];
-    private readonly HashSet<string> ObjectNamesCollisions = [];
+    private readonly Dictionary<string, ObjectData> _objectsLookup = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FunctionData> _functionsLookup = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<EnumData> _enums = [];
 
     public JmapData(string path)
     {
@@ -34,7 +32,7 @@ public class JmapData
         {
             if (obj.Value.Type is "Class" or "Package" or "ScriptStruct")
             {
-                ObjectsLookup.Add(obj.Key, new ObjectData()
+                _objectsLookup.Add(obj.Key, new ObjectData()
                 {
                     Name = obj.Key,
                     Properties = obj.Value.Properties?.Select(o => GetProperty(o, obj.Key)!)?.ToDictionary(o => o.Name, o => o, StringComparer.OrdinalIgnoreCase) ?? [],
@@ -44,14 +42,14 @@ public class JmapData
             {
                 // removing outers from name
                 string name = obj.Key.Substring(obj.Value.Outer.Length + 1);
-                FunctionsLookup.Add(obj.Key, new FunctionData(name, GetFunctionFlags(obj.Value.FunctionFlags))
+                _functionsLookup.Add(obj.Key, new FunctionData(name, GetFunctionFlags(obj.Value.FunctionFlags))
                 {
                     Params = [.. obj.Value.Properties?.Select(o => GetProperty(o, obj.Key))!],
                 });
             }
             if (obj.Value.Type == "Enum")
             {
-                Enums.Add(new EnumData(obj.Key)
+                _enums.Add(new EnumData(obj.Key)
                 {
                     Elements = obj.Value.Names?.ToDictionary(
                         o => (o[0] is JsonElement ? (JsonElement)o[0] : default).GetString(),
@@ -64,19 +62,19 @@ public class JmapData
         {
             if (obj.Value.Type is "Class" or "ScriptStruct")
             {
-                var toChange = ObjectsLookup[obj.Key];
+                var toChange = _objectsLookup[obj.Key];
                 
-                toChange.Outer = ObjectsLookup[obj.Value.Outer];
+                toChange.Outer = _objectsLookup[obj.Value.Outer];
                 if (obj.Value.SuperStruct != null)
-                    toChange.SuperStruct = ObjectsLookup[obj.Value.SuperStruct];
-                toChange.Interfaces = obj.Value.Intefaces?.Select(o => ObjectsLookup[o.Class]).ToArray() ?? [];
+                    toChange.SuperStruct = _objectsLookup[obj.Value.SuperStruct];
+                toChange.Interfaces = obj.Value.Intefaces?.Select(o => _objectsLookup[o.Class]).ToArray() ?? [];
             }
             if (obj.Value.Type == "Function")
             {
-                var outer = ObjectsLookup[obj.Value.Outer];
-                var func = FunctionsLookup[obj.Key];
+                var outer = _objectsLookup[obj.Value.Outer];
+                var func = _functionsLookup[obj.Key];
                 outer.AddFunction(func);
-                func.Outer = ObjectsLookup[obj.Value.Outer];
+                func.Outer = _objectsLookup[obj.Value.Outer];
             }
         }
     }
@@ -95,7 +93,7 @@ public class JmapData
             prop.SignatureFunction?.SubstringBeforeLast('.') ?? "");
     }
     
-    private EFunctionFlags GetFunctionFlags(string flags)
+    private static EFunctionFlags GetFunctionFlags(string flags)
     {
         EFunctionFlags result = 0;
         var parts =  flags.Split(" | ");
@@ -107,7 +105,7 @@ public class JmapData
         return result;
     }
     
-    private EPropertyFlags GetPropertyFlags(string flags)
+    private static EPropertyFlags GetPropertyFlags(string flags)
     {
         EPropertyFlags result = 0;
         var parts =  flags.Split(" | ");
@@ -152,14 +150,14 @@ public class JmapData
     
     public ObjectData? GetObjectData(string objName)
     {
-        if (ObjectsLookup.TryGetValue(objName, out var obj))
+        if (_objectsLookup.TryGetValue(objName, out var obj))
             return obj;
         return null;
     }
     
     public EnumData? TryFindEnum(string Name)
     {
-        return Enums.Find(o => o.Name.EqualsFName(Name));
+        return _enums.Find(o => o.Name.EqualsFName(Name));
     }
     
     public bool TryFindProperty(string Name, FPackageIndex objIndex, out PropertyData? prop)

@@ -1,9 +1,7 @@
-﻿using Avalonia;
-using CUE4Parse.UE4.Kismet;
+﻿using CUE4Parse.UE4.Kismet;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UEBlueprintGraphViewer.Comparing;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
@@ -40,9 +38,7 @@ namespace UEBlueprintGraphViewer.Nodes
         public bool Pure;
     
         public ChangeStatus ChangeStatus;
-
-        public string NodeText => $"StatementIndex: {StatementIndex}\nNodeWidth: {NodeWidth}\nNodeHeight: {NodeHeight}\nX: {X}\nY: {Y}";
-
+        
         public string NodeJson => JsonConvert.SerializeObject(NodeInstr, Formatting.Indented);
 
         public readonly List<GraphPin> Input = [];
@@ -52,32 +48,32 @@ namespace UEBlueprintGraphViewer.Nodes
         public int OutputParamsCount => Output.Count - (ExecOutPin == null ? 0 : 1);
 
 
-        public void AddInputPin(GraphPin Pin)
+        public void AddInputPin(GraphPin pin)
         {
-            Pin.BindToNode(this);
-            Input.Add(Pin);
+            pin.BindToNode(this);
+            Input.Add(pin);
         }
 
-        public void AddInputPin(GraphPin Pin, int Index)
+        public void AddInputPin(GraphPin pin, int index)
         {
-            Pin.BindToNode(this);
+            pin.BindToNode(this);
             if (ExecPin != null)
-                Index += 1;
-            Input.Insert(Index, Pin);
+                index += 1;
+            Input.Insert(index, pin);
         }
 
-        public void SetInputPin(GraphPin Pin, int Index)
+        public void SetInputPin(GraphPin pin, int index)
         {
-            Pin.BindToNode(this);
+            pin.BindToNode(this);
             if (ExecPin != null)
-                Index += 1;
-            Input[Index] = Pin;
+                index += 1;
+            Input[index] = pin;
         }
 
-        public void AddOutputPin(GraphPin Pin)
+        public void AddOutputPin(GraphPin pin)
         {
-            Pin.BindToNode(this);
-            Output.Add(Pin);
+            pin.BindToNode(this);
+            Output.Add(pin);
         }
 
         public GraphPin? GetFirstInputParam()
@@ -102,10 +98,10 @@ namespace UEBlueprintGraphViewer.Nodes
 
         public BPNode() { }
 
-        public BPNode(string name, KismetExpression? Instr)
+        public BPNode(string name, KismetExpression? instr)
         {
             Name = name;
-            NodeInstr = Instr;
+            NodeInstr = instr;
             NodeType = GetType().Name;
         }
 
@@ -113,57 +109,57 @@ namespace UEBlueprintGraphViewer.Nodes
         {
             //Approximate size
 
-            const int CharSize = 7;
-            const int CharSizeBodyText = 15;
-            const int Padding = 32;
-            const int ValueBoxMinSize = 30;
-            const int ValueBoxMaxSize = 400;
+            const int charSize = 7;
+            const int charSizeBodyText = 15;
+            const int padding = 32;
+            const int valueBoxMinSize = 30;
+            const int valueBoxMaxSize = 400;
 
-            const int PinHeight = 32;
+            const int pinHeight = 32;
 
-            int InputSize = 0;
-            int OutputSize = 0;
-            int InputPinsHeight = 0;
-            int OutputPinsHeight = 0;
+            int inputSize = 0;
+            int outputSize = 0;
+            int inputPinsHeight = 0;
+            int outputPinsHeight = 0;
 
             NodeHeight = HeaderHidden ? 0 : 34; // node header
 
-            foreach (GraphPin Pin in Input)
+            foreach (GraphPin pin in Input)
             {
-                if (Pin.IsHidden) continue;
+                if (pin.IsHidden) continue;
 
-                InputPinsHeight += PinHeight;
+                inputPinsHeight += pinHeight;
 
-                int InpNameSize = Pin.IsNameHidden ? 0 : Pin.PinFriendlyName.Length * CharSize;
-                int InputValueSize = 0;
+                int inpNameSize = pin.IsNameHidden ? 0 : pin.PinFriendlyName.Length * charSize;
+                int inputValueSize = 0;
 
-                if (Pin.LinkedTo.Count == 0)
+                if (pin.LinkedTo.Count == 0)
                 {
-                    InputValueSize = Math.Clamp(Pin.Value.Length * CharSize + 16, ValueBoxMinSize, ValueBoxMaxSize) + 4;
+                    inputValueSize = Math.Clamp(pin.Value.Length * charSize + 16, valueBoxMinSize, valueBoxMaxSize) + 4;
                 }
-                InputSize = Math.Max(InputSize, InpNameSize + InputValueSize);
+                inputSize = Math.Max(inputSize, inpNameSize + inputValueSize);
             }
 
-            foreach (GraphPin Pin in Output)
+            foreach (GraphPin pin in Output)
             {
-                if (Pin.IsHidden) continue;
+                if (pin.IsHidden) continue;
 
-                OutputPinsHeight += PinHeight;
-                OutputSize = Math.Max(OutputSize, Pin.IsNameHidden ? 0 : Pin.PinFriendlyName.Length * CharSize);
+                outputPinsHeight += pinHeight;
+                outputSize = Math.Max(outputSize, pin.IsNameHidden ? 0 : pin.PinFriendlyName.Length * charSize);
             }
 
-            int InputPadding = InputPinsHeight == 0 ? 0 : Padding;
-            int OutputPadding = OutputPinsHeight == 0 ? 0 : Padding;
+            int inputPadding = inputPinsHeight == 0 ? 0 : padding;
+            int outputPadding = outputPinsHeight == 0 ? 0 : padding;
 
-            int BodySize = 35;
+            int bodySize = 35;
             if (ShowNameAsBody)
             {
-                BodySize = 12 + Math.Max(23, Name.Length * CharSizeBodyText);
+                bodySize = 12 + Math.Max(23, Name.Length * charSizeBodyText);
             }
 
-            NodeWidth = InputPadding + InputSize + BodySize + OutputSize + OutputPadding;
-            NodeWidth = Math.Max(NodeWidth, Name.Length * CharSize + 20);
-            NodeHeight += Math.Max(InputPinsHeight, OutputPinsHeight);
+            NodeWidth = inputPadding + inputSize + bodySize + outputSize + outputPadding;
+            NodeWidth = Math.Max(NodeWidth, Name.Length * charSize + 20);
+            NodeHeight += Math.Max(inputPinsHeight, outputPinsHeight);
         }
 
         protected virtual void MakePins(bool needExec, bool needThen)
@@ -171,9 +167,9 @@ namespace UEBlueprintGraphViewer.Nodes
             MakePins(needExec, needThen, []);
         }
 
-        protected virtual void MakePins(bool needExec, bool needThen, GraphPin ContextPin)
+        protected virtual void MakePins(bool needExec, bool needThen, GraphPin contextPin)
         {
-            MakePins(needExec, needThen, [], ContextPin);
+            MakePins(needExec, needThen, [], contextPin);
         }
 
         protected virtual void MakePins(bool needExec, bool needThen, List<GraphPin> parms)

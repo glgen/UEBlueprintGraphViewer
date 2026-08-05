@@ -1,8 +1,5 @@
-﻿using Avalonia;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UEBlueprintGraphViewer.Engine;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
@@ -44,10 +41,10 @@ namespace UEBlueprintGraphViewer.Nodes
         public bool IsInput => Direction == EEdGraphPinDirection.EGPD_Input;
         public bool IsOutput => Direction == EEdGraphPinDirection.EGPD_Output;
 
-        public void SetName(string Name)
+        public void SetName(string name)
         {
-            PinName = Name;
-            PinFriendlyName = Name;
+            PinName = name;
+            PinFriendlyName = name;
         }
 
         public void HidePin()
@@ -57,9 +54,9 @@ namespace UEBlueprintGraphViewer.Nodes
             IsHidden = true;
         }
 
-        public void BindToNode(BPNode Node)
+        public void BindToNode(BPNode node)
         {
-            ParentNode = Node;
+            ParentNode = node;
             UpdateAnchor();
         }
 
@@ -79,42 +76,42 @@ namespace UEBlueprintGraphViewer.Nodes
             Y = ParentNode.Y + 17 + (ParentNode.HeaderHidden ? 0 : 30) + (index * 32);
         }
 
-        public void Connect(GraphPin Pin)
+        public void Connect(GraphPin pin)
         {
-            LinkedTo.Add(Pin);
+            LinkedTo.Add(pin);
             IsConnected = true;
         }
 
-        public void Disconnect(GraphPin Pin)
+        public void Disconnect(GraphPin pin)
         {
-            LinkedTo.Remove(Pin);
+            LinkedTo.Remove(pin);
             IsConnected = LinkedTo.Count > 0;
         }
 
-        public GraphPin(string Name, EEdGraphPinDirection Direction, GraphPinType Type)
+        public GraphPin(string name, EEdGraphPinDirection direction, GraphPinType type)
         {
-            SetName(Name);
-            this.Direction = Direction;
-            PinType = Type;
+            SetName(name);
+            Direction = direction;
+            PinType = type;
         }
 
-        public GraphPin(string Name, bool IsInput, GraphPinType Type) :
-            this(Name, IsInput ? EEdGraphPinDirection.EGPD_Input : EEdGraphPinDirection.EGPD_Output, Type) { }
+        public GraphPin(string name, bool isInput, GraphPinType type) :
+            this(name, isInput ? EEdGraphPinDirection.EGPD_Input : EEdGraphPinDirection.EGPD_Output, type) { }
 
-        public GraphPin(string Name, EEdGraphPinDirection Direction, GraphPinType Type, string FriendlyName) : this(Name, Direction, Type)
+        public GraphPin(string name, EEdGraphPinDirection direction, GraphPinType type, string friendlyName) : this(name, direction, type)
         {
-            PinFriendlyName = FriendlyName;
+            PinFriendlyName = friendlyName;
         }
 
-        public GraphPin(string Name, string Value, EEdGraphPinDirection Direction, GraphPinType Type) : this(Name, Direction, Type)
+        public GraphPin(string name, string value, EEdGraphPinDirection direction, GraphPinType type) : this(name, direction, type)
         {
-            this.Value = Value;
+            Value = value;
         }
 
-        public GraphPin(string Name, string Value, EEdGraphPinDirection Direction, GraphPinType Type, PropertyData? Property) : this(Name, Direction, Type)
+        public GraphPin(string name, string value, EEdGraphPinDirection direction, GraphPinType type, PropertyData? property) : this(name, direction, type)
         {
-            this.Value = Value;
-            this.Property = Property;
+            Value = value;
+            Property = property;
         }
         
         public static bool IsBasicallyDifferent(GraphPin pin1, GraphPin pin2)

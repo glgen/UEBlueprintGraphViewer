@@ -14,8 +14,7 @@ namespace UEBlueprintGraphViewer.Views
 {
     public partial class AssetInfoPanel : UserControl
     {
-        public event FunctionSelectedHandler? FunctionChoosen;
-        public delegate void FunctionSelectedHandler(AssetFunctionViewModel func);
+        public event EventHandler<AssetFunctionViewModel>? FunctionChoosen;
         
         public EventHandler<string>? OnPropertySearchInCurrentGraph;
         public EventHandler<string>? OnFunctionSearchInCurrentGraph;
@@ -46,7 +45,7 @@ namespace UEBlueprintGraphViewer.Views
 
         public void InvokeSelected()
         {
-            FunctionChoosen?.Invoke(lastSelected);
+            FunctionChoosen?.Invoke(this, lastSelected);
         }
         
         private void PropertySearchInCurrentGraph_OnClick(object? sender, RoutedEventArgs e)

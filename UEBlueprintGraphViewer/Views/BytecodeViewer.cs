@@ -58,20 +58,6 @@ namespace UEBlueprintGraphViewer.Views
             viewModel.Json = bytecode;
             Editor.Text = bytecode;
         }
-        
-        
-        bool ApplyBrushAction(TextMate.Installation e, string colorKeyNameFromJson, Action<IBrush> applyColorAction)
-        {
-            if (!e.TryGetThemeColor(colorKeyNameFromJson, out var colorString))
-                return false;
-
-            if (!Color.TryParse(colorString, out Color color))
-                return false;
-
-            var colorBrush = new SolidColorBrush(color);
-            applyColorAction(colorBrush);
-            return true;
-        }
 
     }
 

@@ -112,7 +112,7 @@ namespace UEBlueprintGraphViewer.Views
             FirstViewer.Autopanner.PanToCentered(new Point(n?.X ?? 0, n?.Y ?? 0));
         }
 
-        public async void AssetInfoPanel_FunctionChoosen(AssetFunctionViewModel func)
+        public async void AssetInfoPanel_FunctionChoosen(object sender, AssetFunctionViewModel func)
         {
             OpenFunction(func);
         }
@@ -235,7 +235,11 @@ namespace UEBlueprintGraphViewer.Views
         public void GraphEditor_SelectionChanged(GraphView2 view)
         {
             var node = view.Editor?.SelectedNodes.FirstOrDefault();
-            DetailsText.Text = node?.NodeText ?? "";
+            DetailsText.Text = node == null ? "" :
+                            $"StatementIndex: {node.StatementIndex}\n" +
+                            $"NodeWidth: {node.NodeWidth}\n" +
+                            $"NodeHeight: {node.NodeHeight}\n" +
+                            $"X: {node.X}\nY: {node.Y}";
             var pin = view.Editor?.SelectedPin;
             DetailsPinText.Text = pin == null ? "" :
                                   $"{pin.PinFriendlyName}\n" +
