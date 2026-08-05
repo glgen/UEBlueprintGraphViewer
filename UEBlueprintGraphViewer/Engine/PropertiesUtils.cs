@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Decompiler;
 
 namespace UEBlueprintGraphViewer.Engine
@@ -38,36 +39,8 @@ namespace UEBlueprintGraphViewer.Engine
 
             throw new DecompilerException($"Failed to find property local var {name}");
         }
-
-        public static PropertyData ResolvedObjectToFunctionProperty(GameSettings game, string name, ResolvedObject ownerResolved)
-        {
-            string objName = ownerResolved.Outer.Name.ToString();
-            string funcName = ownerResolved.Name.ToString();
-            List<PropertyData> props = ResolvedObjectToFuncProps(game, ownerResolved, funcName);
-            
-            PropertyData? localVar = props.Find(o => o.Name.EqualsFName(name));
-            if (localVar == null)
-                throw new DecompilerException($"Failed to find local var {name} in {objName}.{funcName}");
-            localVar.Name = name;
-            return localVar;
-        }
-
-        public static List<PropertyData> ResolvedObjectToFuncProps(GameSettings game, ResolvedObject ownerResolved, string funcName)
-        {
-            List<PropertyData> props;
-            string pathName = ownerResolved.Outer.GetPathName();
-            if (pathName.Starts("/Script/") && game.Jmap.GetFunctionData(pathName, funcName) is {} functionData)
-            {
-                props = functionData.Params;
-            }
-            else
-            {
-                UObject? outer = ownerResolved.Outer.Load();
-                props = GetUFunctionProperties(ownerResolved.Load() as UFunction, outer);
-            }
-
-            return props;
-        }
+        
+        
 
         public static List<PropertyData> GetUFunctionProperties(UFunction function, UObject outer)
         {
@@ -116,10 +89,26 @@ namespace UEBlueprintGraphViewer.Engine
                 ResolvedObject? ownerResolved = ownerObj?.ResolvedObject;
                 if (ownerResolved != null)
                 {
-
-                    if (ownerResolved.Class.Name.Text == "Function")
+                    // assume that after : is a function name, otherwise it is regular object
+                    if (ownerObj?.ResolvedObject?.GetPathName().SubstringAfterLast(":") == ownerObj?.Name)
                     {
-                        return ResolvedObjectToFunctionProperty(game, ToName(pointer), ownerResolved);
+                        string funcName = ownerResolved.Name.ToString();
+                        List<PropertyData> props = [];
+                        string? pathName = ownerResolved.Outer?.GetPathName();
+                        if (pathName?.Starts("/Script/") == true && game.Jmap.GetFunctionData(pathName, funcName) is {} functionData)
+                        {
+                            props = functionData.Params;
+                        }
+                        else
+                        {
+                            UObject? outer = ownerResolved.Outer?.Load();
+                            props = GetUFunctionProperties(ownerResolved.Load() as UFunction, outer);
+                        }
+
+                        string name = ToName(pointer);
+                        PropertyData? localVar = props.Find(o => o.Name.EqualsFName(name));
+                        localVar.Name = name;
+                        return localVar;
                     }
                     else
                     {
@@ -128,7 +117,6 @@ namespace UEBlueprintGraphViewer.Engine
                             return prop!;
                         }
                         PropertyData newProp = ToProperty(pointer);
-                        //game.ParamsDump.AddProperty(newProp);
                         return newProp;
                     }
 
