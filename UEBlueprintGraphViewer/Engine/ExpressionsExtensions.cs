@@ -39,10 +39,10 @@ namespace UEBlueprintGraphViewer.Engine
             var struc = ex.Struct.Load();
             
             if (struc is UScriptClass or UScriptStruct && game.Jmap.TryFindProperties(ex.Struct, out List<PropertyData>? props))
-                properties = [.. props!.Select(o => o.Name)];
+                properties = [.. props!.Where(o => !o.Flags.HasFlag(EPropertyFlags.Transient)).Select(o => o.Name)];
             
             if (properties == null && struc is UStruct str)
-                properties = [.. str.ChildProperties.Select(o => o.Name.ToString())];
+                properties = [.. str.ChildProperties.Where(o => o is FProperty prop && !prop.PropertyFlags.HasFlag(EPropertyFlags.Transient)).Select(o => o.Name.ToString())];
             
             if (properties == null)
                 throw new DecompilerException($"Failed to find struct EX_StructConst is referencing to. Struct: {PackageIndexToName(ex.Struct)}");
