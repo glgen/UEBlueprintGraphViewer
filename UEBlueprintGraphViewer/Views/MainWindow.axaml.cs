@@ -201,7 +201,7 @@ namespace UEBlueprintGraphViewer
                 await LoadAsset(item);
         }
 
-        public async Task LoadAsset(AssetFile item, string function = "", int? statementIndex = null)
+        public async Task LoadAsset(AssetFile item)
         {
             if (AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag == item.FullPath) is { } foundTab)
             {
@@ -244,17 +244,6 @@ namespace UEBlueprintGraphViewer
                     Classes = { "Closeable" },
                     Content = viewer
                 });
-                
-                if (!string.IsNullOrEmpty(function) && asset.Asset != null)
-                {
-                    var func = asset.Asset.UbergraphFunction?.Name == function
-                        ? asset.Asset.SortedEvents.FirstOrDefault()
-                        : asset.Asset.Functions.FirstOrDefault(o => o.Name == function);
-                    await viewer.OpenFunction(new(function, func));
-                    await Task.Delay(10);
-                    if (statementIndex is {} index)
-                        viewer.RepositionViewport(index);
-                }
             }
             catch (Exception ex)
             {
