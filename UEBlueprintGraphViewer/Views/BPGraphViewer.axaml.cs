@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.LogicalTree;
+using Avalonia.Media.Imaging;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Nodes;
@@ -259,6 +261,43 @@ namespace UEBlueprintGraphViewer.Views
                 await Task.Delay(20);
                 InstructionsViewer.JumpToInstr(node.StatementIndex);
             }
+        }
+
+        private async void SaveAsPNG_OnClick(object? sender, RoutedEventArgs e)
+        {
+            string functionName = VM.Asset.Asset?.IsEvent(lastFunc) == true ? "Ubergraph" : lastFunc?.Name ?? "Unknown";
+            
+            var storageProvider = this.FindLogicalAncestorOfType<Window>()?.StorageProvider!;
+            var file = await storageProvider.SaveFilePickerAsync(new()
+            {
+                Title = "Save file",
+                FileTypeChoices = [new(".png file") { Patterns = ["*.png"] }],
+                SuggestedFileName = $"{VM.Asset.Asset?.Name}_{functionName}.png"
+            });
+
+            if (file is not {} f)
+                return;
+            
+            int xMin = (int)Graph.Nodes.Min(o => o.X);
+            int xMax = (int)Graph.Nodes.Max(o => o.X + o.NodeWidth);
+            int yMin = (int)Graph.Nodes.Min(o => o.Y);
+            int yMax = (int)Graph.Nodes.Max(o => o.Y + o.NodeHeight);
+            
+            GraphView2 view = new GraphView2()
+            {
+                Width = xMax - xMin + 300,
+                Height = yMax - yMin + 300,
+                Editor = GraphViewModel,
+            };
+            view.SetTranslation(new Point(xMin - 150, yMin - 150));
+            
+            var pixelSize = new PixelSize((int)view.Width, (int)view.Height - 25);
+            var size = new Size(view.Width, view.Height);
+            using var renderBitmap = new RenderTargetBitmap(pixelSize);
+            view.Measure(size);
+            view.Arrange(new Rect(size));
+            renderBitmap.Render(view);
+            renderBitmap.Save(file.Path.AbsolutePath, new PngBitmapEncoderOptions());
         }
     }
 
