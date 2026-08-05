@@ -50,7 +50,7 @@ namespace UEBlueprintGraphViewer.Engine
 
         public bool IsTempVar()
         {
-            return (Flags.HasFlag(EPropertyFlags.ConstParm) && !Flags.HasFlag(EPropertyFlags.OutParm)) || Name.Starts("Temp_");
+            return Name.Starts("Temp_");
         }
 
         public PropertyData(FProperty? prop, UObject owner) : this(new PropertyContainer(prop), owner) { }
