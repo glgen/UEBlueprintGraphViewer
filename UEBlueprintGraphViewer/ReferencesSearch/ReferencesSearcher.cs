@@ -180,13 +180,13 @@ public class ReferencesSearcher
             
                 foreach (var func in asset.Functions)
                 {
-                    var d = await DecompileFunc(asset, game, func);
+                    var d = DecompileFunc(asset, game, func);
                     action.Invoke(file, func.Name, d.Graph);
                 }
             
                 if (asset.SortedEvents.Count > 0)
                 {
-                    var d = await DecompileFunc(asset, game, asset.SortedEvents[0]);
+                    var d = DecompileFunc(asset, game, asset.SortedEvents[0]);
                     action.Invoke(file, asset.UbergraphFunction.Name, d.Graph);
                 }
             }
@@ -195,15 +195,12 @@ public class ReferencesSearcher
                 //errors.Add(ex.Message + "\n" + ex.StackTrace);
             }
             
-            static Task<FunctionDecompiler> DecompileFunc(Asset asset, GameSettings game, UFunction func)
+            static FunctionDecompiler DecompileFunc(Asset asset, GameSettings game, UFunction func)
             {
-                return Task.Run(() =>
-                {
-                    var decompiler = new FunctionDecompiler(asset, game, func);
-                    decompiler.GlobalContext.IsParsingMacros = false;
-                    decompiler.Decompile(null);
-                    return decompiler;
-                });
+                var decompiler = new FunctionDecompiler(asset, game, func);
+                decompiler.GlobalContext.IsParsingMacros = false;
+                decompiler.Decompile(null);
+                return decompiler;
             }
         });
     }
