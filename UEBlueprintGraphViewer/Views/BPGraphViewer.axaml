@@ -56,15 +56,30 @@
 					<Grid Grid.Column="2">
 						<TabControl Margin="0,5,0,0">
 							<TabItem Header="Details">
-								<Grid RowDefinitions="Auto,*"
+								<Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+								      Background="{StaticResource Background2}"
 								      DataContext="{Binding #Viewer.GraphViewModel}">
-									<TextBlock x:Name="DetailsText" Margin="5"/>
+									<TextBlock Text="Selected pin"
+									           Padding="5"
+									           Background="{StaticResource Background3}"
+									           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+									<TextBlock x:Name="DetailsPinText"
+									           Margin="5"
+									           Grid.Row="1"
+									           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+									<TextBlock Text="Selected node"
+									           Grid.Row="2"
+									           Padding="5"
+									           Background="{StaticResource Background3}"/>
+									
+									<TextBlock x:Name="DetailsText" Margin="5" Grid.Row="3"/>
 									<Button Content="Open in disassembly"
 									        Margin="5"
+									        Grid.Row="2"
 									        HorizontalAlignment="Right"
 									        VerticalAlignment="Top"
 									        Click="OpenInDisassemblyButton_Click"/>
-									<views:BytecodeViewer Grid.Row="1"
+									<views:BytecodeViewer Grid.Row="4"
 									                      x:Name="DetailsBytecode"
 									                      IsNodeDetails="True"/>
 								</Grid>

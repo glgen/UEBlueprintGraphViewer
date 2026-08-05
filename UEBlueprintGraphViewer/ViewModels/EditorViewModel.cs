@@ -19,6 +19,8 @@ namespace UEBlueprintGraphViewer.ViewModels
         public List<BPNode> SelectedNodes { get; } = [];
         
         public GraphPin? MouseOverPin { get; set; }
+        
+        public GraphPin? SelectedPin { get; set; }
 
         [ObservableProperty]
         private bool _disableMoving;

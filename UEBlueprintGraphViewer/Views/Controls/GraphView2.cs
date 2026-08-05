@@ -248,6 +248,7 @@ public class GraphView2 : ContentControl
     private void UpdateNodesSelection(PointerEventArgs e)
     {
         if (Editor == null) return;
+        Editor.SelectedPin = Editor.MouseOverPin;
         if (!Editor.SelectedNodes.Contains(mouseOverNode))
         {
             if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
@@ -258,14 +259,13 @@ public class GraphView2 : ContentControl
             if (mouseOverNode != null)
             {
                 Editor.SelectedNodes.Add(mouseOverNode);
-                OnSelectionChanged?.Invoke();
             }
         }
         else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             Editor.SelectedNodes.Remove(mouseOverNode);
-            OnSelectionChanged?.Invoke();
         }
+        OnSelectionChanged?.Invoke();
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
