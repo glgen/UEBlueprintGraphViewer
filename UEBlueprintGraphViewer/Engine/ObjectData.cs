@@ -31,12 +31,12 @@ public class ObjectData
         if (obj is UClass c)
         {
             Interfaces = c.Interfaces?.Select(o => new ObjectData(o.Class.Load()!)).ToArray();
-            Properties = c.ChildProperties?.Select(o => new PropertyData(new PropertyContainer((o as FProperty)!), obj)).ToDictionary(o => o.Name) ?? [];
+            Properties = c.ChildProperties?.Select(o => new PropertyData(new PropertyContainer((o as FProperty)!), obj)).ToDictionary(o => o.Name, o => o, StringComparer.OrdinalIgnoreCase) ?? [];
             functions = c.FuncMap?.Select(o =>
             {
                 var func = o.Value.Load() as UFunction;
                 return new FunctionData(func.Name, func.FunctionFlags) { Outer = this };
-            }).ToDictionary(o => o.Name);
+            }).ToDictionary(o => o.Name, o => o, StringComparer.OrdinalIgnoreCase);
         }
     }
 
