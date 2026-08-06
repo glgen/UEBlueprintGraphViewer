@@ -54,7 +54,7 @@ namespace UEBlueprintGraphViewer.Engine
             for (int i = 0; i < ex.Properties.Length; i++)
             {
                 ParseConstExpr(ex.Properties[i], game, out string value, out _);
-                parms.Add($"{properties![i]}={value}");
+                parms.Add($"{StructMemberNameToFriendlyName(properties![i])}={value}");
             }
 
             return $"({string.Join("; ", parms)})";
