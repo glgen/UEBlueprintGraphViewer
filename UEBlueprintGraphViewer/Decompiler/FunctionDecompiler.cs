@@ -673,7 +673,10 @@ namespace UEBlueprintGraphViewer.Decompiler
 
                         // if not specified then target is self
                         if (targetConst == null)
+                        {
                             targetConst = GlobalContext.CurrentAsset.GeneratedClass;
+                            targetConstPathName = targetConst!.GetPathName();
+                        }
 
                         FunctionData? func = null;
                         if (targetConst is UClass s)

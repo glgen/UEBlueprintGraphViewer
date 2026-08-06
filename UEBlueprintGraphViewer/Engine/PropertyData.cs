@@ -168,7 +168,7 @@ namespace UEBlueprintGraphViewer.Engine
             }
 
             PinType.PinCategory = PropTypeToPinType(propContainer.GetPropType());
-            PinType.PinSubCategoryObject = GetClassName(prop);
+            PinType.PinSubCategoryObject = GetClassName(propContainer);
             PinType.IsReference = Flags.HasFlag(EPropertyFlags.OutParm) && Flags.HasFlag(EPropertyFlags.ReferenceParm);
         }
 
