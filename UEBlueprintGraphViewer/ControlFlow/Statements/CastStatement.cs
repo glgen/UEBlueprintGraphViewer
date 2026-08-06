@@ -21,42 +21,49 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             // 1 - Let 'as object' local var to result of cast instruction
             K2Node_DynamicCast Node = MakeNode(cast, VarInstrToProperty(var, Context.Global));
             Context.AddNode(Node);
-            Connect(Context.LastPin, Node.ExecPin);
 
             Context.BlockIndex++;
-
-            // 2 - Let success local var
-            if (Context.GetInstr() is not EX_Let LetSuccess)
-            {
-                throw new DecompilerException("Cast node isn't setting success value", Context);
-            }
-            Context.MarkAsParsed();
-            Context.BlockIndex++;
-            
-            // Success variable name
-            string SuccessPropName = VarInstrToName(LetSuccess.Variable);
 
             bool hasJump = false;
-
-            // 3 - Jump if cast is failed (optional)
-            if (Context.BlockIndex == Context.Block.Instructions.Count - 1)
+            // 2 - Let success local var (optional in pure nodes)
+            if (Context.GetInstr() is EX_Let LetSuccess)
             {
-                if (Context.Block.Type is BlockType.BranchEndIfNot or BlockType.JumpIfNot)
+                Context.MarkAsParsed();
+                Context.BlockIndex++;
+                
+                // Success variable name
+                string SuccessPropName = VarInstrToName(LetSuccess.Variable);
+                
+                // 3 - Jump if cast is failed (optional)
+                if (Context.BlockIndex == Context.Block.Instructions.Count - 1)
                 {
-                    ParseJumpExpr(Context.GetInstr(), out KismetExpression? BoolExpr);
-
-                    // Ensure that this jump related to cast
-                    hasJump = BoolExpr is EX_VariableBase && VarInstrToName(BoolExpr) == SuccessPropName;
-                    if (hasJump)
+                    if (Context.Block.Type is BlockType.BranchEndIfNot or BlockType.JumpIfNot)
                     {
-                        Context.MarkAsParsed();
+                        ParseJumpExpr(Context.GetInstr(), out KismetExpression? BoolExpr);
+
+                        // Ensure that this jump related to cast
+                        hasJump = BoolExpr is EX_VariableBase && VarInstrToName(BoolExpr) == SuccessPropName;
+                        if (hasJump)
+                        {
+                            Context.MarkAsParsed();
+                        }
                     }
+                }
+                
+                // if the cast does not have a jump, expose success value and remove failed execution pin
+                if (!hasJump)
+                {
+                    GraphPin successPin = new("Success", EEdGraphPinDirection.EGPD_Output,
+                        MakePinType(PinType.Bool));
+                    Node.AddOutputPin(successPin);
+                    context.LocalVars.Create(SuccessPropName, successPin);
                 }
             }
             
             // processing all branches
             if (hasJump)
             {
+                Connect(Context.LastPin, Node.ExecPin);
                 Context.ProcessBranch(Context.Block.Jumps[0], Node.ExecOutPin);
                 if (Context.Block.Type is BlockType.JumpIfNot)
                 {
@@ -65,7 +72,15 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             }
             else
             {
-                Context.ProcessBranch(Context.Block, Context.BlockIndex, Node.ExecOutPin);
+                // if the cast does not have a jump, this node is pure
+                Node.Pure = true;
+                Node.Output.Remove(Node.ExecFailedPin!);
+                Node.Output.Remove(Node.ExecOutPin!);
+                Node.Input.Remove(Node.ExecPin!);
+                Node.ExecFailedPin = null;
+                Node.ExecOutPin = null;
+                Node.ExecPin = null;
+                Context.ProcessBranch(Context.Block, Context.BlockIndex, Context.LastPin);
             }
         }
 

@@ -7,7 +7,7 @@ namespace UEBlueprintGraphViewer.Nodes
 {
     public class K2Node_DynamicCast : BPNode
     {
-        public GraphPin ExecFailedPin;
+        public GraphPin? ExecFailedPin;
         public GraphPin ObjectPin;
         public GraphPin AsObjectPin;
         public string ClassName;
