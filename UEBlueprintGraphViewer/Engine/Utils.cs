@@ -252,6 +252,10 @@ namespace UEBlueprintGraphViewer.Engine
                     value = exp.GetArrayValue(game);
                     type = PropertiesUtils.KismetPointerToPropertyUnknownType(exp.InnerProperty, game).PinType;
                     return true;
+                case EX_SetConst exp:
+                    value = exp.GetSetValue(game);
+                    type = PropertiesUtils.KismetPointerToPropertyUnknownType(exp.InnerProperty, game).PinType;
+                    return true;
                 case EX_InstanceDelegate exp:
                     value = exp.FunctionName.ToString();
                     pinType = PinType.Delegate;

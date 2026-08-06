@@ -70,6 +70,17 @@ namespace UEBlueprintGraphViewer.Engine
 
             return $"[{string.Join(", ", parms)}]";
         }
+        
+        public static string GetSetValue(this EX_SetConst ex, GameSettings game)
+        {
+            var parms = ex.Elements.Select(o =>
+            {
+                ParseConstExpr(o, game, out string value, out _);
+                return value;
+            });
+
+            return $"{{{string.Join(", ", parms)}}}";
+        }
 
         public static (string Name, string Outer) GetNameAndOuter(this EX_FinalFunction expr)
         {
