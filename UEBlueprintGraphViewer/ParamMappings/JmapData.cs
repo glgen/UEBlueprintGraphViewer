@@ -88,6 +88,7 @@ public class JmapData
             GetPropertyFlags(prop.Flags),
             prop.PropertyClass,
             prop.Container?.Type ?? prop.Inner?.Type ?? "None",
+            prop.KeyProp?.Type ?? "None",
             prop.ValueProp?.Type ?? "None",
             prop.SignatureFunction?.SubstringAfterLast('.') ?? "",
             prop.SignatureFunction?.SubstringBeforeLast('.') ?? "");
@@ -286,6 +287,9 @@ public class JmapData
         
         [JsonPropertyName("container")]
         public JmapProperty? Container { get; set; }
+        
+        [JsonPropertyName("key_prop")]
+        public JmapProperty? KeyProp { get; set; }
         
         [JsonPropertyName("value_prop")]
         public JmapProperty? ValueProp { get; set; }

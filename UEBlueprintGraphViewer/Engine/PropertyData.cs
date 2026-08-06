@@ -83,6 +83,7 @@ namespace UEBlueprintGraphViewer.Engine
             EPropertyFlags flags,
             string className,
             string innerProp,
+            string keyProp,
             string valueProp,
             string delegateSignatureFunction,
             string delegateSignatureObject)
@@ -92,7 +93,7 @@ namespace UEBlueprintGraphViewer.Engine
             Flags = flags;
             DelegateSignatureFunction = delegateSignatureFunction;
             DelegateSignatureObjectPath = delegateSignatureObject;
-            MakePinType(type, innerProp, valueProp, className);
+            MakePinType(type, innerProp, keyProp, valueProp, className);
         }
 
         private string GetClassName(PropertyContainer prop)
@@ -173,7 +174,7 @@ namespace UEBlueprintGraphViewer.Engine
         }
 
         // Make pin type from types string
-        private void MakePinType(string type, string inner, string value, string className)
+        private void MakePinType(string type, string inner, string key, string value, string className)
         {
             PinType = new GraphPinType();
 
@@ -185,9 +186,15 @@ namespace UEBlueprintGraphViewer.Engine
                 _ => EPinContainerType.None,
             };
 
-            PinType.PinCategory = PropTypeToPinType(inner == None || type == "EnumProperty" ? type : inner);
             if (PinType.ContainerType == EPinContainerType.Map)
+            {
+                PinType.PinCategory = PropTypeToPinType(key);
                 PinType.PinSubCategory = PropTypeToPinType(value);
+            }
+            else
+            {
+                PinType.PinCategory = PropTypeToPinType(inner == None || type == "EnumProperty" ? type : inner);
+            }
             PinType.PinSubCategoryObject = className == None ? None : className;
             PinType.IsReference = Flags.HasFlag(EPropertyFlags.OutParm) && Flags.HasFlag(EPropertyFlags.ReferenceParm);
         }
