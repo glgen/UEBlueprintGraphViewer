@@ -17,7 +17,7 @@ namespace UEBlueprintGraphViewer.Nodes
                 MakeShowNameAsBody(parms, op);
 
             // HACK: change array getter return type from int to actual array type
-            if (funcName is "Array_Get" or "Array_Find" && parms.FirstOrDefault(o => o.IsOutput) is { } outPin)
+            if (funcName is "Array_Get" && parms.FirstOrDefault(o => o.IsOutput) is { } outPin)
                 outPin.PinType = Utils.MakePinType(parms.FirstOrDefault(o => o.PinName == "TargetArray")?.PinType.PinCategory ?? EngineBPData.PinType.Unknown);
         }
     }
