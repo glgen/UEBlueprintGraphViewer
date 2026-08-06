@@ -1,5 +1,6 @@
 ﻿using CUE4Parse.UE4.Kismet;
 using System.Collections.Generic;
+using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Engine;
 using UEBlueprintGraphViewer.Nodes;
@@ -17,7 +18,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
         {
             PropertyData firstStructVar = VarInstrToProperty(structContext.StructExpression, Context.Global);
             string StructVarName = firstStructVar.Name;
-            string StructName = firstStructVar.PinType.PinSubCategoryObject;
+            string StructName = firstStructVar.PinType.PinSubCategoryObject.SubstringAfterLast('.');
 
             List<GraphPin> StructMembersPin = [];
 
