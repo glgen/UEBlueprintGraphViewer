@@ -13,16 +13,6 @@
 			 x:Name="Viewer">
 	<UserControl.Resources>
 		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsTemplate">
-			<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="5" ColumnSpacing="5">
-				<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
-				<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-				<TextBlock Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap">
-					<Run Text="Default value:"/>
-					<Run Text="{Binding DefaultValue}"/>
-				</TextBlock>
-			</Grid>
-		</DataTemplate>
-		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsTemplate2">
 			<Grid ColumnDefinitions="Auto,*" ColumnSpacing="5">
 				<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
 				<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
@@ -109,7 +99,7 @@
 													<ListBox Margin="10"
 													         ItemsSource="{Binding Outputs}"
 													         Grid.Row="5"
-													         ItemTemplate="{StaticResource PropsTemplate2}"/>
+													         ItemTemplate="{StaticResource PropsTemplate}"/>
 													<TextBlock Text="Locals"
 													           Grid.Row="6"
 													           Padding="5"
@@ -117,7 +107,7 @@
 													<ListBox Margin="10"
 													         ItemsSource="{Binding Locals}"
 													         Grid.Row="7"
-													         ItemTemplate="{StaticResource PropsTemplate2}"/>
+													         ItemTemplate="{StaticResource PropsTemplate}"/>
 												</Grid>
 											</ScrollViewer>
 										</DataTemplate>

@@ -207,12 +207,6 @@ namespace UEBlueprintGraphViewer.ViewModels
             Inputs = Properties.Where(o => o.Property.IsInputParam()).ToList();
             Outputs = Properties.Where(o => o.Property.IsOutParam()).ToList();
             Locals = Properties.Where(o => !o.Property.IsFunctionParam()).ToList();
-
-            foreach (var prop in Properties)
-            {
-                prop.Property.SetPropertyDefaults(func);
-                prop.DefaultValue = prop.Property.DefaultValue;
-            }
         }
 
         public AssetFunctionViewModel(string? name, UFunction? func1, UFunction? func2)
