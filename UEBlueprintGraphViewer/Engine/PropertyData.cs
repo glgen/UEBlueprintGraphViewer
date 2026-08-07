@@ -2,10 +2,11 @@
 using CUE4Parse.UE4.Objects.UObject;
 using System;
 using System.Linq;
+using CUE4Parse.UE4.Assets.Objects;
+using CUE4Parse.UE4.Objects.Core.i18N;
 using UEBlueprintGraphViewer.Decompiler;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
-using static UEBlueprintGraphViewer.Engine.Utils;
 
 namespace UEBlueprintGraphViewer.Engine
 {
@@ -25,6 +26,8 @@ namespace UEBlueprintGraphViewer.Engine
         public string DelegateSignatureFunction;
         public string DelegateSignatureObjectPath;
         public UObject? DelegateSignatureObject;
+
+        public string DefaultValue;
 
         public override string ToString()
         {
@@ -197,6 +200,31 @@ namespace UEBlueprintGraphViewer.Engine
             }
             PinType.PinSubCategoryObject = className == None ? None : className;
             PinType.IsReference = Flags.HasFlag(EPropertyFlags.OutParm) && Flags.HasFlag(EPropertyFlags.ReferenceParm);
+        }
+        
+        public void SetPropertyDefaults(UObject source)
+        {
+            if (source?.Properties.FirstOrDefault(o => o.Name == Name) is { } value)
+            {
+                object? rawValue = value.Tag?.GenericValue;
+                DefaultValue = rawValue switch
+                {
+                    int a => a.ToString(),
+                    float a => a.ToString(),
+                    double a => a.ToString(),
+                    bool a => a.ToString(),
+                    string a => a.ToString(),
+                    FText a => a.ToString(),
+                    FName a => a.ToString(),
+                    UScriptArray a => a.ToString(),
+                    FStructFallback a => a.ToString(),
+                    _ => rawValue.ToString(),
+                };
+            }
+            else
+            {
+                DefaultValue = "[ENGINE DEFAULT]";
+            }
         }
 
         private static PinType PropTypeToPinType(string type)

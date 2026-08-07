@@ -181,11 +181,38 @@ namespace UEBlueprintGraphViewer.ViewModels
 
         [ObservableProperty]
         private ChangeStatus _changeStatus;
+        
+        [ObservableProperty]
+        private EFunctionFlags _flags;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _properties;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _inputs;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _outputs;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _locals;
 
         public AssetFunctionViewModel(string? name, UFunction func)
         {
             Function = func;
             Name = name ?? Function.Name;
+            Flags = Function.FunctionFlags;
+            Properties = func.ChildProperties.Select(o =>
+                new AssetPropertyViewModel(new(o as FProperty, func))).ToList();
+            Inputs = Properties.Where(o => o.Property.IsInputParam()).ToList();
+            Outputs = Properties.Where(o => o.Property.IsOutParam()).ToList();
+            Locals = Properties.Where(o => !o.Property.IsFunctionParam()).ToList();
+
+            foreach (var prop in Properties)
+            {
+                prop.Property.SetPropertyDefaults(func);
+                prop.DefaultValue = prop.Property.DefaultValue;
+            }
         }
 
         public AssetFunctionViewModel(string? name, UFunction? func1, UFunction? func2)
@@ -222,6 +249,12 @@ namespace UEBlueprintGraphViewer.ViewModels
         [ObservableProperty]
         private EngineBPData.GraphPinType _type;
         
+        [ObservableProperty]
+        private EPropertyFlags _flags;
+        
+        [ObservableProperty]
+        private string _defaultValue;
+        
         public ChangeStatus ChangeStatus { get; set; }
 
         public AssetPropertyViewModel(PropertyData prop)
@@ -229,6 +262,8 @@ namespace UEBlueprintGraphViewer.ViewModels
             Property = prop;
             Name = Property.Name;
             Type = Property.PinType;
+            Flags = Property.Flags;
+            DefaultValue = Property.DefaultValue;
         }
 
         public AssetPropertyViewModel(PropertyData? prop1, PropertyData? prop2)

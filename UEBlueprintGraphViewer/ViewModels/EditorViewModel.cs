@@ -55,6 +55,13 @@ namespace UEBlueprintGraphViewer.ViewModels
         [ObservableProperty]
         private int _searchResultIndex;
 
+        [ObservableProperty]
+        private string _detailsPinText;
+        
+        [ObservableProperty]
+        private string _detailsNodeText;
+
+        
         public void RemoveNode(BPNode node)
         {
             Nodes.Remove(node);

@@ -18,6 +18,8 @@ namespace UEBlueprintGraphViewer.Views
         
         public EventHandler<string>? OnPropertySearchInCurrentGraph;
         public EventHandler<string>? OnFunctionSearchInCurrentGraph;
+        
+        public EventHandler<object>? OnObjectSelected;
 
         private AssetFunctionViewModel lastSelected;
 
@@ -123,6 +125,36 @@ namespace UEBlueprintGraphViewer.Views
                 });
                 
                 dialog.Close();
+            }
+        }
+
+        private void EventList_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                OnObjectSelected?.Invoke(sender, e.AddedItems[0]);
+                FunctionList.SelectedIndex = -1;
+                PropertyList.SelectedIndex = -1;
+            }
+        }
+
+        private void FunctionList_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                OnObjectSelected?.Invoke(sender, e.AddedItems[0]);
+                EventList.SelectedIndex = -1;
+                PropertyList.SelectedIndex = -1;
+            }
+        }
+
+        private void PropertyList_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                OnObjectSelected?.Invoke(sender, e.AddedItems[0]);
+                EventList.SelectedIndex = -1;
+                FunctionList.SelectedIndex = -1;
             }
         }
     }

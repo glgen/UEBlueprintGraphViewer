@@ -20,6 +20,7 @@ namespace UEBlueprintGraphViewer.Assets
         public string Name = null!;
         public bool IsBP;
         public UBlueprintGeneratedClass? GeneratedClass;
+        public UObject? ClassDefaultObject;
 
         public UFunction? UbergraphFunction;
 
@@ -49,6 +50,7 @@ namespace UEBlueprintGraphViewer.Assets
         
             IsBP = true;
             GeneratedClass = BPClass;
+            ClassDefaultObject = GeneratedClass.ClassDefaultObject.Load<UObject>();
             ProcessBPClass();
         }
 
@@ -273,7 +275,11 @@ namespace UEBlueprintGraphViewer.Assets
         {
             if (GeneratedClass == null) return;
             foreach (var prop in GeneratedClass.ChildProperties.OfType<FProperty>().Select(o => new PropertyData(o, GeneratedClass)))
+            {
+                if (ClassDefaultObject != null)
+                    prop.SetPropertyDefaults(ClassDefaultObject);
                 LoadedProperties.Add(prop.Name, prop);
+            }
         }
     }
 

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
-using UEBlueprintGraphViewer.Assets;
+using Avalonia.VisualTree;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Nodes;
 using UEBlueprintGraphViewer.ViewModels;
@@ -43,10 +43,16 @@ namespace UEBlueprintGraphViewer.Views
             
             AssetInfoPanel.OnPropertySearchInCurrentGraph += OnPropertySearchInCurrentGraph;
             AssetInfoPanel.OnFunctionSearchInCurrentGraph += OnFunctionSearchInCurrentGraph;
+            AssetInfoPanel.OnObjectSelected += OnObjectSelected;
             
             UpdateSecondViewerState();
         }
-        
+
+        private void OnObjectSelected(object? sender, object e)
+        {
+            VM.SelectedObject = e;
+        }
+
         private void OnPropertySearchInCurrentGraph(object? sender, string e)
         {
             GraphViewModel.IsSearchExact = true;
@@ -234,22 +240,24 @@ namespace UEBlueprintGraphViewer.Views
 
         public void GraphEditor_SelectionChanged(GraphView2 view)
         {
+            VM.SelectedObject = null;
+            VM.SelectedObject = GraphViewModel;
             var node = view.Editor?.SelectedNodes.FirstOrDefault();
-            DetailsText.Text = node == null ? "" :
+            view.Editor?.DetailsNodeText = node == null ? "" :
                             $"StatementIndex: {node.StatementIndex}\n" +
                             $"NodeWidth: {node.NodeWidth}\n" +
                             $"NodeHeight: {node.NodeHeight}\n" +
                             $"X: {node.X}\nY: {node.Y}";
             var pin = view.Editor?.SelectedPin;
-            DetailsPinText.Text = pin == null ? "" :
+            view.Editor?.DetailsPinText = pin == null ? "" :
                                   $"{pin.PinFriendlyName}\n" +
-                                  $"{pin.Guid}" +
+                                  $"{pin.Guid}\n" +
                                   $"Category: {pin.PinType.PinCategory}\n" +
                                   $"Subcategory: {pin.PinType.PinSubCategory}\n" +
                                   $"Subcategory object: {pin.PinType.PinSubCategoryObject}\n" +
                                   $"Container type: {pin.PinType.ContainerType}\n" +
                                   $"Property: {pin.Property}";
-            DetailsBytecode.SetBytecode(node?.NodeJson);
+            DetailsContent.GetVisualDescendants().OfType<BytecodeViewer>().FirstOrDefault()?.SetBytecode(node?.NodeJson);
         }
 
         private void PanAnotherViewer(Vector delta, GraphView2 thisView, GraphView2 anotherView)
@@ -329,5 +337,8 @@ namespace UEBlueprintGraphViewer.Views
         private double progressValue = 0;
         [ObservableProperty]
         private double progressMax = 100;
+        
+        [ObservableProperty]
+        private object? selectedObject = null;
     }
 }

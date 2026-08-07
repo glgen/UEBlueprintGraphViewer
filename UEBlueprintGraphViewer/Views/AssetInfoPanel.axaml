@@ -64,6 +64,7 @@
 	        <ListBox x:Name="EventList"
 	                 Classes="Func"
 	                 Grid.Row="1"
+	                 SelectionChanged="EventList_OnSelectionChanged"
 	                 ItemsSource="{Binding EventsFiltered}">
 		        <ListBox.ContextMenu>
 			        <ContextMenu>
@@ -84,6 +85,7 @@
 	        <ListBox x:Name="FunctionList"
 	                 Classes="Func"
 	                 Grid.Row="1"
+	                 SelectionChanged="FunctionList_OnSelectionChanged"
 	                 ItemsSource="{Binding FunctionsFiltered}">
 		        <ListBox.ContextMenu>
 			        <ContextMenu>
@@ -104,6 +106,7 @@
 			<ListBox x:Name="PropertyList"
 			         Classes="Prop"
 			         Grid.Row="1"
+			         SelectionChanged="PropertyList_OnSelectionChanged"
 			         ItemsSource="{Binding Properties}">
 				<ListBox.ContextMenu>
 					<ContextMenu>

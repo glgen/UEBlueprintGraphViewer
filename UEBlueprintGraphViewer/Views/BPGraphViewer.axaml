@@ -11,6 +11,24 @@
              d:DesignHeight="450" d:DesignWidth="800"
              Background="{StaticResource Background1}"
 			 x:Name="Viewer">
+	<UserControl.Resources>
+		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsTemplate">
+			<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="5" ColumnSpacing="5">
+				<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+				<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+				<TextBlock Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap">
+					<Run Text="Default value:"/>
+					<Run Text="{Binding DefaultValue}"/>
+				</TextBlock>
+			</Grid>
+		</DataTemplate>
+		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsTemplate2">
+			<Grid ColumnDefinitions="Auto,*" ColumnSpacing="5">
+				<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+				<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+			</Grid>
+		</DataTemplate>
+	</UserControl.Resources>
 	
 	<Grid ColumnDefinitions="240,5,*">
 		<views:AssetInfoPanel Grid.Column="0"
@@ -56,33 +74,111 @@
 					<Grid Grid.Column="2">
 						<TabControl Margin="0,5,0,0">
 							<TabItem Header="Details">
-								<Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
-								      Background="{StaticResource Background2}"
-								      DataContext="{Binding #Viewer.GraphViewModel}">
-									<TextBlock Text="Selected pin"
-									           Padding="5"
-									           Background="{StaticResource Background3}"
-									           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-									<TextBlock x:Name="DetailsPinText"
-									           Margin="5"
-									           Grid.Row="1"
-									           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-									<TextBlock Text="Selected node"
-									           Grid.Row="2"
-									           Padding="5"
-									           Background="{StaticResource Background3}"/>
+								<ContentControl x:Name="DetailsContent" Content="{Binding SelectedObject}">
+									<ContentControl.DataTemplates>
+										<DataTemplate x:DataType="viewModels:AssetFunctionViewModel">
+											<ScrollViewer HorizontalScrollBarVisibility="Disabled">
+												<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+													<TextBlock Text="Function"
+													           Padding="5"
+													           Background="{StaticResource Background4}"/>
+													<StackPanel	Margin="10"
+														           Spacing="7"
+														           Grid.Row="1">
+														<TextBlock TextWrapping="Wrap">
+															<Run Text="Name:"/>
+															<Run Text="{Binding Name}"/>
+														</TextBlock>
+														<TextBlock TextWrapping="Wrap">
+															<Run Text="Flags:"/>
+															<Run Text="{Binding Flags}"/>
+														</TextBlock>
+													</StackPanel>
+													<TextBlock Text="Inputs"
+													           Grid.Row="2"
+													           Padding="5"
+													           Background="{StaticResource Background3}"/>
+													<ListBox Margin="10"
+													         ItemsSource="{Binding Inputs}"
+													         Grid.Row="3"
+													         ItemTemplate="{StaticResource PropsTemplate}"/>
+													<TextBlock Text="Outputs"
+													           Grid.Row="4"
+													           Padding="5"
+													           Background="{StaticResource Background3}"/>
+													<ListBox Margin="10"
+													         ItemsSource="{Binding Outputs}"
+													         Grid.Row="5"
+													         ItemTemplate="{StaticResource PropsTemplate2}"/>
+													<TextBlock Text="Locals"
+													           Grid.Row="6"
+													           Padding="5"
+													           Background="{StaticResource Background3}"/>
+													<ListBox Margin="10"
+													         ItemsSource="{Binding Locals}"
+													         Grid.Row="7"
+													         ItemTemplate="{StaticResource PropsTemplate2}"/>
+												</Grid>
+											</ScrollViewer>
+										</DataTemplate>
+										<DataTemplate x:DataType="viewModels:AssetPropertyViewModel">
+											<Grid RowDefinitions="Auto, *" Background="{StaticResource Background2}">
+												<TextBlock Text="Property"
+												           Padding="5"
+												           Background="{StaticResource Background4}"/>
+												<StackPanel	Margin="10"
+													           Spacing="7"
+													           Grid.Row="1">
+													<Grid ColumnDefinitions="Auto, *" ColumnSpacing="5">
+														<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+														<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+													</Grid>
+													<TextBlock TextWrapping="Wrap">
+														<Run Text="Flags:"/>
+														<Run Text="{Binding Flags}"/>
+													</TextBlock>
+													<TextBlock TextWrapping="Wrap">
+														<Run Text="Default value:"/>
+														<Run Text="{Binding DefaultValue}"/>
+													</TextBlock>
+												</StackPanel>
+											</Grid>
+										</DataTemplate>
+										<DataTemplate x:DataType="viewModels:EditorViewModel">
+											<Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+											      Background="{StaticResource Background2}"
+											      DataContext="{Binding #Viewer.GraphViewModel}">
+												<TextBlock Text="Selected pin"
+												           Padding="5"
+												           Background="{StaticResource Background3}"
+												           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+												<TextBlock x:Name="DetailsPinText"
+												           Margin="5"
+												           Grid.Row="1"
+												           Text="{Binding DetailsPinText}"
+												           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+												<TextBlock Text="Selected node"
+												           Grid.Row="2"
+												           Padding="5"
+												           Background="{StaticResource Background3}"/>
 									
-									<TextBlock x:Name="DetailsText" Margin="5" Grid.Row="3"/>
-									<Button Content="Open in disassembly"
-									        Margin="5"
-									        Grid.Row="2"
-									        HorizontalAlignment="Right"
-									        VerticalAlignment="Top"
-									        Click="OpenInDisassemblyButton_Click"/>
-									<views:BytecodeViewer Grid.Row="4"
-									                      x:Name="DetailsBytecode"
-									                      IsNodeDetails="True"/>
-								</Grid>
+												<TextBlock x:Name="DetailsText"
+												           Margin="5"
+												           Grid.Row="3"
+												           Text="{Binding DetailsNodeText}"/>
+												<Button Content="Open in disassembly"
+												        Margin="5"
+												        Grid.Row="2"
+												        HorizontalAlignment="Right"
+												        VerticalAlignment="Top"
+												        Click="OpenInDisassemblyButton_Click"/>
+												<views:BytecodeViewer Grid.Row="4"
+												                      x:Name="DetailsBytecode"
+												                      IsNodeDetails="True"/>
+											</Grid>
+										</DataTemplate>
+									</ContentControl.DataTemplates>
+								</ContentControl>
 							</TabItem>
 						</TabControl>
 					</Grid>
