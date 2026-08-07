@@ -243,6 +243,7 @@ namespace UEBlueprintGraphViewer.Views
             var pin = view.Editor?.SelectedPin;
             DetailsPinText.Text = pin == null ? "" :
                                   $"{pin.PinFriendlyName}\n" +
+                                  $"{pin.Guid}" +
                                   $"Category: {pin.PinType.PinCategory}\n" +
                                   $"Subcategory: {pin.PinType.PinSubCategory}\n" +
                                   $"Subcategory object: {pin.PinType.PinSubCategoryObject}\n" +
