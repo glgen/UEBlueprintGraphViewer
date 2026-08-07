@@ -20,6 +20,11 @@ public class PinConnector : Control
     }
     
     CustomDrawOperation _customDrawOperation = new();
+
+    public PinConnector()
+    {
+        AffectsRender<PinConnector>(PinTypeProperty);
+    }
     
     public override void Render(DrawingContext context)
     {
