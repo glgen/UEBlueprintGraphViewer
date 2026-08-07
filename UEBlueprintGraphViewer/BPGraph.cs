@@ -616,8 +616,6 @@ namespace UEBlueprintGraphViewer
                     for (var j = 0; j < graphPin.LinkedTo.Count; j++)
                     {
                         var pin = graphPin.LinkedTo[j];
-                        if (pin.ParentNode.NodeType == "K2Node_Tunnel")
-                            continue;
                         edges.Add(new()
                         {
                             From = graphPin,
@@ -646,150 +644,169 @@ namespace UEBlueprintGraphViewer
         // Find all used macros and collapse nodes into macro instance modes
         public void ProcessMacros()
         {
+            Dictionary<int, int> outSeqMapping = [];
+            
             foreach (var macro in Settings.Instance.Macros)
             {
+                Console.WriteLine(macro.Key);
+                
                 var patternNodes = macro.Value.Nodes;
-                
-                if (patternNodes.Count > Nodes.Count)
-                    continue;
-                
+                if (patternNodes.Count > Nodes.Count) continue;
+
                 Stopwatch sw = Stopwatch.StartNew();
-                
                 List<Edge2> edgesPattern = macro.Value.GetEdges();
+
+                // make matrix where nodes similarities are stored
+                List<HashSet<int>> candidateMatrix = patternNodes
+                    .Select(pNode => Nodes
+                        .Select((gNode, idx) => new { gNode, idx })
+                        .Where(x => TypesEqual(pNode, x.gNode))
+                        .Select(x => x.idx)
+                        .ToHashSet())
+                    .ToList();
                 
-                int[][] matrix = new int[patternNodes.Count][];
-
-                for (int i = 0; i < patternNodes.Count; i++)
-                {
-                    int[] row = new int[Nodes.Count];
-                    int jj = 0;
-                    for (int j = 0; j < Nodes.Count; j++)
-                    {
-                        if (TypesEqual(patternNodes[i], Nodes[j]))
-                        {
-                            row[jj] = j;
-                            jj++;
-                        }
-                    }
-                    Array.Resize(ref row, jj);
-                    matrix[i] = row;
-                }
-
+                // filter matrix removing nodes if connections scheme is incorrect
                 bool changed = true;
                 while (changed)
                 {
                     changed = false;
-                    
                     for (int i = 0; i < patternNodes.Count; i++)
                     {
-                        foreach (var j in matrix[i])
+                        var pNeighborIndices = patternNodes[i].Output
+                            .SelectMany(p => p.LinkedTo)
+                            .Where(p => p.ParentNode.NodeType != "K2Node_Tunnel")
+                            .Select(p => patternNodes.IndexOf(p.ParentNode))
+                            .ToList();
+
+                        var toRemove = new List<int>();
+                        foreach (var j in candidateMatrix[i])
                         {
-                            List<GraphPin> neighbors1 = [];
-                            foreach (var graphPin in patternNodes[i].Output)
+                            var gNeighborIndices = Nodes[j].Output
+                                .SelectMany(p => p.LinkedTo)
+                                .Select(p => Nodes.IndexOf(p.ParentNode))
+                                .ToHashSet();
+
+                            if (pNeighborIndices.Any(k => !candidateMatrix[k].Overlaps(gNeighborIndices)))
                             {
-                                neighbors1.AddRange(graphPin.LinkedTo);
+                                toRemove.Add(j);
+                                changed = true;
                             }
-                            
-                            foreach (GraphPin pin in neighbors1)
-                            {
-                                if (pin.ParentNode.NodeType == "K2Node_Tunnel") continue;
-                                
-                                var k = patternNodes.IndexOf(pin.ParentNode);
-
-                                bool haveMatch = false;
-                            
-                                List<GraphPin> neighbors2 = [];
-                                foreach (var graphPin in Nodes[j].Output)
-                                {
-                                    neighbors2.AddRange(graphPin.LinkedTo);
-                                }
-
-                                foreach (GraphPin pin2 in neighbors2)
-                                {
-                                    var m = Nodes.IndexOf(pin2.ParentNode);
-                                    if (matrix[k].Contains(m))
-                                    {
-                                        haveMatch = true;
-                                        break;
-                                    }
-                                }
-
-                                if (!haveMatch)
-                                {
-                                    var row = matrix[i].ToList();
-                                    row.Remove(j);
-                                    matrix[i] = [.. row];
-                                    changed = true;
-                                    break;
-                                }
-                            }
-                        }   
+                        }
+                        candidateMatrix[i].ExceptWith(toRemove);
                     }
                 }
-                
-                //Trace.WriteLine(Utils.MatrixToString(matrix));
-                
-                List<Dictionary<int, int>> results = [];
 
+                var fromSeqNodeIndex = edgesPattern.FirstOrDefault(o =>
+                    patternNodes[o.FromNodeIndex].NodeType == "K2Node_ExecutionSequence" &&
+                    patternNodes[o.ToNodeIndex].NodeType == "K2Node_Tunnel")?.FromNodeIndex;
+                BPNode? seqNodePattern = fromSeqNodeIndex == null ? null : patternNodes[fromSeqNodeIndex.Value];
+
+                Dictionary<BPNode, List<(int, int)>> seqMappings = [];
+                
+                // find where exactly macros are
+                List<Dictionary<int, int>> results = [];
                 for (var index = 0; index < Nodes.Count; index++)
                 {
-                    if (results.Any(o => o.ContainsValue(index)))
-                        continue;
-                    var bpNode = Nodes[index];
-                    if (IsThisMacroHere(matrix, bpNode, macro.Value, edgesPattern, out var foundNodes))
-                        results.Add(foundNodes);
-                }
-                
-                List<BPNode> toRemove = [];
-                List<BPNode> toAdd = [];
-                foreach (var result in results)
-                {
-                    Dictionary<GraphPin, List<GraphPin>> links = [];
-                    foreach (var pin in macro.Value.MacroInputNode!.Output)
-                        links.Add(pin, []);
-                    foreach (var pin in macro.Value.MacroOutputNode!.Input)
-                        links.Add(pin, []);
-                    
-                    toRemove.AddRange(result.Values.Select(o => Nodes[o]).ToList());
-                    
-                    foreach (var pair in result)
-                    {
-                        BPNode macroNode = patternNodes[pair.Key];
-                        BPNode testNode = Nodes[pair.Value];
+                    if (results.Any(o => o.ContainsValue(index))) continue;
 
-                        CheckPins(macroNode.Input, testNode.Input);
-                        CheckPins(macroNode.Output, testNode.Output);
-                        
-                        void CheckPins(List<GraphPin> macroPins, List<GraphPin> testPins)
+                    outSeqMapping = [];
+                    
+                    if (TryFindMacro(candidateMatrix, Nodes[index], macro.Value, edgesPattern, seqNodePattern, out var foundNodes))
+                    {
+                        results.Add(foundNodes);
+                        if (fromSeqNodeIndex != null)
                         {
-                            for (int i = 0; i < macroPins.Count; i++)
+                            seqMappings[Nodes[foundNodes[fromSeqNodeIndex.Value]]] =
+                                outSeqMapping.Select(o => (o.Key, o.Value)).ToList();
+                            foreach (var i in outSeqMapping)
                             {
-                                if (macroPins[i].LinkedTo.FirstOrDefault(o => o.ParentNode is {NodeType: "K2Node_Tunnel"}) is {} tunnelMacroPin)
-                                {
-                                    links.GetValueOrDefault(tunnelMacroPin).Add(testPins[i]);
-                                }
+                                Console.WriteLine($"{i.Key}:{i.Value}");
                             }
                         }
                     }
-                    
-                    List<GraphPin> inputs = [.. macro.Value.MacroInputNode!.Output
-                        .Select(o => MakeMacroInstancePin(o, EngineEnums.EEdGraphPinDirection.EGPD_Input, links))];
-                    
-                    List<GraphPin> outputs = [.. macro.Value.MacroOutputNode!.Input
-                        .Select(o => MakeMacroInstancePin(o, EngineEnums.EEdGraphPinDirection.EGPD_Output, links))];
-                    
-                    K2Node_MacroInstance inst = new(inputs, outputs, macro.Value.MacroName, Nodes[result[0]].NodeInstr);
-                    toAdd.Add(inst);
                 }
                 
-                foreach (var node in toRemove)
-                    RemoveNode(node);
-                foreach (var node in toAdd)
-                    AddNode(node);
-                
+                List<BPNode> toRemoveNodes = [];
+                List<BPNode> toAddNodes = [];
+
+                foreach (var result in results)
+                {
+                    Dictionary<GraphPin, List<GraphPin>> links = [];
+                    foreach (var pin in macro.Value.MacroInputNode!.Output.Concat(macro.Value.MacroOutputNode!.Input))
+                        links[pin] = [];
+
+                    toRemoveNodes.AddRange(result.Values.Select(v => Nodes[v]));
+
+                    foreach (var (pIndex, gIndex) in result)
+                    {
+                        List<GraphPin> parts = [];
+                        
+                        // if this node is sequence near tunnel
+                        // we create new sequences nodes with pins that are not in the macro
+                        if (seqMappings.TryGetValue(Nodes[gIndex], out List<(int, int)> mapping))
+                        {
+                            var seqNode = Nodes[gIndex];
+                            
+                            int last = 0;
+                            for (int i = 1; i <= mapping.Count; i++)
+                            {
+                                List<GraphPin> outPins = [];
+                                if (i == mapping.Count)
+                                {
+                                    outPins = Enumerable.Range(last, mapping[mapping.Count-1].Item2 - last)
+                                        .Select(o => seqNode.Output[o]).ToList();
+                                }
+                                else
+                                {
+                                    outPins = Enumerable.Range(last, mapping[i].Item2 - last)
+                                        .Select(o => seqNode.Output[o]).ToList();
+                                }
+
+                                if (outPins.Count > 1)
+                                {
+                                    var node = new K2Node_ExecutionSequence(0, null);
+                                    toAddNodes.Add(node);
+                                    foreach (var outPin in outPins)
+                                        node.AddOutputPin(outPin);
+                                    var pin = new GraphPin("TEST", false, outPins[0].PinType);
+                                    Utils.Connect(pin, node.ExecPin);
+                                    parts.Add(pin);
+                                }
+                                else if (outPins.Count == 1)
+                                {
+                                    parts.Add(outPins[0]);
+                                }
+                                else
+                                {
+                                    parts.Add(seqNode.Output[last]);
+                                }
+                                if (i != mapping.Count)
+                                    last = mapping[i].Item2;
+                            }
+                            
+                            // replace graph sequence pin outputs with new fake pins
+                            Nodes[gIndex].Output.Clear();
+                            Nodes[gIndex].Output.AddRange(parts);
+                            MapTunnelPins(patternNodes[pIndex].Output, Nodes[gIndex].Output, links);
+                        }
+                        else
+                        {
+                            MapTunnelPins(patternNodes[pIndex].Input, Nodes[gIndex].Input, links);
+                            MapTunnelPins(patternNodes[pIndex].Output, Nodes[gIndex].Output, links);
+                        }
+                    }
+
+                    var inputs = macro.Value.MacroInputNode!.Output
+                        .Select(p => MakeMacroInstancePin(p, EngineEnums.EEdGraphPinDirection.EGPD_Input, links)).ToList();
+                    var outputs = macro.Value.MacroOutputNode!.Input
+                        .Select(p => MakeMacroInstancePin(p, EngineEnums.EEdGraphPinDirection.EGPD_Output, links)).ToList();
+
+                    toAddNodes.Add(new K2Node_MacroInstance(inputs, outputs, macro.Value.MacroName, Nodes[result.First().Value].NodeInstr));
+                }
+
+                toRemoveNodes.ForEach(RemoveNode);
+                toAddNodes.ForEach(AddNode);
                 sw.Stop();
-                
-                // Trace.WriteLine($"MACRO: {macro.Key} count: {results.Count} (done in {sw.ElapsedMilliseconds} ms)");
             }
 
             bool TypesEqual(BPNode a, BPNode b)
@@ -799,110 +816,67 @@ namespace UEBlueprintGraphViewer
                     a.Input.Count > b.Input.Count ||
                     a.Output.Count > b.Output.Count)
                     return false;
-                
-                for (int i = 0; i < a.Input.Count; i++)
-                {
-                    GraphPin pin1 = a.Input[i];
-                
-                    // ignore macro tunnel pins
-                    if (pin1.LinkedTo.Any(o => o.ParentNode.NodeType == "K2Node_Tunnel"))
-                        continue;
-                
-                    GraphPin pin2 = b.Input[i];
-                    if (GraphPin.IsBasicallyDifferent(pin1, pin2))
-                        return false;
 
-                    if (!pin1.IsConnected &&
-                        pin1.Value != pin2.Value)
-                        return false;
-                }
-                for (int i = 0; i < a.Output.Count; i++)
-                {
-                    GraphPin pin1 = a.Output[i];
-                
-                    // ignore macro tunnel pins
-                    if (pin1.LinkedTo.Any(o => o.ParentNode.NodeType == "K2Node_Tunnel"))
-                        continue;
-                
-                    GraphPin pin2 = b.Output[i];
-                    if (GraphPin.IsBasicallyDifferent(pin1, pin2))
-                        return false;
-                }
+                return ComparePins(a.Input, b.Input, checkValues: true) &&
+                       ComparePins(a.Output, b.Output, checkValues: false);
 
-                return true;
+                bool ComparePins(List<GraphPin> p1, List<GraphPin> p2, bool checkValues)
+                {
+                    for (int i = 0; i < p1.Count; i++)
+                    {
+                        if (p1[i].LinkedTo.Any(o => o.ParentNode.NodeType == "K2Node_Tunnel")) continue;
+                        if (GraphPin.IsBasicallyDifferent(p1[i], p2[i])) return false;
+                        if (checkValues && !p1[i].IsConnected && p1[i].Value != p2[i].Value) return false;
+                    }
+                    return true;
+                }
             }
 
-            
-            bool IsThisMacroHere(int[][] matrix, BPNode node, BPGraph patternGraph, List<Edge2> patternEdges, out Dictionary<int, int> mappingsOut)
+            bool TryFindMacro(List<HashSet<int>> matrix, BPNode node, BPGraph patternGraph, List<Edge2> patternEdges, BPNode? seqNodePattern, out Dictionary<int, int> mappingsOut)
             {
-                BPNode firstNode = patternGraph.MacroInputNode.Output.FirstOrDefault(o =>
-                        o.PinType.PinCategory == PinType.exec).LinkedTo[0].ParentNode;
-                
+                var firstNode = patternGraph.MacroInputNode.Output
+                    .First(o => o.PinType.PinCategory == PinType.exec).LinkedTo[0].ParentNode;
+
                 Dictionary<int, int> mappings = [];
                 mappingsOut = mappings;
-                List<BPNode> failedNodes = [];
-                
-                // HACK: if we found nodes, but connection check fails, we try again excluding nodes with wrong connections.
-                // literally trying to bruteforce the right combination of nodes if it exists.
-                // this is for rare cases when there are some similar nodes that tricks recursive finding.
+                HashSet<BPNode> failedNodes = [];
+
                 while (true)
                 {
                     mappings.Clear();
                     mappings[patternGraph.Nodes.IndexOf(firstNode)] = Nodes.IndexOf(node);
-                    if (!(Test(firstNode, node) && mappings.Count == patternGraph.Nodes.Count - 2))
-                        break;
-                    
-                    if (!CheckAllConnections(mappings, patternEdges, Nodes, out BPNode? failed))
-                    {
-                        failedNodes.Add(failed!);
-                        continue;
-                    }
 
-                    return true;
+                    if (!Test(firstNode, node) || mappings.Count != patternGraph.Nodes.Count - 2)
+                        return false;
+
+                    if (CheckAllConnections(mappings, patternEdges, patternGraph.Nodes, seqNodePattern, out var failed))
+                        return true;
+
+                    failedNodes.Add(failed!);
                 }
-                return false;
-                
+
                 bool Test(BPNode macroNode, BPNode testNode)
                 {
-                    var row = matrix[patternGraph.Nodes.IndexOf(macroNode)];
-                    var testIndex = Nodes.IndexOf(testNode);
-                    if (!row.Contains(testIndex))
+                    int mIdx = patternGraph.Nodes.IndexOf(macroNode);
+                    if (!matrix[mIdx].Contains(Nodes.IndexOf(testNode)) || failedNodes.Contains(testNode))
                         return false;
 
-                    if (failedNodes.Contains(testNode))
-                        return false;
+                    mappings[mIdx] = Nodes.IndexOf(testNode);
 
-                    int macroNodeIndex = patternGraph.Nodes.IndexOf(macroNode);
-                    mappings[macroNodeIndex] = Nodes.IndexOf(testNode);
-                    
-                    if (CheckPins(macroNode.Output, testNode.Output))
-                        return true;
+                    return TryMapPins(macroNode.Output, testNode.Output) ||
+                           TryMapPins(macroNode.Input, testNode.Input) ||
+                           mappings.Count == patternGraph.Nodes.Count - 2;
 
-                    if (CheckPins(macroNode.Input, testNode.Input))
-                        return true;
-                    
-                    if (mappings.Count == patternGraph.Nodes.Count - 2)
-                        return true;
-                    
-                    return false;
-                    
-                    bool CheckPins(List<GraphPin> macroPins, List<GraphPin> testPins)
+                    bool TryMapPins(List<GraphPin> mPins, List<GraphPin> tPins)
                     {
-                        for (int i = 0; i < macroPins.Count; i++)
+                        for (int i = 0; i < mPins.Count; i++)
                         {
-                            foreach (var macroLink in macroPins[i].LinkedTo)
+                            foreach (var mLink in mPins[i].LinkedTo)
                             {
-                                int macroNodeIndex = patternGraph.Nodes.IndexOf(macroLink.ParentNode);
-                                if (mappings.ContainsKey(macroNodeIndex))
-                                    continue;
-                                foreach (var testLink in testPins[i].LinkedTo)
-                                {
-                                    if (Test(macroLink.ParentNode, testLink.ParentNode))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                
+                                if (mappings.ContainsKey(patternGraph.Nodes.IndexOf(mLink.ParentNode))) continue;
+
+                                if (tPins[i].LinkedTo.Any(tLink => Test(mLink.ParentNode, tLink.ParentNode)))
+                                    return true;
                             }
                         }
                         return false;
@@ -910,65 +884,90 @@ namespace UEBlueprintGraphViewer
                 }
             }
 
-            bool CheckAllConnections(Dictionary<int, int> mapping, List<Edge2> patternEdges,
-                                     List<BPNode> bigNodes, out BPNode? failedNode)
+            bool CheckAllConnections(Dictionary<int, int> mapping, List<Edge2> patternEdges, List<BPNode> patternNodes, BPNode? seqNodePattern, out BPNode? failedNode)
             {
                 failedNode = null;
                 foreach (var edge in patternEdges)
                 {
+                    if (patternNodes[edge.FromNodeIndex] == seqNodePattern)
+                    {
+                        if (!mapping.TryGetValue(edge.FromNodeIndex, out int fromIdSeq))
+                            return false;
+                        
+                        if (!mapping.TryGetValue(edge.ToNodeIndex, out int toIdSeq))
+                        {
+                            outSeqMapping.Add(edge.FromPinIndex, edge.FromPinIndex);
+                            continue;
+                        }
+                        
+                        if (Nodes[fromIdSeq].Output.FirstOrDefault(o => o.LinkedTo.Any(input =>
+                                input.ParentNode == Nodes[toIdSeq] &&
+                                !GraphPin.IsBasicallyDifferent(input, edge.To))) is {} test)
+                        {
+                            outSeqMapping.Add(edge.FromPinIndex, Nodes[fromIdSeq].Output.IndexOf(test));
+                        }
+                        else
+                        {
+                            failedNode = Nodes[fromIdSeq];
+                            return false;
+                        }
+                        
+                        continue;
+                    }
+                    
+                    if (patternNodes[edge.ToNodeIndex].NodeType == "K2Node_Tunnel")
+                        continue;
+                    
                     if (!mapping.TryGetValue(edge.FromNodeIndex, out int fromId) ||
                         !mapping.TryGetValue(edge.ToNodeIndex, out int toId))
                         return false;
-
-                    if (!HaveEdge(bigNodes[fromId], bigNodes[toId], edge, out failedNode))
-                        return false;
-                }
-
-                return true;
-                
-                bool HaveEdge(BPNode from, BPNode to, Edge2 edge, out BPNode failedNode)
-                {
-                    failedNode = null;
-                    var output = from.Output[edge.FromPinIndex];
-                    if (!GraphPin.IsBasicallyDifferent(output, edge.From))
+                    
+                    var fromOutput = Nodes[fromId].Output[edge.FromPinIndex];
+                    if (GraphPin.IsBasicallyDifferent(fromOutput, edge.From))
                     {
-                        foreach (var input in output.LinkedTo)
-                        {
-                            if (input.ParentNode == to && !GraphPin.IsBasicallyDifferent(input, edge.To))
-                                return true;
-                        }
-
-                        failedNode = to;
+                        failedNode = Nodes[fromId];
                         return false;
                     }
+                    
+                    if (!fromOutput.LinkedTo.Any(input => input.ParentNode == Nodes[toId] && !GraphPin.IsBasicallyDifferent(input, edge.To)))
+                    {
+                        failedNode = Nodes[toId];
+                        return false;
+                    }
+                }
+                return true;
+            }
 
-                    failedNode = from;
-                    return false;
+            void MapTunnelPins(List<GraphPin> macroPins, List<GraphPin> testPins, Dictionary<GraphPin, List<GraphPin>> links)
+            {
+                for (int i = 0; i < macroPins.Count; i++)
+                {
+                    var tunnelPin = macroPins[i].LinkedTo.FirstOrDefault(o => o.ParentNode is { NodeType: "K2Node_Tunnel" });
+                    if (tunnelPin != null && links.TryGetValue(tunnelPin, out var list))
+                        list.Add(testPins[i]);
                 }
             }
 
             static GraphPin MakeMacroInstancePin(GraphPin pin, EngineEnums.EEdGraphPinDirection direction, Dictionary<GraphPin, List<GraphPin>> links)
             {
-                var newPin = new GraphPin(pin.PinFriendlyName, direction, pin.PinType)
+                var newPin = new GraphPin(pin.PinFriendlyName, direction, pin.PinType) { IsNameHidden = pin.IsNameHidden };
+
+                if (links.TryGetValue(pin, out var linkedPins))
                 {
-                    IsNameHidden = pin.IsNameHidden,
-                };
-                links.TryGetValue(pin, out var link);
-                foreach (var pin2 in link ?? [])
-                {
-                    // set value in case the pin stores constant value
-                    newPin.Value = pin2.Value;
-                    foreach (var pin3 in pin2.LinkedTo)
+                    foreach (var pin2 in linkedPins)
                     {
-                        // replace wildcard type with actual type
-                        newPin.PinType = pin3.PinType;
-                        Utils.Connect(newPin, pin3);
+                        newPin.Value = pin2.Value;
+                        foreach (var pin3 in pin2.LinkedTo)
+                        {
+                            newPin.PinType = pin3.PinType;
+                            Utils.Connect(newPin, pin3);
+                        }
                     }
                 }
-
                 return newPin;
             }
         }
+
 
 
         // Collapse chosen nodes to macro and generate macro graph
