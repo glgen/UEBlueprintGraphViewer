@@ -18,6 +18,7 @@ namespace UEBlueprintGraphViewer.Nodes
             Pure = true;
             TargetPin = targetPin;
             VarPin = new GraphPin(variableName, EEdGraphPinDirection.EGPD_Output, data.PinType);
+            TintPin = VarPin;
             AddOutputPin(VarPin);
             if (TargetPin != null)
                 AddInputPin(TargetPin);

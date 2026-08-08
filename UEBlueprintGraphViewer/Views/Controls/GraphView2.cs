@@ -519,11 +519,36 @@ public class GraphView2 : ContentControl
                 ChangeStatus.Changed => NodeChangedBackg,
                 _ => NodeBackg,
             };
-            
+
             if (view.Scaling > 0.2)
                 canvas.DrawRoundRect(nodeRect, 5,5, backg);
             else
                 canvas.DrawRect(nodeRect, backg);
+            
+            if (node is { ChangeStatus: ChangeStatus.None, TintPin: not null } && view.Scaling > 0.2)
+            {
+                SKColor edge = ViewData.NodeBaseColor;
+                SKColor mid = ViewData.GetNodeTintColor(node.TintPin.PinType.PinCategory);
+                using SKPaint tintPaint = new()
+                {
+                    IsAntialias = true,
+                    Shader = SKShader.CreateLinearGradient(
+                        new SKPoint(0, 0), new SKPoint(node.NodeWidth, 0),
+                        [edge, mid, edge], [0f, 0.5f, 1f], SKShaderTileMode.Clamp),
+                };
+
+                if (node.TintHeaderOnly)
+                {
+                    SKRect headerRect = new(0, 0, node.NodeWidth, 34);
+                    using SKRoundRect rr = new(headerRect, 0);
+                    rr.SetNinePatch(headerRect, 5, 5, 5, 0);
+                    canvas.DrawRoundRect(rr, tintPaint);
+                }
+                else
+                {
+                    canvas.DrawRoundRect(nodeRect, 5, 5, tintPaint);
+                }
+            }
             
             if (!node.HeaderHidden)
             {
@@ -546,6 +571,9 @@ public class GraphView2 : ContentControl
             {
                 if (node.ShowNameAsBody)
                     canvas.DrawText2(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
+                
+                if (node.CompactTitle)
+                    canvas.DrawText2(node.Name, node.NodeWidth / 2f, 22, SKTextAlign.Center, TextFont, TextPaint);
 
                 canvas.DrawRoundRect(nodeRect, 5,5, NodeBorder);
 
