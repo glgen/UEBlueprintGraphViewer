@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using Avalonia.Utilities;
+using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Assets;
@@ -362,6 +363,15 @@ namespace UEBlueprintGraphViewer
         private void CloseTab(Visual child)
         {
             AssetsTabs.Items.Remove(child.GetVisualAncestors().OfType<TabItem>().FirstOrDefault());
+        }
+
+        private void CloseAllTabs_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var toClose = AssetsTabs.Items.OfType<TabItem>()
+                .Where(t => t.Classes.Contains("Closeable"))
+                .ToList();
+            foreach (var tab in toClose)
+                AssetsTabs.Items.Remove(tab);
         }
 
         public void AddTab(TabItem newTab)
