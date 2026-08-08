@@ -424,8 +424,8 @@ public class GraphView2 : ContentControl
 
                 canvas.DrawRect( new SKRect(0, (float)Bounds.Height - 25, (float)Bounds.Width, (float)Bounds.Height), DarkerBackgroundPaint);
                 float textY = (float)Bounds.Height - 8;
-                canvas.DrawText($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, TextFont, TextPaint);
-                canvas.DrawText($"FPS: {Math.Round(1000f / view._deltaTimeMs)}", 120, textY, SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText2($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText2($"FPS: {Math.Round(1000f / view._deltaTimeMs)}", 120, textY, SKTextAlign.Left, TextFont, TextPaint);
                 
                 stopWatch.Stop();
                 view.CustomDrawOperationTime = stopWatch.Elapsed.TotalMilliseconds;
@@ -534,7 +534,7 @@ public class GraphView2 : ContentControl
                     using SKRoundRect a = new(nodeHeaderRect, 0);
                     a.SetNinePatch(nodeHeaderRect, 5,5,5,0);
                     canvas.DrawRoundRect(a, headerPaint);
-                    canvas.DrawText(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, TextFont, TextPaint);
+                    canvas.DrawText2(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, TextFont, TextPaint);
                 }
                 else
                 {
@@ -545,7 +545,7 @@ public class GraphView2 : ContentControl
             if (view.Scaling > 0.2)
             {
                 if (node.ShowNameAsBody)
-                    canvas.DrawText(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
+                    canvas.DrawText2(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
 
                 canvas.DrawRoundRect(nodeRect, 5,5, NodeBorder);
 
@@ -571,7 +571,7 @@ public class GraphView2 : ContentControl
             float nameWidth = 35;
             if (!pin.IsNameHidden)
             {
-                canvas.DrawText(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText2(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, TextFont, TextPaint);
                 nameWidth = TextFont.MeasureText(pin.PinFriendlyName) + 35;
             }
             
@@ -584,7 +584,7 @@ public class GraphView2 : ContentControl
                 canvas.DrawRoundRect(rect, 5,5, NodeValueBorder);
                     
                 string value = valueFormatted.Length > 55 ? $"{valueFormatted[..55]}..." : valueFormatted;
-                canvas.DrawText(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText2(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, TextFont, TextPaint);
             }
         }
         

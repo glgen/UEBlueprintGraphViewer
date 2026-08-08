@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -63,6 +63,61 @@ public static class SkiaUtils
         {
             canvas.DrawText(words[i], coords[i], SKTextAlign.Left, font, paint);
         }
+    }
+    
+    // adapted from https://www.mrumpler.at/the-trouble-with-text-rendering-in-skiasharp-and-harfbuzz/
+    public static void DrawText2(this SKCanvas canvas, string text,
+        float x,
+        float y,
+        SKTextAlign textAlign,
+        SKFont font,
+        SKPaint paint)
+    {
+        if (font.ContainsGlyphs(text))
+        {
+            canvas.DrawText(text, x, y, textAlign, font, paint);
+            return;
+        }
+        
+        int start = 0;
+        TextElementEnumerator enumerator = StringInfo.GetTextElementEnumerator(text);
+        bool notAtEnd;
+
+        SKTypeface? fallback = null;
+        
+        while (enumerator.MoveNext())
+        {
+            var textElement = enumerator.GetTextElement();
+            if (!font.ContainsGlyphs(textElement))
+            {
+                while ((notAtEnd = enumerator.MoveNext())
+                    && !font.ContainsGlyphs(enumerator.GetTextElement()));
+                
+                var subtext = notAtEnd
+                    ? text.Substring(start, enumerator.ElementIndex - start)
+                    : text.Substring(start);
+
+                var firstCodepoint = subtext.EnumerateRunes().First().Value;
+
+                fallback = SKFontManager.Default.MatchCharacter(
+                    font.Typeface.FamilyName,
+                    font.Typeface.FontStyle,
+                    null,
+                    firstCodepoint);
+
+                if (fallback != null)
+                    break;
+                
+                start = notAtEnd ? enumerator.ElementIndex : text.Length;
+            }
+        }
+
+        SKFont? fallbackFont = null;
+        if (fallback != null)
+            fallbackFont = new SKFont(fallback, font.Size);
+        
+        canvas.DrawText(text, x, y, fallbackFont ?? font, paint);
+        fallbackFont?.Dispose();
     }
     
     public static void DrawPathAtLocation(SKCanvas canvas, SKPath p, float x, float y,
