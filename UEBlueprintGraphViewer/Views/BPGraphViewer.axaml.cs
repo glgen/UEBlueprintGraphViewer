@@ -79,6 +79,20 @@ namespace UEBlueprintGraphViewer.Views
             VM.Asset = asset;
         }
 
+        private bool _autoOpened;
+
+        protected override async void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+            
+            if (_autoOpened) return;
+            _autoOpened = true;
+
+            var target = VM.Asset.Events.FirstOrDefault() ?? VM.Asset.Functions.FirstOrDefault();
+            if (target != null)
+                await OpenFunction(target);
+        }
+
         public void DisableProgress()
         {
             VM.IsProgressVisible = false;
