@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -25,7 +26,10 @@ public class JmapData
     
     public void Read(string path)
     {
-        using var reader = new FileStream(path, FileMode.Open, FileAccess.Read);
+        using var file = new FileStream(path, FileMode.Open, FileAccess.Read);
+        using Stream reader = path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+            ? new GZipStream(file, CompressionMode.Decompress)
+            : file;
         var result = JsonSerializer.Deserialize<JmapJson>(reader);
 
         foreach (var obj in result.Objects)
