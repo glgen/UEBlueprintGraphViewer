@@ -203,7 +203,7 @@ namespace UEBlueprintGraphViewer
 
         public async Task LoadAsset(AssetFile item)
         {
-            if (AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag == item.FullPath) is { } foundTab)
+            if (AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag?.ToString() == item.FullPath) is { } foundTab)
             {
                 AssetsTabs.SelectedItem = foundTab;
                 return;

@@ -38,6 +38,12 @@ namespace UEBlueprintGraphViewer.ViewModels
         
         [ObservableProperty]
         private List<AssetPropertyViewModel> _properties;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _parentProperties;
+        
+        [ObservableProperty]
+        private string _superStruct;
 
         private string? _filterText;
         public string? FilterText
@@ -57,6 +63,8 @@ namespace UEBlueprintGraphViewer.ViewModels
             Functions = [.. asset.Functions.Select(o => new AssetFunctionViewModel(null, o))];
             asset.LoadAllProperties();
             Properties = [.. asset.LoadedProperties.Values.Select(o => new AssetPropertyViewModel(o))];
+            ParentProperties = [.. asset.ParentProperties.Values.Select(o => new AssetPropertyViewModel(o))];
+            SuperStruct = asset.SuperStruct;
             EventsFiltered = Events;
             FunctionsFiltered = Functions;
             ApplyFilter(null);
@@ -181,7 +189,7 @@ namespace UEBlueprintGraphViewer.ViewModels
 
         [ObservableProperty]
         private ChangeStatus _changeStatus;
-        
+
         [ObservableProperty]
         private EFunctionFlags _flags;
         
@@ -196,6 +204,7 @@ namespace UEBlueprintGraphViewer.ViewModels
         
         [ObservableProperty]
         private List<AssetPropertyViewModel> _locals;
+        
 
         public AssetFunctionViewModel(string? name, UFunction func)
         {

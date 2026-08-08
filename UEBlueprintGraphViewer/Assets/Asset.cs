@@ -29,9 +29,12 @@ namespace UEBlueprintGraphViewer.Assets
         public Dictionary<string, UFunction> Events = [];
         public readonly List<UFunction> Functions = [];
         public readonly Dictionary<string, PropertyData> LoadedProperties = new(StringComparer.OrdinalIgnoreCase);
+        public readonly Dictionary<string, PropertyData> ParentProperties = new(StringComparer.OrdinalIgnoreCase);
 
         public readonly List<InputEventData> InputEvents = [];
         public readonly List<TimelineData> Timelines = [];
+        
+        public readonly string SuperStruct;
         
         public Asset(IPackage package, string name)
         {
@@ -51,6 +54,7 @@ namespace UEBlueprintGraphViewer.Assets
             IsBP = true;
             GeneratedClass = BPClass;
             ClassDefaultObject = GeneratedClass.ClassDefaultObject.Load<UObject>();
+            SuperStruct = GeneratedClass.SuperStruct.ResolvedObject?.GetPathName() ?? "None";
             ProcessBPClass();
         }
 
@@ -280,6 +284,38 @@ namespace UEBlueprintGraphViewer.Assets
                     prop.SetPropertyDefaults(ClassDefaultObject);
                 LoadedProperties.Add(prop.Name, prop);
             }
+
+            UClass? superStruct = GeneratedClass;
+            FPackageIndex currentPackageIndex = GeneratedClass.SuperStruct;
+            while (superStruct.SuperStruct.TryLoad<UClass>(out superStruct) && superStruct != null)
+            {
+                if (superStruct is UScriptClass)
+                {
+                    if (Settings.Instance.Game != null! &&
+                        Settings.Instance.Game.Jmap.TryFindProperties(currentPackageIndex, out var properties))
+                    {
+                        foreach (var prop in properties!)
+                        {
+                            if (ClassDefaultObject != null)
+                                prop.SetPropertyDefaults(ClassDefaultObject);
+                            ParentProperties.Add(prop.Name, prop);
+                        }
+                        
+                    }
+
+                    return;
+                }
+                
+                currentPackageIndex = superStruct.SuperStruct;
+                
+                foreach (var prop in superStruct.ChildProperties.OfType<FProperty>().Select(o => new PropertyData(o, superStruct)))
+                {
+                    if (ClassDefaultObject != null)
+                        prop.SetPropertyDefaults(ClassDefaultObject);
+                    ParentProperties.Add(prop.Name, prop);
+                }
+            }
+            
         }
     }
 

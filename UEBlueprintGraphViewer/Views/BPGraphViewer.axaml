@@ -170,6 +170,38 @@
 									</ContentControl.DataTemplates>
 								</ContentControl>
 							</TabItem>
+							<TabItem Header="Blueprint details">
+								<Grid RowDefinitions="Auto,Auto,*" Background="{StaticResource Background2}">
+									<StackPanel Orientation="Vertical">
+										<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
+										<HyperlinkButton VerticalContentAlignment="Center" VerticalAlignment="Center" Content="{Binding Asset.SuperStruct}" Click="AssetParentClass_OnClick"/>
+									</StackPanel>
+									<TextBlock Text="Parents properties"
+									           Padding="5"
+									           Grid.Row="1"
+									           Background="{StaticResource Background4}"/>
+									<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+									         ItemsSource="{Binding Asset.ParentProperties}"
+									         Grid.Row="2">
+										<ListBox.DataTemplates>
+											<DataTemplate x:DataType="viewModels:AssetPropertyViewModel">
+												<Grid Background="{StaticResource Background2}">
+													<StackPanel Margin="0,5"	Spacing="5">
+														<Grid ColumnDefinitions="Auto, *" ColumnSpacing="5">
+															<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+															<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+														</Grid>
+														<TextBlock TextWrapping="Wrap">
+															<Run Text="Default value:"/>
+															<Run Text="{Binding DefaultValue}"/>
+														</TextBlock>
+													</StackPanel>
+												</Grid>
+											</DataTemplate>
+										</ListBox.DataTemplates>
+									</ListBox>
+								</Grid>
+							</TabItem>
 						</TabControl>
 					</Grid>
 				</Grid>

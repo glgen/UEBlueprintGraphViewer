@@ -11,7 +11,10 @@ using System.Threading.Tasks;
 using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
 using Avalonia.VisualTree;
+using CUE4Parse.Utils;
+using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Decompiler;
+using UEBlueprintGraphViewer.Engine;
 using UEBlueprintGraphViewer.Nodes;
 using UEBlueprintGraphViewer.ViewModels;
 
@@ -319,6 +322,20 @@ namespace UEBlueprintGraphViewer.Views
             view.Arrange(new Rect(size));
             renderBitmap.Render(view);
             renderBitmap.Save(file.Path.AbsolutePath, new PngBitmapEncoderOptions());
+        }
+
+        private async void AssetParentClass_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (VM.Asset.SuperStruct.Starts("/Script/"))
+            {
+                DialogWindow dialog = new DialogWindow("Cannot open native C++ class", "Info");
+                dialog.Show(MainWindow.Instance);
+            }
+            else
+            {
+                string path = VM.Asset.SuperStruct.SubstringBeforeLast('.') + ".uasset";
+                await MainWindow.Instance.LoadAsset(new AssetFile(path.SubstringAfterLast('/'),path));
+            }
         }
     }
 
