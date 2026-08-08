@@ -163,7 +163,14 @@
 		<Setter Property="Width" Value="15"/>
 		<Setter Property="Text" Value="?"/>
 	</Style>
-	
+
+	<Style Selector="TextBlock.HeaderSmall">
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="FontWeight" Value="SemiBold"/>
+		<Setter Property="Background" Value="{StaticResource Background4}"/>
+		<Setter Property="Padding" Value="6"/>
+	</Style>
+
 	<Style Selector="FlyoutPresenter.ContextMenu">
 		<Setter Property="Background" Value="{StaticResource Background3}" />
 		<Setter Property="BorderBrush" Value="{StaticResource Background4}" />

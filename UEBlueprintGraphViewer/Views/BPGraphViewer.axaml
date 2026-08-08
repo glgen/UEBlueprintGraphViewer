@@ -64,14 +64,14 @@
 					<Grid Grid.Column="2">
 						<TabControl Margin="0,5,0,0">
 							<TabItem Header="Details">
-								<ContentControl x:Name="DetailsContent" Content="{Binding SelectedObject}">
+								<ContentControl x:Name="DetailsContent" Content="{Binding SelectedObject}"
+								                Margin="0,5,0,0">
 									<ContentControl.DataTemplates>
 										<DataTemplate x:DataType="viewModels:AssetFunctionViewModel">
 											<ScrollViewer HorizontalScrollBarVisibility="Disabled">
 												<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
 													<TextBlock Text="Function"
-													           Padding="5"
-													           Background="{StaticResource Background4}"/>
+													           Classes="HeaderSmall"/>
 													<StackPanel	Margin="10"
 														           Spacing="7"
 														           Grid.Row="1">
@@ -86,26 +86,23 @@
 													</StackPanel>
 													<TextBlock Text="Inputs"
 													           Grid.Row="2"
-													           Padding="5"
+													           Classes="HeaderSmall"
 													           Background="{StaticResource Background3}"/>
-													<ListBox Margin="10"
-													         ItemsSource="{Binding Inputs}"
+													<ListBox ItemsSource="{Binding Inputs}"
 													         Grid.Row="3"
 													         ItemTemplate="{StaticResource PropsTemplate}"/>
 													<TextBlock Text="Outputs"
 													           Grid.Row="4"
-													           Padding="5"
+													           Classes="HeaderSmall"
 													           Background="{StaticResource Background3}"/>
-													<ListBox Margin="10"
-													         ItemsSource="{Binding Outputs}"
+													<ListBox ItemsSource="{Binding Outputs}"
 													         Grid.Row="5"
 													         ItemTemplate="{StaticResource PropsTemplate}"/>
 													<TextBlock Text="Locals"
 													           Grid.Row="6"
-													           Padding="5"
+													           Classes="HeaderSmall"
 													           Background="{StaticResource Background3}"/>
-													<ListBox Margin="10"
-													         ItemsSource="{Binding Locals}"
+													<ListBox ItemsSource="{Binding Locals}"
 													         Grid.Row="7"
 													         ItemTemplate="{StaticResource PropsTemplate}"/>
 												</Grid>
@@ -114,8 +111,7 @@
 										<DataTemplate x:DataType="viewModels:AssetPropertyViewModel">
 											<Grid RowDefinitions="Auto, *" Background="{StaticResource Background2}">
 												<TextBlock Text="Property"
-												           Padding="5"
-												           Background="{StaticResource Background4}"/>
+												           Classes="HeaderSmall"/>
 												<StackPanel	Margin="10"
 													           Spacing="7"
 													           Grid.Row="1">
@@ -139,8 +135,7 @@
 											      Background="{StaticResource Background2}"
 											      DataContext="{Binding #Viewer.GraphViewModel}">
 												<TextBlock Text="Selected pin"
-												           Padding="5"
-												           Background="{StaticResource Background3}"
+												           Classes="HeaderSmall"
 												           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 												<TextBlock x:Name="DetailsPinText"
 												           Margin="5"
@@ -149,18 +144,18 @@
 												           IsVisible="{Binding #DetailsPinText.Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 												<TextBlock Text="Selected node"
 												           Grid.Row="2"
-												           Padding="5"
-												           Background="{StaticResource Background3}"/>
+												           Classes="HeaderSmall"/>
 									
 												<TextBlock x:Name="DetailsText"
 												           Margin="5"
 												           Grid.Row="3"
 												           Text="{Binding DetailsNodeText}"/>
 												<Button Content="Open in disassembly"
-												        Margin="5"
+												        Margin="2"
 												        Grid.Row="2"
 												        HorizontalAlignment="Right"
 												        VerticalAlignment="Top"
+												        Background="{StaticResource Background5}"
 												        Click="OpenInDisassemblyButton_Click"/>
 												<views:BytecodeViewer Grid.Row="4"
 												                      x:Name="DetailsBytecode"
@@ -171,7 +166,7 @@
 								</ContentControl>
 							</TabItem>
 							<TabItem Header="Blueprint details">
-								<Grid RowDefinitions="Auto,Auto,*" Background="{StaticResource Background2}">
+								<Grid RowDefinitions="Auto,Auto,*" Margin="0,5,0,0" Background="{StaticResource Background2}">
 									<StackPanel Orientation="Vertical">
 										<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
 										<HyperlinkButton VerticalContentAlignment="Center" VerticalAlignment="Center" Content="{Binding Asset.SuperStruct}" Click="AssetParentClass_OnClick"/>
@@ -185,9 +180,8 @@
 										</TextBlock>
 									</StackPanel>
 									<TextBlock Text="Parents properties"
-									           Padding="5"
-									           Grid.Row="1"
-									           Background="{StaticResource Background4}"/>
+									           Classes="HeaderSmall"
+									           Grid.Row="1"/>
 									<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 									         ItemsSource="{Binding Asset.ParentProperties}"
 									         Grid.Row="2">

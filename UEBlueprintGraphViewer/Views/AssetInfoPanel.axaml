@@ -56,11 +56,11 @@
             <RowDefinition Height="5"/>
             <RowDefinition MinHeight="50"/>
         </Grid.RowDefinitions>
-		<TextBox Classes="Search" Grid.Row="0" Text="{Binding FilterText}"/>
-        <Grid Grid.Row="1" Grid.RowSpan="2" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+		<TextBox Classes="Search" Grid.Row="0" Margin="5,0,5,5" Text="{Binding FilterText}"/>
+        <Grid Grid.Row="1" Grid.RowSpan="2" RowDefinitions="Auto,*">
 	        <TextBlock Text="Event Graph"
 	                   Grid.Row="0"
-	                   Padding="5"/>
+	                   Classes="HeaderSmall"/>
 	        <ListBox x:Name="EventList"
 	                 Classes="Func"
 	                 Grid.Row="1"
@@ -78,10 +78,10 @@
 	        </ListBox>
         </Grid>
         <GridSplitter Grid.Row="2"/>
-        <Grid Grid.Row="3" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+        <Grid Grid.Row="3" RowDefinitions="Auto,*">
 	        <TextBlock Text="Functions"
 	                   Grid.Row="0"
-	                   Padding="5"/>
+	                   Classes="HeaderSmall"/>
 	        <ListBox x:Name="FunctionList"
 	                 Classes="Func"
 	                 Grid.Row="1"
@@ -99,10 +99,10 @@
 	        </ListBox>
         </Grid>
 		<GridSplitter Grid.Row="4"/>
-		<Grid Grid.Row="5" Background="{StaticResource Background4}" RowDefinitions="Auto,*">
+		<Grid Grid.Row="5" RowDefinitions="Auto,*">
 			<TextBlock Text="Properties"
 			           Grid.Row="0"
-			           Padding="5"/>
+			           Classes="HeaderSmall"/>
 			<ListBox x:Name="PropertyList"
 			         Classes="Prop"
 			         Grid.Row="1"
