@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.VisualTree;
+using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
 using UEBlueprintGraphViewer.Nodes;
@@ -95,6 +96,44 @@ namespace UEBlueprintGraphViewer
                 Package = p;
                 viewModel.PopulateTree([.. Package.Assets.Select(o => o.Path)]);
                 viewModel.StatusText = "";
+
+                await RestoreOpenTabs(Settings.Instance.Game);
+            }
+        }
+
+        private async Task RestoreOpenTabs(GameSettings game)
+        {
+            foreach (var path in game.OpenTabs.ToList())
+                await LoadAsset(new AssetFile(path.SubstringAfterLast('/'), path));
+
+            if (game.ActiveTab != null &&
+                AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag?.ToString() == game.ActiveTab) is { } activeTab)
+                AssetsTabs.SelectedItem = activeTab;
+        }
+
+        private void SaveOpenTabs(GameSettings game)
+        {
+            var tabs = AssetsTabs.Items.OfType<TabItem>()
+                .Select(t => t.Tag?.ToString())
+                .Where(tag => tag is not null and not "MainTab")
+                .Select(tag => tag!)
+                .ToList();
+
+            game.OpenTabs = tabs;
+            game.ActiveTab = (AssetsTabs.SelectedItem as TabItem)?.Tag?.ToString() is { } active and not "MainTab"
+                ? active
+                : null;
+        }
+
+        protected override void OnClosing(WindowClosingEventArgs e)
+        {
+            base.OnClosing(e);
+            
+            if (!Design.IsDesignMode && !Settings.Instance.IsInCompareMode &&
+                Settings.Instance.Game is { ProfileName: not null } game)
+            {
+                SaveOpenTabs(game);
+                game.WriteConfig();
             }
         }
 

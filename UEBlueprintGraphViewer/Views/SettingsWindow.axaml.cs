@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -77,7 +77,8 @@ namespace UEBlueprintGraphViewer
             }
             else
             {
-                settings.Game.ProfileName = settings.GameProfileName;
+                game = new GameSettings { ProfileName = settings.GameProfileName };
+                settings.Game = game;
             }
             CheckIsValid();
         }

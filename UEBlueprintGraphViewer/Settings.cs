@@ -102,6 +102,10 @@ namespace UEBlueprintGraphViewer
 
         [ObservableProperty]
         private EGame _UEVersion = EGame.GAME_UE5_5;
+        
+        public List<string> OpenTabs { get; set; } = [];
+        
+        public string? ActiveTab { get; set; }
 
         [JsonIgnore]
         public JmapData Jmap;
