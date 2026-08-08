@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Nodes;
 using static UEBlueprintGraphViewer.Engine.Utils;
@@ -14,7 +15,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
         {
             Context.MarkAsParsed();
 
-            List<GraphPin> ReturnPins = Context.LocalVars.GetOutPins();
+            List<GraphPin> ReturnPins = [.. Context.LocalVars.GetOutPins().Select(o => o.Clone())];
 
             // no need to create return node on events and without params
             if (!Context.Global.IsUbergraph && ReturnPins.Count > 0)
