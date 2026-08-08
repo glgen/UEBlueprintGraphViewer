@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -66,6 +66,33 @@ namespace UEBlueprintGraphViewer
         private async void NewProfileButton_Click(object sender, RoutedEventArgs e)
         {
             await CreateNewProfile();
+        }
+
+        private async void DeleteProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            string profileName = settings.GameProfileName;
+            if (string.IsNullOrEmpty(profileName))
+                return;
+
+            var confirm = await DialogWindow.Show(
+                $"Delete profile \"{profileName}\"? This cannot be undone.",
+                "Delete profile", canCancel: true, windowOverride: this);
+            if (confirm.Result != DialogWindowResult.Ok)
+                return;
+
+            if (GameSettings.IsConfigExists(profileName))
+                File.Delete($"Profiles/{profileName}.json");
+
+            Profiles.Remove(profileName);
+
+            if (Profiles.Any())
+            {
+                settings.GameProfileName = Profiles[0];
+            }
+            else
+            {
+                await CreateNewProfile(false);
+            }
         }
 
         private void ProfileComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

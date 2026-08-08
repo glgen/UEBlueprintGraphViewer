@@ -33,6 +33,8 @@
 							  SelectionChanged="ProfileComboBox_SelectionChanged"
 							  MinWidth="130"/>
 					<Button Content="+" Width="24" Click="NewProfileButton_Click"/>
+					<Button Content="🗑" Width="24" Click="DeleteProfileButton_Click"
+							ToolTip.Tip="Delete the selected profile"/>
 				</StackPanel>
 			</Grid>
 			<local:GameProfileSettingsView DataContext="{Binding Game}" Updated="{Binding #root.CheckIsValid}"/>
