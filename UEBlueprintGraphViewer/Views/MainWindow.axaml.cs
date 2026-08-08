@@ -63,6 +63,8 @@ namespace UEBlueprintGraphViewer
                 OpenSettings();
                 return;
             }
+            
+            PersistOpenTabs();
 
             Package?.Dispose();
             PackageCompare1?.Dispose();
@@ -129,7 +131,11 @@ namespace UEBlueprintGraphViewer
         protected override void OnClosing(WindowClosingEventArgs e)
         {
             base.OnClosing(e);
-            
+            PersistOpenTabs();
+        }
+
+        private void PersistOpenTabs()
+        {
             if (!Design.IsDesignMode && !Settings.Instance.IsInCompareMode &&
                 Settings.Instance.Game is { ProfileName: not null } game)
             {
