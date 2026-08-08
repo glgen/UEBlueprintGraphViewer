@@ -32,6 +32,8 @@ namespace UEBlueprintGraphViewer.Nodes
 
         public bool HeaderHidden;
         public bool HeaderCenter;
+        
+        public bool CompactTitle;
 
         public bool ShowNameAsBody;
 
@@ -159,6 +161,7 @@ namespace UEBlueprintGraphViewer.Nodes
 
             NodeWidth = inputPadding + inputSize + bodySize + outputSize + outputPadding;
             NodeWidth = Math.Max(NodeWidth, Name.Length * charSize + 20);
+            if (CompactTitle) NodeWidth = Math.Max(NodeWidth, Name.Length * charSize + 80);
             NodeHeight += Math.Max(inputPinsHeight, outputPinsHeight);
         }
 

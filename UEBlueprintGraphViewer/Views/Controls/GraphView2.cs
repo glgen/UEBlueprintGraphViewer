@@ -546,6 +546,9 @@ public class GraphView2 : ContentControl
             {
                 if (node.ShowNameAsBody)
                     canvas.DrawText2(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
+                
+                if (node.CompactTitle)
+                    canvas.DrawText2(node.Name, node.NodeWidth / 2f, 22, SKTextAlign.Center, TextFont, TextPaint);
 
                 canvas.DrawRoundRect(nodeRect, 5,5, NodeBorder);
 

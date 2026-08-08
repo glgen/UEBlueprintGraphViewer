@@ -16,7 +16,8 @@ namespace UEBlueprintGraphViewer.Nodes
         public K2Node_VariableSet(PropertyData data, GraphPin ValuePin, GraphPin? ContextPin, KismetExpression Instr) : base("SET", Instr)
         {
             Property = data;
-            HeaderCenter = true;
+            HeaderHidden = true;
+            CompactTitle = true;
             this.ValuePin = ValuePin;
             this.ContextPin = ContextPin;
             MakePins(true, true);
