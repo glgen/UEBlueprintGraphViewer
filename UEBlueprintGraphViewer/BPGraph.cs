@@ -648,8 +648,6 @@ namespace UEBlueprintGraphViewer
             
             foreach (var macro in Settings.Instance.Macros)
             {
-                Console.WriteLine(macro.Key);
-                
                 var patternNodes = macro.Value.Nodes;
                 if (patternNodes.Count > Nodes.Count) continue;
 
@@ -718,10 +716,6 @@ namespace UEBlueprintGraphViewer
                         {
                             seqMappings[Nodes[foundNodes[fromSeqNodeIndex.Value]]] =
                                 outSeqMapping.Select(o => (o.Key, o.Value)).ToList();
-                            foreach (var i in outSeqMapping)
-                            {
-                                Console.WriteLine($"{i.Key}:{i.Value}");
-                            }
                         }
                     }
                 }
