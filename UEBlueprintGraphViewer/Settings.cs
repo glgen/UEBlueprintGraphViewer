@@ -35,6 +35,9 @@ namespace UEBlueprintGraphViewer
         [ObservableProperty]
         private bool isMSAGL;
 
+        [ObservableProperty]
+        private bool rememberOpenTabs = true;
+
         // Debug settings
         public static bool DrawDebugGraph;
 

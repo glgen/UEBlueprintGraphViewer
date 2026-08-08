@@ -106,6 +106,9 @@ namespace UEBlueprintGraphViewer
 
         private async Task RestoreOpenTabs(GameSettings game)
         {
+            if (!Settings.Instance.RememberOpenTabs)
+                return;
+
             foreach (var path in game.OpenTabs.ToList())
                 await LoadAsset(new AssetFile(path.SubstringAfterLast('/'), path));
 
@@ -136,7 +139,8 @@ namespace UEBlueprintGraphViewer
 
         private void PersistOpenTabs()
         {
-            if (!Design.IsDesignMode && !Settings.Instance.IsInCompareMode &&
+            if (!Design.IsDesignMode && Settings.Instance.RememberOpenTabs &&
+                !Settings.Instance.IsInCompareMode &&
                 Settings.Instance.Game is { ProfileName: not null } game)
             {
                 SaveOpenTabs(game);

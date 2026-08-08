@@ -56,6 +56,11 @@
 				<TextBlock Grid.Row="0" ToolTip.Tip="MSAGL library will be used to layout nodes in graph. Might be mode chaotic or the opposite. Much longer to compute." Classes="Hint"/>
 
 				<CheckBox IsChecked="{Binding IsMSAGL}" Grid.Column="1" Grid.Row="0"/>
+
+				<TextBlock Grid.Row="1" Text="Remember open tabs" VerticalAlignment="Center"/>
+				<TextBlock Grid.Row="1" ToolTip.Tip="Reopen the tabs that were open last time when loading a profile." Classes="Hint"/>
+
+				<CheckBox IsChecked="{Binding RememberOpenTabs}" Grid.Column="1" Grid.Row="1"/>
 			</Grid>
         </StackPanel>
         <Button x:Name="ApplyButton" Grid.Row="1" HorizontalAlignment="Center" Content="Apply" Width="100" Click="ApplyButton_Click" />
