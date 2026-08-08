@@ -4,14 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CUE4Parse.UE4.Assets.Exports;
-using CUE4Parse.UE4.Assets.Objects;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Engine;
-using UEBlueprintGraphViewer.Nodes;
 
 namespace UEBlueprintGraphViewer.ViewModels
 {
@@ -26,6 +23,9 @@ namespace UEBlueprintGraphViewer.ViewModels
         [ObservableProperty]
         private Asset? _assetCompare2;
 
+        [ObservableProperty]
+        private string _name;
+        
         [ObservableProperty]
         private List<AssetFunctionViewModel> _events;
 
@@ -67,6 +67,7 @@ namespace UEBlueprintGraphViewer.ViewModels
         public AssetViewModel(Asset asset)
         {
             Asset = asset;
+            Name = asset.ObjectName;
             Events = [.. asset.Events.Select(o => new AssetFunctionViewModel(o.Key, o.Value))];
             Functions = [.. asset.Functions.Select(o => new AssetFunctionViewModel(null, o))];
             asset.LoadAllProperties();

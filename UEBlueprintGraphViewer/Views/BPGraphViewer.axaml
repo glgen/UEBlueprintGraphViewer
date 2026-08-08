@@ -18,6 +18,17 @@
 				<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
 			</Grid>
 		</DataTemplate>
+		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsWithDefaultTemplate">
+			<Grid Background="{StaticResource Background2}">
+				<StackPanel Margin="0,5" Spacing="5">
+					<Grid ColumnDefinitions="Auto, *, 120" ColumnSpacing="5">
+						<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+						<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+						<TextBox Grid.Column="2" IsReadOnly="True" Text="{Binding DefaultValue}" TextWrapping="Wrap"/>
+					</Grid>
+				</StackPanel>
+			</Grid>
+		</DataTemplate>
 	</UserControl.Resources>
 	
 	<Grid ColumnDefinitions="240,5,*">
@@ -166,43 +177,38 @@
 								</ContentControl>
 							</TabItem>
 							<TabItem Header="Blueprint details">
-								<Grid RowDefinitions="Auto,Auto,*" Margin="0,5,0,0" Background="{StaticResource Background2}">
-									<StackPanel Orientation="Vertical">
-										<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
-										<HyperlinkButton VerticalContentAlignment="Center" VerticalAlignment="Center" Content="{Binding Asset.SuperStruct}" Click="AssetParentClass_OnClick"/>
-										<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
-											<Run Text="Object flags:"/>
-											<Run Text="{Binding Asset.Flags}"/>
-										</TextBlock>
-										<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
-											<Run Text="Class flags:"/>
-											<Run Text="{Binding Asset.ClassFlags}"/>
-										</TextBlock>
-									</StackPanel>
-									<TextBlock Text="Parents properties"
-									           Classes="HeaderSmall"
-									           Grid.Row="1"/>
-									<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-									         ItemsSource="{Binding Asset.ParentProperties}"
-									         Grid.Row="2">
-										<ListBox.DataTemplates>
-											<DataTemplate x:DataType="viewModels:AssetPropertyViewModel">
-												<Grid Background="{StaticResource Background2}">
-													<StackPanel Margin="0,5"	Spacing="5">
-														<Grid ColumnDefinitions="Auto, *" ColumnSpacing="5">
-															<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
-															<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-														</Grid>
-														<TextBlock TextWrapping="Wrap">
-															<Run Text="Default value:"/>
-															<Run Text="{Binding DefaultValue}"/>
-														</TextBlock>
-													</StackPanel>
-												</Grid>
-											</DataTemplate>
-										</ListBox.DataTemplates>
-									</ListBox>
-								</Grid>
+								<ScrollViewer Margin="0,5,0,0">
+									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+										<StackPanel Orientation="Vertical">
+											<TextBlock Text="{Binding Asset.Name}"
+											           Classes="HeaderSmall"/>
+											<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
+											<HyperlinkButton VerticalContentAlignment="Center" VerticalAlignment="Center" Content="{Binding Asset.SuperStruct}" Click="AssetParentClass_OnClick"/>
+											<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
+												<Run Text="Object flags:"/>
+												<Run Text="{Binding Asset.Flags}"/>
+											</TextBlock>
+											<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
+												<Run Text="Class flags:"/>
+												<Run Text="{Binding Asset.ClassFlags}"/>
+											</TextBlock>
+										</StackPanel>
+										<TextBlock Text="Defaults"
+										           Classes="HeaderSmall"
+										           Grid.Row="1"/>
+										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+										         ItemsSource="{Binding Asset.Properties}"
+										         Grid.Row="2"
+										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
+										<TextBlock Text="Parents properties defaults"
+										           Classes="HeaderSmall"
+										           Grid.Row="3"/>
+										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+										         ItemsSource="{Binding Asset.ParentProperties}"
+										         Grid.Row="4"
+										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
+									</Grid>
+								</ScrollViewer>
 							</TabItem>
 						</TabControl>
 					</Grid>
