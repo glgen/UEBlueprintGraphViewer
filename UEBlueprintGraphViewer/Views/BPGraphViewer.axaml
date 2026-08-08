@@ -175,6 +175,14 @@
 									<StackPanel Orientation="Vertical">
 										<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
 										<HyperlinkButton VerticalContentAlignment="Center" VerticalAlignment="Center" Content="{Binding Asset.SuperStruct}" Click="AssetParentClass_OnClick"/>
+										<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
+											<Run Text="Object flags:"/>
+											<Run Text="{Binding Asset.Flags}"/>
+										</TextBlock>
+										<TextBlock Margin="5" VerticalAlignment="Center" TextWrapping="Wrap">
+											<Run Text="Class flags:"/>
+											<Run Text="{Binding Asset.ClassFlags}"/>
+										</TextBlock>
 									</StackPanel>
 									<TextBlock Text="Parents properties"
 									           Padding="5"

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using CUE4Parse.UE4.Assets.Exports;
+using CUE4Parse.UE4.Assets.Objects;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
 using UEBlueprintGraphViewer.Decompiler;
@@ -44,6 +46,12 @@ namespace UEBlueprintGraphViewer.ViewModels
         
         [ObservableProperty]
         private string _superStruct;
+        
+        [ObservableProperty]
+        private EObjectFlags _flags;
+        
+        [ObservableProperty]
+        private EClassFlags _classFlags;
 
         private string? _filterText;
         public string? FilterText
@@ -67,6 +75,8 @@ namespace UEBlueprintGraphViewer.ViewModels
             SuperStruct = asset.SuperStruct;
             EventsFiltered = Events;
             FunctionsFiltered = Functions;
+            Flags = asset.GeneratedClass?.Flags ?? EObjectFlags.RF_NoFlags;
+            ClassFlags = asset.GeneratedClass?.ClassFlags ?? EClassFlags.CLASS_None;
             ApplyFilter(null);
         }
 
