@@ -34,6 +34,9 @@ namespace UEBlueprintGraphViewer.Nodes
         public bool HeaderCenter;
         
         public bool CompactTitle;
+        
+        public GraphPin? TintPin;
+        public bool TintHeaderOnly;
 
         public bool ShowNameAsBody;
 

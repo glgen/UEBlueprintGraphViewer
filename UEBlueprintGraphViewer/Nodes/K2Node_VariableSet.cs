@@ -18,6 +18,8 @@ namespace UEBlueprintGraphViewer.Nodes
             Property = data;
             HeaderHidden = true;
             CompactTitle = true;
+            TintPin = ValuePin;
+            TintHeaderOnly = true;
             this.ValuePin = ValuePin;
             this.ContextPin = ContextPin;
             MakePins(true, true);

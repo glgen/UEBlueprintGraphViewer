@@ -82,6 +82,24 @@ namespace UEBlueprintGraphViewer.Views
 
         public static SKPaint SKUnknownColor = FromColor(SKColors.Red);
         
+        public static readonly SKColor NodeBaseColor = new(40, 40, 40);
+        private static readonly FrozenDictionary<PinType, SKColor> NodeTintColors =
+            SKPinsColors.Select(o => new KeyValuePair<PinType, SKColor>(
+                o.Key, BlendOver(o.Value.Color, NodeBaseColor, 0.18f))).ToFrozenDictionary();
+
+        public static SKColor GetNodeTintColor(PinType? type)
+        {
+            if (type != null && NodeTintColors.TryGetValue(type.Value, out SKColor color))
+                return color;
+            return SKUnknownColor.Color;
+        }
+
+        private static SKColor BlendOver(SKColor top, SKColor bottom, float alpha)
+        {
+            byte Mix(byte t, byte b) => (byte)(t * alpha + b * (1 - alpha));
+            return new SKColor(Mix(top.Red, bottom.Red), Mix(top.Green, bottom.Green), Mix(top.Blue, bottom.Blue));
+        }
+        
         public static SKPaint GetPinColorSK(PinType? type)
         {
             if (type != null && SKPinsColors.TryGetValue(type.Value, out SKPaint? color))
