@@ -90,7 +90,10 @@ namespace UEBlueprintGraphViewer.Views
 
             var target = VM.Asset.Events.FirstOrDefault() ?? VM.Asset.Functions.FirstOrDefault();
             if (target != null)
+            {
+                AssetInfoPanel.SelectFunction(target);
                 await OpenFunction(target);
+            }
         }
 
         public void DisableProgress()

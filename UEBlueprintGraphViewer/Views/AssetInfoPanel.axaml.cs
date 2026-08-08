@@ -50,6 +50,15 @@ namespace UEBlueprintGraphViewer.Views
             FunctionChoosen?.Invoke(this, lastSelected);
         }
         
+        public void SelectFunction(AssetFunctionViewModel func)
+        {
+            lastSelected = func;
+            if (EventList.ItemsSource?.Cast<AssetFunctionViewModel>().Contains(func) == true)
+                EventList.SelectedItem = func;
+            else
+                FunctionList.SelectedItem = func;
+        }
+        
         private void PropertySearchInCurrentGraph_OnClick(object? sender, RoutedEventArgs e)
         {
             if (PropertyList.SelectedItem is AssetPropertyViewModel prop)
