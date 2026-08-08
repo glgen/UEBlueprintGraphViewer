@@ -9,7 +9,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using Avalonia.Utilities;
+using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
+using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
 using UEBlueprintGraphViewer.Nodes;
@@ -61,6 +63,8 @@ namespace UEBlueprintGraphViewer
                 OpenSettings();
                 return;
             }
+            
+            PersistOpenTabs();
 
             Package?.Dispose();
             PackageCompare1?.Dispose();
@@ -95,6 +99,52 @@ namespace UEBlueprintGraphViewer
                 Package = p;
                 viewModel.PopulateTree([.. Package.Assets.Select(o => o.Path)]);
                 viewModel.StatusText = "";
+
+                await RestoreOpenTabs(Settings.Instance.Game);
+            }
+        }
+
+        private async Task RestoreOpenTabs(GameSettings game)
+        {
+            if (!Settings.Instance.RememberOpenTabs)
+                return;
+
+            foreach (var path in game.OpenTabs.ToList())
+                await LoadAsset(new AssetFile(path.SubstringAfterLast('/'), path));
+
+            if (game.ActiveTab != null &&
+                AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag?.ToString() == game.ActiveTab) is { } activeTab)
+                AssetsTabs.SelectedItem = activeTab;
+        }
+
+        private void SaveOpenTabs(GameSettings game)
+        {
+            var tabs = AssetsTabs.Items.OfType<TabItem>()
+                .Select(t => t.Tag?.ToString())
+                .Where(tag => tag is not null and not "MainTab")
+                .Select(tag => tag!)
+                .ToList();
+
+            game.OpenTabs = tabs;
+            game.ActiveTab = (AssetsTabs.SelectedItem as TabItem)?.Tag?.ToString() is { } active and not "MainTab"
+                ? active
+                : null;
+        }
+
+        protected override void OnClosing(WindowClosingEventArgs e)
+        {
+            base.OnClosing(e);
+            PersistOpenTabs();
+        }
+
+        private void PersistOpenTabs()
+        {
+            if (!Design.IsDesignMode && Settings.Instance.RememberOpenTabs &&
+                !Settings.Instance.IsInCompareMode &&
+                Settings.Instance.Game is { ProfileName: not null } game)
+            {
+                SaveOpenTabs(game);
+                game.WriteConfig();
             }
         }
 
@@ -323,6 +373,15 @@ namespace UEBlueprintGraphViewer
         private void CloseTab(Visual child)
         {
             AssetsTabs.Items.Remove(child.GetVisualAncestors().OfType<TabItem>().FirstOrDefault());
+        }
+
+        private void CloseAllTabs_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var toClose = AssetsTabs.Items.OfType<TabItem>()
+                .Where(t => t.Classes.Contains("Closeable"))
+                .ToList();
+            foreach (var tab in toClose)
+                AssetsTabs.Items.Remove(tab);
         }
 
         public void AddTab(TabItem newTab)

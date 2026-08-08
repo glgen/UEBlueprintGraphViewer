@@ -117,6 +117,11 @@
 						<Setter Property="HeaderTemplate">
 							<DataTemplate x:DataType="x:String">
 								<StackPanel Orientation="Horizontal" Spacing="7" PointerPressed="Tab_OnPointerPressed">
+									<StackPanel.ContextMenu>
+										<ContextMenu>
+											<MenuItem Header="Close All Tabs" Click="CloseAllTabs_OnClick"/>
+										</ContextMenu>
+									</StackPanel.ContextMenu>
 									<TextBlock Text="{Binding .}"/>
 									<Button Content="x" Background="Transparent" Click="TabClose_OnClick" Padding="0"/>
 								</StackPanel>

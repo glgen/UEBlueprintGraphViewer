@@ -68,6 +68,33 @@ namespace UEBlueprintGraphViewer
             await CreateNewProfile();
         }
 
+        private async void DeleteProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            string profileName = settings.GameProfileName;
+            if (string.IsNullOrEmpty(profileName))
+                return;
+
+            var confirm = await DialogWindow.Show(
+                $"Delete profile \"{profileName}\"? This cannot be undone.",
+                "Delete profile", canCancel: true, windowOverride: this);
+            if (confirm.Result != DialogWindowResult.Ok)
+                return;
+
+            if (GameSettings.IsConfigExists(profileName))
+                File.Delete($"Profiles/{profileName}.json");
+
+            Profiles.Remove(profileName);
+
+            if (Profiles.Any())
+            {
+                settings.GameProfileName = Profiles[0];
+            }
+            else
+            {
+                await CreateNewProfile(false);
+            }
+        }
+
         private void ProfileComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (GameSettings.IsConfigExists(settings.GameProfileName))
@@ -77,7 +104,8 @@ namespace UEBlueprintGraphViewer
             }
             else
             {
-                settings.Game.ProfileName = settings.GameProfileName;
+                game = new GameSettings { ProfileName = settings.GameProfileName };
+                settings.Game = game;
             }
             CheckIsValid();
         }
