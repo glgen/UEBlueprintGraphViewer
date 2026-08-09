@@ -144,7 +144,18 @@ namespace UEBlueprintGraphViewer
                 Settings.Instance.Game is { ProfileName: not null } game)
             {
                 SaveOpenTabs(game);
-                game.WriteConfig();
+                
+                if (GameSettings.IsConfigExists(game.ProfileName))
+                {
+                    var onDisk = GameSettings.ReadConfig(game.ProfileName);
+                    onDisk.OpenTabs = game.OpenTabs;
+                    onDisk.ActiveTab = game.ActiveTab;
+                    onDisk.WriteConfig();
+                }
+                else
+                {
+                    game.WriteConfig();
+                }
             }
         }
 
