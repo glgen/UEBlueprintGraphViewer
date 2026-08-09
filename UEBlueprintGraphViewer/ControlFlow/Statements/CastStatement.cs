@@ -12,37 +12,37 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
     public class CastStatement(DecompilerContext context, KismetExpression startInstr, EX_CastBase cast, EX_LocalVariable var)
         : ControlFlowStatement(context)
     {
-        private KismetExpression startInstr = startInstr;
-        private EX_CastBase cast = cast;
-        private EX_LocalVariable var = var;
+        private KismetExpression _startInstr = startInstr;
+        private EX_CastBase _cast = cast;
+        private EX_LocalVariable _var = var;
 
         public override void Decompile()
         {
             // 1 - Let 'as object' local var to result of cast instruction
-            K2Node_DynamicCast Node = MakeNode(cast, VarInstrToProperty(var, Context.Global));
-            Context.AddNode(Node);
+            K2Node_DynamicCast node = MakeNode(_cast, VarInstrToProperty(_var, Context.Global));
+            Context.AddNode(node);
 
             Context.BlockIndex++;
 
             bool hasJump = false;
             // 2 - Let success local var (optional in pure nodes)
-            if (Context.GetInstr() is EX_Let LetSuccess)
+            if (Context.GetInstr() is EX_Let letSuccess)
             {
                 Context.MarkAsParsed();
                 Context.BlockIndex++;
                 
                 // Success variable name
-                string SuccessPropName = VarInstrToName(LetSuccess.Variable);
+                string successPropName = VarInstrToName(letSuccess.Variable);
                 
                 // 3 - Jump if cast is failed (optional)
                 if (Context.BlockIndex == Context.Block.Instructions.Count - 1)
                 {
                     if (Context.Block.Type is BlockType.BranchEndIfNot or BlockType.JumpIfNot)
                     {
-                        ParseJumpExpr(Context.GetInstr(), out KismetExpression? BoolExpr);
+                        ParseJumpExpr(Context.GetInstr(), out KismetExpression? boolExpr);
 
                         // Ensure that this jump related to cast
-                        hasJump = BoolExpr is EX_VariableBase && VarInstrToName(BoolExpr) == SuccessPropName;
+                        hasJump = boolExpr is EX_VariableBase && VarInstrToName(boolExpr) == successPropName;
                         if (hasJump)
                         {
                             Context.MarkAsParsed();
@@ -55,52 +55,52 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
                 {
                     GraphPin successPin = new("Success", EEdGraphPinDirection.EGPD_Output,
                         MakePinType(PinType.Bool));
-                    Node.AddOutputPin(successPin);
-                    context.LocalVars.Create(SuccessPropName, successPin);
+                    node.AddOutputPin(successPin);
+                    context.LocalVars.Create(successPropName, successPin);
                 }
             }
             
             // processing all branches
             if (hasJump)
             {
-                Connect(Context.LastPin, Node.ExecPin);
-                Context.ProcessBranch(Context.Block.Jumps[0], Node.ExecOutPin);
+                Connect(Context.LastPin, node.ExecPin);
+                Context.ProcessBranch(Context.Block.Jumps[0], node.ExecOutPin);
                 if (Context.Block.Type is BlockType.JumpIfNot)
                 {
-                    Context.ProcessBranch(Context.Block.Jumps[1], Node.ExecFailedPin);
+                    Context.ProcessBranch(Context.Block.Jumps[1], node.ExecFailedPin);
                 }
             }
             else
             {
                 // if the cast does not have a jump, this node is pure
-                Node.Pure = true;
-                Node.Output.Remove(Node.ExecFailedPin!);
-                Node.Output.Remove(Node.ExecOutPin!);
-                Node.Input.Remove(Node.ExecPin!);
-                Node.ExecFailedPin = null;
-                Node.ExecOutPin = null;
-                Node.ExecPin = null;
+                node.Pure = true;
+                node.Output.Remove(node.ExecFailedPin!);
+                node.Output.Remove(node.ExecOutPin!);
+                node.Input.Remove(node.ExecPin!);
+                node.ExecFailedPin = null;
+                node.ExecOutPin = null;
+                node.ExecPin = null;
                 Context.ProcessBranch(Context.Block, Context.BlockIndex, Context.LastPin);
             }
         }
 
-        private K2Node_DynamicCast MakeNode(EX_CastBase Cast, PropertyData Var)
+        private K2Node_DynamicCast MakeNode(EX_CastBase cast, PropertyData var)
         {
-            GraphPin ObjectPin = Context.Decompiler.ArgToPin(Cast.Target);
-            GraphPin AsObjectPin = new GraphPin("", EEdGraphPinDirection.EGPD_Output, MakePinType(PinType.Object));
+            GraphPin objectPin = Context.Decompiler.ArgToPin(cast.Target);
+            GraphPin asObjectPin = new GraphPin("", EEdGraphPinDirection.EGPD_Output, MakePinType(PinType.Object));
 
-            Context.LocalVars.Create(Var.Name, AsObjectPin);
+            Context.LocalVars.Create(var.Name, asObjectPin);
 
-            string ClassName = PackageIndexToName(Cast.ClassPtr);
+            string className = PackageIndexToName(cast.ClassPtr);
             
-            return Cast switch
+            return cast switch
             {
                 EX_CrossInterfaceCast or // ??
-                EX_ObjToInterfaceCast => new K2Node_DynamicCast(ObjectPin, AsObjectPin, ClassName, startInstr, true),
+                EX_ObjToInterfaceCast => new K2Node_DynamicCast(objectPin, asObjectPin, className, _startInstr, true),
                 EX_InterfaceToObjCast or // ??
-                EX_DynamicCast => new K2Node_DynamicCast(ObjectPin, AsObjectPin, ClassName, startInstr),
-                EX_MetaCast => new K2Node_ClassDynamicCast(ObjectPin, AsObjectPin, ClassName, startInstr),
-                _ => throw new DecompilerException($"Unknown cast instruction type - {Cast.GetType()}", Context),
+                EX_DynamicCast => new K2Node_DynamicCast(objectPin, asObjectPin, className, _startInstr),
+                EX_MetaCast => new K2Node_ClassDynamicCast(objectPin, asObjectPin, className, _startInstr),
+                _ => throw new DecompilerException($"Unknown cast instruction type - {cast.GetType()}", Context),
             };
         }
         

@@ -7,7 +7,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
 {
     public class SequenceStatement : ControlFlowStatement
     {
-        public List<BlockJump> Points = [];
+        public List<BlockJump> Points;
         public int SourceIndex;
         public int EndIndex;
 
@@ -29,16 +29,16 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             
             int branchesCount = Points.Count;
 
-            K2Node_ExecutionSequence Node = new K2Node_ExecutionSequence(branchesCount, Context.GetInstr());
-            Context.Decompiler.Graph.AddNode(Node);
-            Connect(Context.LastPin, Node.ExecPin);
+            K2Node_ExecutionSequence node = new K2Node_ExecutionSequence(branchesCount, Context.GetInstr());
+            Context.Decompiler.Graph.AddNode(node);
+            Connect(Context.LastPin, node.ExecPin);
 
             for (int i = 1; i < branchesCount - 1; i++)
                 Context.MarkAsParsedOffset(i);
 
             for (int i = 0; i < branchesCount; i++)
             {
-                GraphPin branchPin = Node.Output[i];
+                GraphPin branchPin = node.Output[i];
 
                 var jmp = Points[^(i + 1)];
 

@@ -111,20 +111,20 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
         }
 
         // Check if expression is first expression of switch node, returns comparison var, switch node type
-        public static bool IsSwitchNodeFirstInstr(KismetExpression expr, out string CmpName, out SwitchNodeType Type)
+        public static bool IsSwitchNodeFirstInstr(KismetExpression expr, out string cmpName, out SwitchNodeType type)
         {
-            Type = SwitchNodeType.Integer;
-            CmpName = "";
+            type = SwitchNodeType.Integer;
+            cmpName = "";
 
             if (!CheckSwitchInstrs(expr))
                 return false;
 
-            string name = VarInstrToName((expr as EX_LetBool).Variable);
-            CmpName = name;
+            string name = VarInstrToName((expr as EX_LetBool)!.Variable);
+            cmpName = name;
 
             int index = _successVarsPrefixes.FindIndex(name.Starts);
             if (index != -1)
-                Type = (SwitchNodeType)index;
+                type = (SwitchNodeType)index;
 
             return index != -1;
         }

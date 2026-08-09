@@ -28,10 +28,10 @@ namespace UEBlueprintGraphViewer.Views
 
         public BPGraphViewerViewModel VM { get; } = new();
 
-        BPGraph Graph;
-        BPGraph Graph2;
+        BPGraph _graph;
+        BPGraph _graph2;
 
-        UFunction? lastFunc;
+        UFunction? _lastFunc;
 
         public BPGraphViewer()
         {
@@ -134,7 +134,7 @@ namespace UEBlueprintGraphViewer.Views
 
         public void RepositionViewport(int statementIndex)
         {
-            var n = Graph.Nodes.FirstOrDefault(o => o.StatementIndex == statementIndex);
+            var n = _graph.Nodes.FirstOrDefault(o => o.StatementIndex == statementIndex);
             FirstViewer.Autopanner.PanToCentered(new Point(n?.X ?? 0, n?.Y ?? 0));
         }
 
@@ -157,21 +157,21 @@ namespace UEBlueprintGraphViewer.Views
 
         public async Task DecompileFunction(AssetFunctionViewModel func)
         {
-            if (!VM.Asset.Asset.IsEvent(lastFunc) || !VM.Asset.Asset.IsEvent(func.Function))
+            if (!VM.Asset.Asset.IsEvent(_lastFunc) || !VM.Asset.Asset.IsEvent(func.Function))
                 await Decompile(func);
 
-            lastFunc = func.Function;
+            _lastFunc = func.Function;
 
-            RepositionViewport(FirstViewer, Graph.FindFuncStartNode(func.Name));
-            RepositionViewport(SecondViewer, Graph2.FindFuncStartNode(func.Name));
+            RepositionViewport(FirstViewer, _graph.FindFuncStartNode(func.Name));
+            RepositionViewport(SecondViewer, _graph2.FindFuncStartNode(func.Name));
         }
 
         public async Task DecompileFunctionCompare(AssetFunctionViewModel func)
         {
             await Decompile(func);
 
-            RepositionViewport(FirstViewer, Graph.FindFuncStartNode(func.Name));
-            RepositionViewport(SecondViewer, Graph2.FindFuncStartNode(func.Name));
+            RepositionViewport(FirstViewer, _graph.FindFuncStartNode(func.Name));
+            RepositionViewport(SecondViewer, _graph2.FindFuncStartNode(func.Name));
         }
 
         private async Task Decompile(AssetFunctionViewModel func)
@@ -184,41 +184,41 @@ namespace UEBlueprintGraphViewer.Views
             {
                 var decompiler = new FunctionDecompiler(VM.Asset.Asset, Settings.Instance.Game, func.Function);
                 await DecompileAndCheck(func, decompiler);
-                Graph = decompiler.Graph;
-                Graph2 = new();
+                _graph = decompiler.Graph;
+                _graph2 = new();
                 Json = JsonConvert.SerializeObject(decompiler.GlobalContext.CurrentFunction, Formatting.Indented);
             }
             else
             {
-                Graph = new();
+                _graph = new();
                 if (func.FunctionCompare1 != null && VM.Asset.AssetCompare1 != null)
                 {
                     var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare1, Settings.Instance.CompareGame1!, func.FunctionCompare1);
                     await DecompileAndCheck(func, decompiler);
-                    Graph = decompiler.Graph;
+                    _graph = decompiler.Graph;
                 }
 
-                Graph2 = new();
+                _graph2 = new();
                 if (func.FunctionCompare2 != null && VM.Asset.AssetCompare2 != null)
                 {
                     var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare2, Settings.Instance.CompareGame2!, func.FunctionCompare2);
                     await DecompileAndCheck(func, decompiler);
-                    Graph2 = decompiler.Graph;
+                    _graph2 = decompiler.Graph;
                 }
 
-                BPGraph.Compare(Graph, Graph2);
+                BPGraph.Compare(_graph, _graph2);
                 Json = "{}";
             }
 
             SetProgressStateName("Building graph layout...");
 
-            var task1 = Graph.LayoutNodesMsaglAsync(null);
-            var task2 = Graph2.LayoutNodesMsaglAsync(null);
+            var task1 = _graph.LayoutNodesMsaglAsync(null);
+            var task2 = _graph2.LayoutNodesMsaglAsync(null);
             await Task.WhenAll(task1, task2);
 
             FirstViewer.Editor = GraphViewModel;
             SecondViewer.Editor = GraphViewModel2;
-            AddNodesToLoad(Graph, Graph2);
+            AddNodesToLoad(_graph, _graph2);
             InstructionsViewer.SetBytecode(Json);
             DisableProgress();
         }
@@ -306,7 +306,7 @@ namespace UEBlueprintGraphViewer.Views
 
         private async void SaveAsPNG_OnClick(object? sender, RoutedEventArgs e)
         {
-            string functionName = VM.Asset.Asset?.IsEvent(lastFunc) == true ? "Ubergraph" : lastFunc?.Name ?? "Unknown";
+            string functionName = VM.Asset.Asset?.IsEvent(_lastFunc) == true ? "Ubergraph" : _lastFunc?.Name ?? "Unknown";
             
             var storageProvider = this.FindLogicalAncestorOfType<Window>()?.StorageProvider!;
             var file = await storageProvider.SaveFilePickerAsync(new()
@@ -319,10 +319,10 @@ namespace UEBlueprintGraphViewer.Views
             if (file is not {} f)
                 return;
             
-            int xMin = (int)Graph.Nodes.Min(o => o.X);
-            int xMax = (int)Graph.Nodes.Max(o => o.X + o.NodeWidth);
-            int yMin = (int)Graph.Nodes.Min(o => o.Y);
-            int yMax = (int)Graph.Nodes.Max(o => o.Y + o.NodeHeight);
+            int xMin = (int)_graph.Nodes.Min(o => o.X);
+            int xMax = (int)_graph.Nodes.Max(o => o.X + o.NodeWidth);
+            int yMin = (int)_graph.Nodes.Min(o => o.Y);
+            int yMax = (int)_graph.Nodes.Max(o => o.Y + o.NodeHeight);
             
             GraphView2 view = new GraphView2()
             {
@@ -362,20 +362,20 @@ namespace UEBlueprintGraphViewer.Views
         private AssetViewModel _asset;
         
         [ObservableProperty]
-        private bool isProgressVisible = false;
+        private bool _isProgressVisible;
 
         [ObservableProperty]
-        private string progressMessage = "Message";
+        private string _progressMessage = "Message";
 
         [ObservableProperty]
-        private double progressValue = 0;
+        private double _progressValue;
         [ObservableProperty]
-        private double progressMax = 100;
+        private double _progressMax = 100;
         
         [ObservableProperty]
-        private object? selectedObject = null;
+        private object? _selectedObject;
         
         [ObservableProperty]
-        private GridLength blueprintDetailsValueColumnWidth = new(120, GridUnitType.Pixel);
+        private GridLength _blueprintDetailsValueColumnWidth = new(120, GridUnitType.Pixel);
     }
 }

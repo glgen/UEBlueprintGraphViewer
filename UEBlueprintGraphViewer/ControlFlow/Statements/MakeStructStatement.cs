@@ -11,28 +11,28 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
     public class MakeStructStatement(DecompilerContext context, KismetExpression firstInstr, EX_StructMemberContext structContext)
         : ControlFlowStatement(context)
     {
-        KismetExpression firstInstr = firstInstr;
-        EX_StructMemberContext structContext = structContext;
+        private KismetExpression _firstInstr = firstInstr;
+        private EX_StructMemberContext _structContext = structContext;
 
         public override void Decompile()
         {
-            PropertyData firstStructVar = VarInstrToProperty(structContext.StructExpression, Context.Global);
-            string StructVarName = firstStructVar.Name;
-            string StructName = firstStructVar.PinType.PinSubCategoryObject.SubstringAfterLast('.');
+            PropertyData firstStructVar = VarInstrToProperty(_structContext.StructExpression, Context.Global);
+            string structVarName = firstStructVar.Name;
+            string structName = firstStructVar.PinType.PinSubCategoryObject.SubstringAfterLast('.');
 
-            List<GraphPin> StructMembersPin = [];
+            List<GraphPin> structMembersPin = [];
 
-            while (IsThisMakeStructSetter(StructVarName, out string PropName, out KismetExpression? Assignment))
+            while (IsThisMakeStructSetter(structVarName, out string propName, out KismetExpression? assignment))
             {
-                GraphPin memberPin = Context.Decompiler.ArgToPin(Assignment!, PropName);
-                StructMembersPin.Add(memberPin);
+                GraphPin memberPin = Context.Decompiler.ArgToPin(assignment!, propName);
+                structMembersPin.Add(memberPin);
                 Context.MarkAsParsed();
                 Context.BlockIndex++;
             }
 
-            K2Node_MakeStruct Node = new K2Node_MakeStruct(StructName, StructMembersPin, firstInstr);
-            Context.AddNode(Node);
-            Context.LocalVars.Create(StructVarName, Node.GetFirstOutputParam()!);
+            K2Node_MakeStruct node = new K2Node_MakeStruct(structName, structMembersPin, _firstInstr);
+            Context.AddNode(node);
+            Context.LocalVars.Create(structVarName, node.GetFirstOutputParam()!);
         }
         
         public static bool CheckAndDecompile(KismetExpression expr, DecompilerContext context)
