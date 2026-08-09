@@ -374,5 +374,8 @@ namespace UEBlueprintGraphViewer.Views
         
         [ObservableProperty]
         private object? selectedObject = null;
+        
+        [ObservableProperty]
+        private GridLength blueprintDetailsValueColumnWidth = new(120, GridUnitType.Pixel);
     }
 }
