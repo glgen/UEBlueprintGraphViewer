@@ -318,11 +318,11 @@ public class GraphView2 : ContentControl
 
         public bool HitTest(Point p) => Bounds.Contains(p);
 
-        private static readonly SKColor BackgroundColor = new SKColor(30,30,30);
+        private static readonly SKColor BackgroundColor = new SKColor(38,38,38);
         private static readonly SKPaint DarkerBackgroundPaint = SkiaUtils.MakePaint(21, 21, 21);
-        private static readonly SKPaint GridPaint = SkiaUtils.MakeStroke(1, 51,51,51, 128);
-        private static readonly SKPaint GridPaint2 = SkiaUtils.MakeStroke(2, 51,51,51);
-        private static readonly SKPaint NodeBackg = SkiaUtils.MakePaint(40,40,40);
+        private static readonly SKPaint GridPaint = SkiaUtils.MakeStroke(1, 43,43,43, 128);
+        private static readonly SKPaint GridPaint2 = SkiaUtils.MakeStroke(2, 27,27,27);
+        private static readonly SKPaint NodeBackg = SkiaUtils.MakePaint(15,17,15);
         private static readonly SKPaint NodeAddedBackg = SkiaUtils.MakePaint(40,88,40);
         private static readonly SKPaint NodeChangedBackg = SkiaUtils.MakePaint(136,136,40);
         private static readonly SKPaint NodeRemovedBackg = SkiaUtils.MakePaint(136,40,40);
@@ -335,6 +335,9 @@ public class GraphView2 : ContentControl
         private static readonly SKPaint SelectionBorder = SkiaUtils.MakeStroke(1, 30,80,150);
         private static readonly SKPaint TextPaint = SkiaUtils.MakePaint(255, 255, 255, 255);
         private static readonly SKPaint TextPaint2 = SkiaUtils.MakePaint(255, 255, 255, 128);
+        
+        private const byte NodeBodyAlpha = 235;
+        private const byte CompactNodeBodyAlpha = 175;
 
         private static readonly SKFont TextFont = SkiaUtils.MakeFont(12.5f);
         private static readonly SKFont TextFontBody = SkiaUtils.MakeFont( 28);
@@ -519,6 +522,11 @@ public class GraphView2 : ContentControl
                 ChangeStatus.Changed => NodeChangedBackg,
                 _ => NodeBackg,
             };
+            
+            byte bodyAlpha = node.NodeType is "K2Node_VariableGet" or "K2Node_VariableSet" or "K2Node_PromotableOperator"
+                ? CompactNodeBodyAlpha
+                : NodeBodyAlpha;
+            backg.Color = backg.Color.WithAlpha(bodyAlpha);
 
             if (view.Scaling > 0.2)
                 canvas.DrawRoundRect(nodeRect, 5,5, backg);
@@ -535,6 +543,7 @@ public class GraphView2 : ContentControl
                     Shader = SKShader.CreateLinearGradient(
                         new SKPoint(0, 0), new SKPoint(node.NodeWidth, 0),
                         [edge, mid, edge], [0f, 0.5f, 1f], SKShaderTileMode.Clamp),
+                    Color = SKColors.Black.WithAlpha(bodyAlpha),
                 };
 
                 if (node.TintHeaderOnly)
@@ -553,7 +562,8 @@ public class GraphView2 : ContentControl
             if (!node.HeaderHidden)
             {
                 SKRect nodeHeaderRect = new SKRect(0, 0, node.NodeWidth, 25);
-                SKPaint headerPaint = ViewData.GetNodeColorSK(node.NodeType[7..]);
+                SKPaint headerPaint = ViewData.GetNodeHeaderColorSK(node.NodeType[7..], node.Pure);
+                headerPaint.Color = headerPaint.Color.WithAlpha(NodeBodyAlpha);
                 if (view.Scaling > 0.2)
                 {
                     using SKRoundRect a = new(nodeHeaderRect, 0);

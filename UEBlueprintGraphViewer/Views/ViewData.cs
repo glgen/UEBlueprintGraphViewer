@@ -82,7 +82,9 @@ namespace UEBlueprintGraphViewer.Views
 
         public static SKPaint SKUnknownColor = FromColor(SKColors.Red);
         
-        public static readonly SKColor NodeBaseColor = new(40, 40, 40);
+        public static readonly SKPaint SKPureFunctionColor = FromColor(new SKColor(102, 136, 97));
+        
+        public static readonly SKColor NodeBaseColor = new(15, 17, 15);
         private static readonly FrozenDictionary<PinType, SKColor> NodeTintColors =
             SKPinsColors.Select(o => new KeyValuePair<PinType, SKColor>(
                 o.Key, BlendOver(o.Value.Color, NodeBaseColor, 0.18f))).ToFrozenDictionary();
@@ -121,6 +123,16 @@ namespace UEBlueprintGraphViewer.Views
                 return color;
             }
             return SKUnknownColor;
+        }
+        
+        private static readonly HashSet<string> FunctionCallNodeTypes =
+            ["CallFunction", "CallArrayFunction"];
+
+        public static SKPaint GetNodeHeaderColorSK(string type, bool pure)
+        {
+            if (pure && type != null && FunctionCallNodeTypes.Contains(type))
+                return SKPureFunctionColor;
+            return GetNodeColorSK(type);
         }
 
         private static SKPaint FromColor(SKColor color)

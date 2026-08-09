@@ -265,6 +265,7 @@ namespace UEBlueprintGraphViewer.Views
             var node = view.Editor?.SelectedNodes.FirstOrDefault();
             view.Editor?.DetailsNodeText = node == null ? "" :
                             $"StatementIndex: {node.StatementIndex}\n" +
+                            $"NodeType: {node.NodeType}\n" +
                             $"NodeWidth: {node.NodeWidth}\n" +
                             $"NodeHeight: {node.NodeHeight}\n" +
                             $"X: {node.X}\nY: {node.Y}";
