@@ -11,18 +11,18 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
 
         public override void Decompile()
         {
-            ParseJumpExpr(Context.GetInstr(), out KismetExpression? BoolExpr);
+            ParseJumpExpr(Context.GetInstr(), out KismetExpression? boolExpr);
 
-            GraphPin ConditionPin = Context.Decompiler.ArgToPin(BoolExpr!);
+            GraphPin conditionPin = Context.Decompiler.ArgToPin(boolExpr!);
 
-            K2Node_IfThenElse IfThenElse = new K2Node_IfThenElse(ConditionPin, Context.GetInstr());
-            Context.AddNode(IfThenElse);
-            Connect(Context.LastPin, IfThenElse.ExecPin);
+            K2Node_IfThenElse ifThenElse = new K2Node_IfThenElse(conditionPin, Context.GetInstr());
+            Context.AddNode(ifThenElse);
+            Connect(Context.LastPin, ifThenElse.ExecPin);
 
             // processing all branches
-            Context.ProcessBranch(Context.Block.Jumps[0], IfThenElse.ExecOutPin);
+            Context.ProcessBranch(Context.Block.Jumps[0], ifThenElse.ExecOutPin);
             if (Context.Block.Jumps.Count > 1)
-                Context.ProcessBranch(Context.Block.Jumps[1], IfThenElse.ExecElsePin);
+                Context.ProcessBranch(Context.Block.Jumps[1], ifThenElse.ExecElsePin);
         }
     }
 }

@@ -14,10 +14,10 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
     {
         SpawnNodeType Type;
 
-        string SpawnReturn = "";
+        string _spawnReturn = "";
 
-        BPNode SpawnNode;
-        GraphPin ReturnPin;
+        BPNode _spawnNode;
+        GraphPin _returnPin;
 
         public SpawnStatement(SpawnNodeType type, DecompilerContext context) : base(context)
         {
@@ -37,43 +37,43 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             // get spawn function parameters
             EX_FinalFunction spawnCall = GetSpawnCall(spawnInstr);
             var func = Context.Decompiler.FindFunctionInAsset(spawnCall.StackNode.ResolvedObject.Outer.Load(), spawnCall.StackNode.ResolvedObject.Outer.GetPathName(), spawnCall.StackNode.Name);
-            List<GraphPin> Params = Context.Decompiler.ParseArgs(spawnCall.Parameters, func.Params);
+            List<GraphPin> parms = Context.Decompiler.ParseArgs(spawnCall.Parameters, func.Params);
 
-            ReturnPin = Params.Last();
-            SpawnReturn = VarInstrToName(spawnInstr.Variable);
+            _returnPin = parms.Last();
+            _spawnReturn = VarInstrToName(spawnInstr.Variable);
 
             Context.BlockIndex++;
-            Context.LocalVars.Create(SpawnReturn, ReturnPin);
+            Context.LocalVars.Create(_spawnReturn, _returnPin);
 
             // add node
-            SpawnNode = Type switch
+            _spawnNode = Type switch
             {
-                SpawnNodeType.Actor => new K2Node_SpawnActorFromClass(Params, spawnInstr),
-                SpawnNodeType.Obj => new K2Node_GenericCreateObject(Params, spawnInstr),
-                SpawnNodeType.Widget => new K2Node_CreateWidget(Params, spawnInstr),
+                SpawnNodeType.Actor => new K2Node_SpawnActorFromClass(parms, spawnInstr),
+                SpawnNodeType.Obj => new K2Node_GenericCreateObject(parms, spawnInstr),
+                SpawnNodeType.Widget => new K2Node_CreateWidget(parms, spawnInstr),
                 _ => throw new DecompilerException($"Unknown spawn node type {Type}", Context),
             };
-            Context.AddNode(SpawnNode);
-            Connect(Context.LastPin, SpawnNode.ExecPin);
-            Context.LastPin = SpawnNode.ExecOutPin!;
+            Context.AddNode(_spawnNode);
+            Connect(Context.LastPin, _spawnNode.ExecPin);
+            Context.LastPin = _spawnNode.ExecOutPin!;
         }
 
         public bool IsThisObject(string name)
         {
-            return SpawnReturn == name;
+            return _spawnReturn == name;
         }
 
         private void AddExposedParam(DecompilerContext context, EX_FinalFunction call)
         {
             context.MarkAsParsed();
-            SpawnNode.AddInputPin(ExposedOnSpawnSetterToPin(call));
+            _spawnNode.AddInputPin(ExposedOnSpawnSetterToPin(call));
             context.BlockIndex++;
         }
 
         private void FinishSpawnActor(DecompilerContext context, EX_LetObj letObj)
         {
             context.MarkAsParsed();
-            context.LocalVars.Create(VarInstrToName(letObj.Variable), ReturnPin);
+            context.LocalVars.Create(VarInstrToName(letObj.Variable), _returnPin);
             context.BlockIndex++;
         }
 
@@ -146,8 +146,8 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
                 call.Parameters.Length == 3 &&
                 call.Parameters[0] is EX_VariableBase)
             {
-                (string FuncName, string OuterName) = call.GetNameAndOuter();
-                if (OuterName == "KismetSystemLibrary" && FuncName.Starts("Set") && FuncName.Ends("PropertyByName"))
+                (string funcName, string outerName) = call.GetNameAndOuter();
+                if (outerName == "KismetSystemLibrary" && funcName.Starts("Set") && funcName.Ends("PropertyByName"))
                 {
                     return AddExposedPin(context, call);
                 }
@@ -157,10 +157,10 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
                 finalCall.Parameters.Length == 3 &&
                 finalCall.Parameters[0] is EX_VariableBase)
             {
-                (string FuncName, string OuterName) = finalCall.GetNameAndOuter();
-                if ((OuterName == "KismetArrayLibrary" && FuncName == "SetArrayPropertyByName") ||
-                    (OuterName == "BlueprintSetLibrary" && FuncName == "SetSetPropertyByName") ||
-                    (OuterName == "BlueprintMapLibrary" && FuncName == "SetMapPropertyByName"))
+                (string funcName, string outerName) = finalCall.GetNameAndOuter();
+                if ((outerName == "KismetArrayLibrary" && funcName == "SetArrayPropertyByName") ||
+                    (outerName == "BlueprintSetLibrary" && funcName == "SetSetPropertyByName") ||
+                    (outerName == "BlueprintMapLibrary" && funcName == "SetMapPropertyByName"))
                 {
                     return AddExposedPin(context, finalCall);
                 }

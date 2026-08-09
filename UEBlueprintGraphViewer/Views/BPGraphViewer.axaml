@@ -19,14 +19,18 @@
 			</Grid>
 		</DataTemplate>
 		<DataTemplate x:DataType="viewModels:AssetPropertyViewModel" x:Key="PropsWithDefaultTemplate">
-			<Grid Background="{StaticResource Background2}">
-				<StackPanel Margin="0,5" Spacing="5">
-					<Grid ColumnDefinitions="Auto, *, 120" ColumnSpacing="5">
-						<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
-						<TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-						<TextBox Grid.Column="2" IsReadOnly="True" Text="{Binding DefaultValue}" TextWrapping="Wrap"/>
-					</Grid>
-				</StackPanel>
+			<Grid Background="{StaticResource Background2}" ColumnSpacing="5">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="5"/>
+					<ColumnDefinition Width="{Binding #Viewer.((views:BPGraphViewerViewModel)DataContext)?.BlueprintDetailsValueColumnWidth, Mode=TwoWay}"/>
+				</Grid.ColumnDefinitions>
+				<Border Grid.ColumnSpan="4" Background="Transparent" BorderBrush="{StaticResource Background4}" BorderThickness="0,0,0,1"/>
+				<local:PinConnector PinType="{Binding Type}" Width="19" Height="19"/>
+				<TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+				<GridSplitter Grid.Column="2" BorderThickness="0,0,1,0" BorderBrush="{StaticResource Background4}"/>
+				<TextBox Grid.Column="3" Margin="2,4" IsReadOnly="True" Text="{Binding DefaultValue}"/>
 			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
@@ -205,8 +209,21 @@
 										           Grid.Row="3"/>
 										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 										         ItemsSource="{Binding Asset.ParentProperties}"
-										         Grid.Row="4"
-										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
+										         Margin="0"
+										         Padding="0"
+										         Grid.Row="4">
+											<ListBox.ItemTemplate>
+												<DataTemplate>
+													<StackPanel>
+														<TextBlock Text="{Binding Name}"
+														           Classes="HeaderSmall" Background="{StaticResource Background3}"/>
+														<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+														         ItemsSource="{Binding Properties}"
+														         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
+													</StackPanel>
+												</DataTemplate>
+											</ListBox.ItemTemplate>
+										</ListBox>
 									</Grid>
 								</ScrollViewer>
 							</TabItem>
