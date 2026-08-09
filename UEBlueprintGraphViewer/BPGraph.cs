@@ -645,11 +645,19 @@ namespace UEBlueprintGraphViewer
         public void ProcessMacros()
         {
             Dictionary<int, int> outSeqMapping = [];
-            
+            HashSet<int> inlinedNodes = [];
+
             foreach (var macro in Settings.Instance.Macros)
             {
                 var patternNodes = macro.Value.Nodes;
                 if (patternNodes.Count > Nodes.Count) continue;
+
+                // collect pure array getters for array index of for each loops
+                inlinedNodes = patternNodes
+                    .Select((node, idx) => (node, idx))
+                    .Where(o => o.node.NodeType == nameof(K2Node_GetArrayItem))
+                    .Select(o => o.idx)
+                    .ToHashSet();
 
                 Stopwatch sw = Stopwatch.StartNew();
                 List<Edge2> edgesPattern = macro.Value.GetEdges();
@@ -670,10 +678,13 @@ namespace UEBlueprintGraphViewer
                     changed = false;
                     for (int i = 0; i < patternNodes.Count; i++)
                     {
+                        if (inlinedNodes.Contains(i)) continue;
+
                         var pNeighborIndices = patternNodes[i].Output
                             .SelectMany(p => p.LinkedTo)
                             .Where(p => p.ParentNode.NodeType != "K2Node_Tunnel")
                             .Select(p => patternNodes.IndexOf(p.ParentNode))
+                            .Where(idx => !inlinedNodes.Contains(idx))
                             .ToList();
 
                         var toRemove = new List<int>();
@@ -722,6 +733,7 @@ namespace UEBlueprintGraphViewer
                 
                 List<BPNode> toRemoveNodes = [];
                 List<BPNode> toAddNodes = [];
+                List<BPNode> toRemoveLeftoverNodes = [];
 
                 foreach (var result in results)
                 {
@@ -790,6 +802,9 @@ namespace UEBlueprintGraphViewer
                         }
                     }
 
+                    foreach (var inlinedIndex in inlinedNodes)
+                        CollectArrayItemNodes(patternNodes[inlinedIndex], patternNodes, result, links, toRemoveNodes, toRemoveLeftoverNodes);
+
                     var inputs = macro.Value.MacroInputNode!.Output
                         .Select(p => MakeMacroInstancePin(p, EngineEnums.EEdGraphPinDirection.EGPD_Input, links)).ToList();
                     var outputs = macro.Value.MacroOutputNode!.Input
@@ -800,6 +815,7 @@ namespace UEBlueprintGraphViewer
 
                 toRemoveNodes.ForEach(RemoveNode);
                 toAddNodes.ForEach(AddNode);
+                RemoveLeftoverNodes(toRemoveLeftoverNodes);
                 sw.Stop();
             }
 
@@ -834,13 +850,15 @@ namespace UEBlueprintGraphViewer
                 Dictionary<int, int> mappings = [];
                 mappingsOut = mappings;
                 HashSet<BPNode> failedNodes = [];
+                
+                int expectedCount = patternGraph.Nodes.Count - 2 - inlinedNodes.Count;
 
                 while (true)
                 {
                     mappings.Clear();
                     mappings[patternGraph.Nodes.IndexOf(firstNode)] = Nodes.IndexOf(node);
 
-                    if (!Test(firstNode, node) || mappings.Count != patternGraph.Nodes.Count - 2)
+                    if (!Test(firstNode, node) || mappings.Count != expectedCount)
                         return false;
 
                     if (CheckAllConnections(mappings, patternEdges, patternGraph.Nodes, seqNodePattern, out var failed))
@@ -859,7 +877,7 @@ namespace UEBlueprintGraphViewer
 
                     return TryMapPins(macroNode.Output, testNode.Output) ||
                            TryMapPins(macroNode.Input, testNode.Input) ||
-                           mappings.Count == patternGraph.Nodes.Count - 2;
+                           mappings.Count == expectedCount;
 
                     bool TryMapPins(List<GraphPin> mPins, List<GraphPin> tPins)
                     {
@@ -867,7 +885,8 @@ namespace UEBlueprintGraphViewer
                         {
                             foreach (var mLink in mPins[i].LinkedTo)
                             {
-                                if (mappings.ContainsKey(patternGraph.Nodes.IndexOf(mLink.ParentNode))) continue;
+                                int linkIndex = patternGraph.Nodes.IndexOf(mLink.ParentNode);
+                                if (inlinedNodes.Contains(linkIndex) || mappings.ContainsKey(linkIndex)) continue;
 
                                 if (tPins[i].LinkedTo.Any(tLink => Test(mLink.ParentNode, tLink.ParentNode)))
                                     return true;
@@ -883,6 +902,9 @@ namespace UEBlueprintGraphViewer
                 failedNode = null;
                 foreach (var edge in patternEdges)
                 {
+                    if (inlinedNodes.Contains(edge.FromNodeIndex) || inlinedNodes.Contains(edge.ToNodeIndex))
+                        continue;
+
                     if (patternNodes[edge.FromNodeIndex] == seqNodePattern)
                     {
                         if (!mapping.TryGetValue(edge.FromNodeIndex, out int fromIdSeq))
@@ -930,6 +952,120 @@ namespace UEBlueprintGraphViewer
                     }
                 }
                 return true;
+            }
+
+            // for for each loops, find all inlined copies of the macro array getter and make them a single macro instance pin
+            void CollectArrayItemNodes(BPNode getterPattern, List<BPNode> patternNodes, Dictionary<int, int> result,
+                Dictionary<GraphPin, List<GraphPin>> links, List<BPNode> toRemoveNodes, List<BPNode> leftoverNodes)
+            {
+                if (getterPattern.Input.Count < 2 || getterPattern.Output.Count < 1)
+                    return;
+
+                // pin of the output tunnel the collected getters are routed to
+                var elementTunnelPin = getterPattern.Output[0].LinkedTo
+                    .FirstOrDefault(o => o.ParentNode is { NodeType: "K2Node_Tunnel" });
+                if (elementTunnelPin == null || !links.TryGetValue(elementTunnelPin, out var elementLinks))
+                    return;
+
+                // index comes from the array index temporary variable of this macro instance
+                var patternIndexSource = getterPattern.Input[1].LinkedTo.FirstOrDefault();
+                if (patternIndexSource == null ||
+                    !result.TryGetValue(patternNodes.IndexOf(patternIndexSource.ParentNode), out int indexNodeIndex))
+                    return;
+                var indexPin = Nodes[indexNodeIndex].Output[patternIndexSource.ParentNode.Output.IndexOf(patternIndexSource)];
+
+                // array comes from the input tunnel, take the pin the loop itself uses to know which array it is
+                var arrayTunnelPin = getterPattern.Input[0].LinkedTo
+                    .FirstOrDefault(o => o.ParentNode is { NodeType: "K2Node_Tunnel" });
+                GraphPin? arrayPin = arrayTunnelPin != null && links.TryGetValue(arrayTunnelPin, out var arrayLinks)
+                    ? arrayLinks.FirstOrDefault()
+                    : null;
+
+                foreach (var node in Nodes.ToList())
+                {
+                    if (!IsArrayGetter(node, out var getterArray, out var getterIndex, out var getterValue)) continue;
+                    if (!getterIndex!.LinkedTo.Contains(indexPin)) continue;
+                    if (arrayPin != null && !IsSameArray(getterArray!, arrayPin)) continue;
+                    if (toRemoveNodes.Contains(node)) continue;
+
+                    elementLinks.Add(getterValue!);
+                    toRemoveNodes.Add(node);
+                    CollectSourceNodes(getterArray!, leftoverNodes);
+                }
+            }
+            
+            static bool IsArrayGetter(BPNode node, out GraphPin? arrayPin, out GraphPin? indexPin, out GraphPin? valuePin)
+            {
+                if (node is K2Node_GetArrayItem getter)
+                {
+                    arrayPin = getter.ArrayPin;
+                    indexPin = getter.IndexPin;
+                    valuePin = getter.VarPin;
+                    return true;
+                }
+
+                arrayPin = null;
+                indexPin = null;
+                valuePin = null;
+
+                if (node is not K2Node_CallArrayFunction || node.Name != "GET")
+                    return false;
+
+                arrayPin = node.Input.Find(o => o.PinName == "TargetArray");
+                indexPin = node.Input.Find(o => o.PinName == "Index");
+                valuePin = node.GetFirstOutputParam();
+
+                return arrayPin != null && indexPin != null && valuePin != null;
+            }
+            
+            static bool IsSameArray(GraphPin pin1, GraphPin pin2)
+            {
+                if (pin1 == pin2) return true;
+
+                if (pin1.Property != null && pin2.Property != null)
+                    return pin1.Property.Name == pin2.Property.Name && pin1.Property.Owner == pin2.Property.Owner;
+
+                var source1 = pin1.LinkedTo.FirstOrDefault();
+                var source2 = pin2.LinkedTo.FirstOrDefault();
+                if (source1 == null || source2 == null)
+                    return source1 == source2;
+
+                return source1 == source2 ||
+                       (source1.ParentNode.NodeType == source2.ParentNode.NodeType &&
+                        source1.ParentNode.Name == source2.ParentNode.Name &&
+                        source1.PinName == source2.PinName);
+            }
+            
+            static void CollectSourceNodes(GraphPin pin, List<BPNode> collected)
+            {
+                foreach (var source in pin.LinkedTo)
+                {
+                    if (source.ParentNode is not { Pure: true } sourceNode || collected.Contains(sourceNode))
+                        continue;
+
+                    collected.Add(sourceNode);
+                    foreach (var input in sourceNode.Input)
+                        CollectSourceNodes(input, collected);
+                }
+            }
+            
+            void RemoveLeftoverNodes(List<BPNode> nodes)
+            {
+                bool removed = true;
+                while (removed)
+                {
+                    removed = false;
+                    foreach (var node in nodes)
+                    {
+                        if (!Nodes.Contains(node)) continue;
+
+                        // still used by something else
+                        if (node.Output.Any(o => o.LinkedTo.Count > 0)) continue;
+                        
+                        RemoveNode(node);
+                        removed = true;
+                    }
+                }
             }
 
             void MapTunnelPins(List<GraphPin> macroPins, List<GraphPin> testPins, Dictionary<GraphPin, List<GraphPin>> links)
