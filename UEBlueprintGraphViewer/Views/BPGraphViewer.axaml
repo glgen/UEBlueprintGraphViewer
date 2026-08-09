@@ -207,23 +207,23 @@
 										<TextBlock Text="Parents properties defaults"
 										           Classes="HeaderSmall"
 										           Grid.Row="3"/>
-										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-										         ItemsSource="{Binding Asset.ParentProperties}"
-										         Margin="0"
-										         Padding="0"
-										         Grid.Row="4">
-											<ListBox.ItemTemplate>
+										<ItemsControl ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+											          ItemsSource="{Binding Asset.ParentProperties}"
+											          Margin="0"
+											          Padding="0"
+											          Grid.Row="4">
+											<ItemsControl.ItemTemplate>
 												<DataTemplate>
 													<StackPanel>
 														<TextBlock Text="{Binding Name}"
 														           Classes="HeaderSmall" Background="{StaticResource Background3}"/>
 														<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-														         ItemsSource="{Binding Properties}"
-														         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
+													             ItemsSource="{Binding Properties}"
+													             ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
 													</StackPanel>
 												</DataTemplate>
-											</ListBox.ItemTemplate>
-										</ListBox>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
 									</Grid>
 								</ScrollViewer>
 							</TabItem>
