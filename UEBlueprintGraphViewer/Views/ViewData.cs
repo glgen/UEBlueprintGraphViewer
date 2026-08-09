@@ -124,6 +124,16 @@ namespace UEBlueprintGraphViewer.Views
             }
             return SKUnknownColor;
         }
+        
+        private static readonly HashSet<string> FunctionCallNodeTypes =
+            ["CallFunction", "CallArrayFunction"];
+
+        public static SKPaint GetNodeHeaderColorSK(string type, bool pure)
+        {
+            if (pure && type != null && FunctionCallNodeTypes.Contains(type))
+                return SKPureFunctionColor;
+            return GetNodeColorSK(type);
+        }
 
         private static SKPaint FromColor(SKColor color)
         {
