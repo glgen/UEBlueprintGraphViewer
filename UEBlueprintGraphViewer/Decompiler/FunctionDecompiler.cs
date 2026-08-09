@@ -120,8 +120,10 @@ namespace UEBlueprintGraphViewer.Decompiler
             foreach (var node in toRemove)
                 Graph.RemoveNode(node);
             
-            if (Graph.Nodes.Any(o => o is K2Node_TemporaryVariable or K2Node_AssignmentStatement))
-                _result.AddProblem($"Found direct local variables calls. There is probably some unknown macro or unsupported special node.", null, false);
+            if (Graph.Nodes.Where(o => o is K2Node_TemporaryVariable or K2Node_AssignmentStatement) is {} tempNodes && tempNodes.Any())
+                _result.AddProblem($"Found direct local variables calls. " +
+                                   $"There is probably some unknown macro or unsupported special node.\n" +
+                                   $"{string.Join(", ", tempNodes.Select(o => o.GetFirstOutputParam()?.Property?.Name ?? "_"))}", null, false);
 
             return _result;
         }
@@ -233,10 +235,63 @@ namespace UEBlueprintGraphViewer.Decompiler
                     InputEventPinType.AxisExec => 0,
                     _ => throw new ArgumentOutOfRangeException()
                 };
+
+                var jump = flowContext.Flow.GetEntryPointJump(entryPoints[func]);
+                int startOffset = 0;
+                GraphPin[] inputPins = [.. entryNode.Output.Where(o => o.PinType.PinCategory != PinType.exec)];
                 
+                // remove temp variables at the start
+                // looks bad but i can't find a way other than hardcode it
+                if (data.Type == InputEventType.Key)
+                {
+                    if (jump.Destination.Instructions[0] is EX_Let let)
+                    {
+                        BindTempInputVars(ToName(let.Property), tempVars, inputPins, 0);
+                        GlobalContext.MarkAsParsed(let.StatementIndex);
+                        startOffset = 1;
+                    }
+                }
+                else if (data.Type == InputEventType.EnhancedInputAction)
+                {
+                    if (jump.Destination.Instructions[0] is EX_LetBool let1 &&
+                        jump.Destination.Instructions[1] is EX_LetBool let2 &&
+                        jump.Destination.Instructions[2] is EX_Let let3 &&
+                        jump.Destination.Instructions[3] is EX_Let let4 &&
+                        jump.Destination.Instructions[4] is EX_Let let5 &&
+                        jump.Destination.Instructions[5] is EX_Let let6 &&
+                        jump.Destination.Instructions[6] is EX_LetObj let7)
+                    {
+                        BindTempInputVars(VarInstrToName(let2.Variable), tempVars, inputPins, 0);
+                        BindTempInputVars(VarInstrToName(let3.Variable), tempVars, inputPins, 1);
+                        BindTempInputVars(VarInstrToName(let5.Variable), tempVars, inputPins, 2);
+                        BindTempInputVars(VarInstrToName(let7.Variable), tempVars, inputPins, 3);
+                        GlobalContext.MarkAsParsed(let1.StatementIndex);
+                        GlobalContext.MarkAsParsed(let2.StatementIndex);
+                        GlobalContext.MarkAsParsed(let3.StatementIndex);
+                        GlobalContext.MarkAsParsed(let4.StatementIndex);
+                        GlobalContext.MarkAsParsed(let5.StatementIndex);
+                        GlobalContext.MarkAsParsed(let6.StatementIndex);
+                        GlobalContext.MarkAsParsed(let7.StatementIndex);
+                        startOffset = 7;
+                    }
+                }
+
                 foreach (var tempVar in tempVars.GetLocalVars())
                     localVars.Create(tempVar.VarName, tempVar.ParamPin);
+
+                jump.StartIndex = startOffset;
                 StartDecompilation(localVars, entryNode.Output[pinIndex], flowContext, entryPoints[func]);
+            }
+            
+            
+            void BindTempInputVars(string tempVarName, LocalVariablesStorage localVariablesStorage, GraphPin[] localVars,
+                int index)
+            {
+                var tempVar = localVariablesStorage.GetLocalVars().FirstOrDefault(o => o.VarName == tempVarName);
+                // remove K2Node_TemporaryVariable node
+                if (tempVar.ParamPin.ParentNode is K2Node_TemporaryVariable node)
+                    Graph.RemoveNode(node);
+                tempVar.ParamPin = localVars[index];
             }
         }
 
@@ -244,8 +299,19 @@ namespace UEBlueprintGraphViewer.Decompiler
         {
             foreach (var tempVarProp in GlobalContext.FunctionLocals.Where(o => o.IsTempVar()))
             {
-                K2Node_TemporaryVariable temp = new(tempVarProp.Name, tempVarProp.PinType, null);
-                Graph.AddNode(temp);
+                // can have only one node per each temporary variable (disallow duplicates)
+                K2Node_TemporaryVariable temp;
+                if (Graph.Nodes.FirstOrDefault(o => 
+                        o is K2Node_TemporaryVariable t && t.VarName == tempVarProp.Name)
+                    is K2Node_TemporaryVariable tempNode)
+                {
+                    temp = tempNode;
+                }
+                else
+                {
+                    temp = new(tempVarProp, null);
+                    Graph.AddNode(temp);
+                }
                 GraphPin tempVarPin = temp.GetFirstOutputParam()!;
                 localVars.Create(tempVarProp.Name, tempVarPin);
             }
