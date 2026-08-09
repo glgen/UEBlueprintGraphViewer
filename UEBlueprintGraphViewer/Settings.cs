@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CUE4Parse.UE4.Versions;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 
 namespace UEBlueprintGraphViewer
 {
@@ -62,7 +63,7 @@ namespace UEBlueprintGraphViewer
         public static void LoadMacros(Settings settings)
         {
             settings.Macros.Clear();
-            string[] macrosFiles = Directory.GetFiles("Macros", "*.json");
+            string[] macrosFiles = [.. Directory.GetFiles("Macros", "*.json").OrderBy(o => o)];
             foreach (var path in macrosFiles)
             {
                 BPGraph graph = GraphJson.FromJson(File.ReadAllText(path));
