@@ -298,7 +298,7 @@
       ]
     },
     {
-      "Name": "MakeLiteralInt",
+      "Name": "MakeLiteralInt (KismetSystemLibrary)",
       "NodeType": "K2Node_CallFunction",
       "LocationX": 505,
       "LocationY": 64,
@@ -420,7 +420,7 @@
       ]
     },
     {
-      "Name": "GetEnumeratorValueFromIndex",
+      "Name": "GetEnumeratorValueFromIndex (KismetNodeHelperLibrary)",
       "NodeType": "K2Node_CallFunction",
       "LocationX": 1010,
       "LocationY": 176,
@@ -633,8 +633,8 @@
     {
       "Name": "Assign",
       "NodeType": "K2Node_AssignmentStatement",
-      "LocationX": 2000,
-      "LocationY": 0,
+      "LocationX": 2040,
+      "LocationY": 32,
       "NodeWidth": 155,
       "NodeHeight": 130,
       "HeaderHidden": false,
@@ -997,7 +997,7 @@
       ]
     },
     {
-      "Name": "GetValidValue",
+      "Name": "GetValidValue (KismetNodeHelperLibrary)",
       "NodeType": "K2Node_CallFunction",
       "LocationX": 2849,
       "LocationY": 456,
