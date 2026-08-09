@@ -553,7 +553,9 @@ public class GraphView2 : ContentControl
             if (!node.HeaderHidden)
             {
                 SKRect nodeHeaderRect = new SKRect(0, 0, node.NodeWidth, 25);
-                SKPaint headerPaint = ViewData.GetNodeColorSK(node.NodeType[7..]);
+                SKPaint headerPaint = node.Pure
+                    ? ViewData.SKPureFunctionColor
+                    : ViewData.GetNodeColorSK(node.NodeType[7..]);
                 if (view.Scaling > 0.2)
                 {
                     using SKRoundRect a = new(nodeHeaderRect, 0);
