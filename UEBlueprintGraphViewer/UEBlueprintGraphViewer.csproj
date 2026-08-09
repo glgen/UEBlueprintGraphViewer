@@ -66,6 +66,12 @@
     <None Update="Macros\Foreach Enum.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Macros\For Each Loop with Break4 (break is unused no loop body).json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Macros\For Each Loop with Break3 (no loop body).json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
