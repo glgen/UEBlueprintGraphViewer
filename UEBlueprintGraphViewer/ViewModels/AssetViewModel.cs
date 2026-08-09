@@ -42,7 +42,7 @@ namespace UEBlueprintGraphViewer.ViewModels
         private List<AssetPropertyViewModel> _properties;
         
         [ObservableProperty]
-        private List<AssetPropertyViewModel> _parentProperties;
+        private List<AssetBPDetailsViewModel> _parentProperties;
         
         [ObservableProperty]
         private string _superStruct;
@@ -72,7 +72,14 @@ namespace UEBlueprintGraphViewer.ViewModels
             Functions = [.. asset.Functions.Select(o => new AssetFunctionViewModel(null, o))];
             asset.LoadAllProperties();
             Properties = [.. asset.LoadedProperties.Values.Select(o => new AssetPropertyViewModel(o))];
-            ParentProperties = [.. asset.ParentProperties.Values.Select(o => new AssetPropertyViewModel(o))];
+            ParentProperties = [.. asset.ParentProperties.Values
+                .Select(o => new AssetPropertyViewModel(o))
+                .GroupBy(o => o.Property.Owner)
+                .Select(o => new AssetBPDetailsViewModel()
+                {
+                    Name = o.Key,
+                    Properties = o.Select(o => o).ToList()
+                })];
             SuperStruct = asset.SuperStruct;
             EventsFiltered = Events;
             FunctionsFiltered = Functions;
@@ -302,5 +309,14 @@ namespace UEBlueprintGraphViewer.ViewModels
         }
 
         public override string ToString() => Name;
+    }
+
+    public partial class AssetBPDetailsViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private string _name;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _properties;
     }
 }
