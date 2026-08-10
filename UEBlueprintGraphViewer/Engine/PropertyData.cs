@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.UE4.Objects.Core.i18N;
+using CUE4Parse.UE4.Objects.Core.Misc;
 using UEBlueprintGraphViewer.Decompiler;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
@@ -206,20 +207,31 @@ namespace UEBlueprintGraphViewer.Engine
         {
             if (source?.Properties.FirstOrDefault(o => o.Name == Name) is { } value)
             {
-                object? rawValue = value.Tag?.GenericValue;
-                DefaultValue = rawValue switch
+                DefaultValue = TagToValueString(value);
+                string TagToValueString(FPropertyTag tag)
                 {
-                    int a => a.ToString(),
-                    float a => a.ToString(),
-                    double a => a.ToString(),
-                    bool a => a.ToString(),
-                    string a => a.ToString(),
-                    FText a => a.ToString(),
-                    FName a => a.ToString(),
-                    UScriptArray a => a.ToString(),
-                    FStructFallback a => a.ToString(),
-                    _ => rawValue.ToString(),
-                };
+                    object? rawValue = tag.Tag?.GenericValue;
+                    return rawValue switch
+                    {
+                        int a => a.ToString(),
+                        float a => a.ToString(),
+                        double a => a.ToString(),
+                        ulong a => a.ToString(),
+                        long a => a.ToString(),
+                        byte a => a.ToString(),
+                        bool a => a.ToString(),
+                        string a => a.ToString(),
+                        FText a => a.ToString(),
+                        FName a => a.ToString(),
+                        FGuid a => a.ToString(),
+                        UScriptArray a => a.ToString(),
+                        FPackageIndex a => a.ResolvedObject?.GetFullName() ?? a.ToString(),
+                        FScriptStruct { StructType: FStructFallback f } => $"({string.Join("; ", f.Properties.Select(o => $"{o.Name}={TagToValueString(o)}"))})",
+                        FScriptStruct a => a.ToString(),
+                        FMulticastScriptDelegate a => a.ToString(),
+                        _ => rawValue.ToString(),
+                    };
+                }
             }
             else
             {
