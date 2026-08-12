@@ -334,9 +334,11 @@ namespace RC::GUI::KismetDebuggerMod
             std::string str = "";
             std::getline(file, str);
             file.close();
+            std::string str2 = std::filesystem::path{ str }.parent_path().string();
+
+            str += " debugger";
             char* cmdLine = new char[str.length() + 1];
             strcpy(cmdLine, str.c_str());
-            std::string str2 = std::filesystem::path{ cmdLine }.parent_path().string();
             char* cmdDir = new char[str2.length() + 1];
             strcpy(cmdDir, str2.c_str());
 
