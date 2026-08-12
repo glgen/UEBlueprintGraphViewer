@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -48,14 +49,13 @@ namespace UEBlueprintGraphViewer
             Assembly assembly = Assembly.GetExecutingAssembly();
             var version = assembly.GetName().Version;
             Title = $"UE Blueprint Graph Viewer v{version.Major}.{version.Minor}.{version.Build}";
-
-            if (Settings.DebuggerMode)
+            if (!Design.IsDesignMode && Settings.DebuggerMode)
             {
                 InitDebuggerPipe();
                 ReadDebuggerMessages();
             }
         }
-
+        
         public async void InitDebuggerPipe()
         {
             Console.OutputEncoding = Encoding.UTF8;
@@ -68,10 +68,11 @@ namespace UEBlueprintGraphViewer
             }
             catch (TimeoutException)
             {
+                new DialogWindow($"Timeout", "Error").Show();
                 return;
             }
 
-            DebuggerOutput = new StreamWriter(DebuggerPipeClient) { AutoFlush = true };
+            DebuggerOutput = new StreamWriter(DebuggerPipeClient, Encoding.Unicode) { AutoFlush = true };
 
             DebuggerPipeInitialized = true;
             

@@ -355,7 +355,7 @@ namespace RC::GUI::KismetDebuggerMod
             DWORD bytes_read;
             std::wstring current_message = L"";
 
-            while (ReadFile(hPipe, &ch, 1, &bytes_read, NULL) && bytes_read > 0) {
+            while (ReadFile(hPipe, &ch, sizeof(wchar_t), &bytes_read, NULL) && bytes_read > 0) {
                 if (ch == L'\n') {
                     if (current_message.starts_with(L"DEBUGGER - ADD BREAKPOINT"))
                     {
@@ -409,6 +409,7 @@ namespace RC::GUI::KismetDebuggerMod
             if (bytes_read == 0)
             {
                 disable();
+                DisconnectNamedPipe(hPipe);
                 CloseHandle(hPipe);
             }
         }
