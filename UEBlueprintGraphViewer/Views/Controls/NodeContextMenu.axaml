@@ -18,6 +18,7 @@
 			<Button Content="Follow pin" Click="FollowPin_OnClick" x:Name="FollowPin"/>
 			<Button Content="Copy pin value" Click="CopyPinValue_OnClick" x:Name="CopyPinValue"/>
 			<Button Content="Open in json" Click="OpenInJson_OnClick"/>
+			<Button Content="Toggle breakpoint" Click="ToggleBreakpoint_OnClick" IsVisible="{x:Static local:Settings.DebuggerMode}"/>
 			<Button Content="Collapse to macro" Click="CollapseToMacroButton_OnClick"/>
 			<Button Content="Delete" Click="DeleteButton_OnClick"/>
 		</StackPanel>

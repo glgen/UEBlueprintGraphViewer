@@ -3,17 +3,23 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
+using CUE4Parse.UE4.Objects.UObject;
 using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
+using UEBlueprintGraphViewer.Engine;
 using UEBlueprintGraphViewer.Nodes;
 using UEBlueprintGraphViewer.ReferencesSearch;
 using UEBlueprintGraphViewer.ViewModels;
@@ -29,6 +35,10 @@ namespace UEBlueprintGraphViewer
         public static PackageData? Package { get; private set; }
         public static PackageData? PackageCompare1 { get; private set; }
         public static PackageData? PackageCompare2 { get; private set; }
+        
+        public static NamedPipeClientStream? DebuggerPipeClient { get; private set; }
+        public static StreamWriter? DebuggerOutput { get; private set; }
+        public static bool DebuggerPipeInitialized { get; private set; }
 
         public MainWindow()
         {
@@ -38,8 +48,161 @@ namespace UEBlueprintGraphViewer
             Assembly assembly = Assembly.GetExecutingAssembly();
             var version = assembly.GetName().Version;
             Title = $"UE Blueprint Graph Viewer v{version.Major}.{version.Minor}.{version.Build}";
+
+            if (Settings.DebuggerMode)
+            {
+                InitDebuggerPipe();
+                ReadDebuggerMessages();
+            }
         }
 
+        public async void InitDebuggerPipe()
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+            
+            DebuggerPipeClient = new NamedPipeClientStream(".", "BPDebuggerPipe", PipeDirection.InOut, PipeOptions.Asynchronous);
+            try
+            {
+                await DebuggerPipeClient.ConnectAsync(5000);
+            }
+            catch (TimeoutException)
+            {
+                return;
+            }
+
+            DebuggerOutput = new StreamWriter(DebuggerPipeClient) { AutoFlush = true };
+
+            DebuggerPipeInitialized = true;
+            
+            while (true)
+            {
+                await Task.Delay(50);
+                try
+                {
+                    await DebuggerOutput.WriteLineAsync("");
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            
+        }
+
+        private async void ReadDebuggerMessages()
+        {
+            byte[] buffer = new byte[4096];
+
+            try
+            {
+                List<byte> bufferComposite = [];
+                
+                while (true)
+                {
+                    // wait for named pipe init
+                    if (!DebuggerPipeInitialized || DebuggerPipeClient == null)
+                    {
+                        await Task.Delay(100);
+                        continue;
+                    }
+                    
+                    int bytesRead = await DebuggerPipeClient.ReadAsync(buffer, CancellationToken.None);
+                    if (bytesRead == 0)
+                    {
+                        await new DialogWindow("Connection closed", "").ShowDialog(this);
+                        Close();
+                        break;
+                    }
+                    
+                    bufferComposite.AddRange(buffer[..bytesRead]);
+                    while (bytesRead == 4096)
+                    {
+                        bytesRead = await DebuggerPipeClient.ReadAsync(buffer, CancellationToken.None);
+                        bufferComposite.AddRange(buffer[..bytesRead]);
+                    }
+
+                    string message = Encoding.Unicode.GetString(bufferComposite.ToArray(), 0, bufferComposite.Count);
+                    bufferComposite = [];
+                    if (message.StartsWith("DEBUGGER - BREAKPOINT HIT", StringComparison.Ordinal))
+                    {
+                        var parts = message.Split(" | ");
+                        string funcName = parts[1];
+                        string objPath = funcName.SubstringBeforeLast('.');
+                        
+                        bool foundNode = false;
+                        
+                        if (AssetsTabs.Items.FirstOrDefault(o =>
+                                o is TabItem t && AssetsUtils.FixAssetPath(t.Tag?.ToString()?.SubstringBeforeLast('.') ?? "") == objPath) is TabItem tab)
+                        {
+                            AssetsTabs.SelectedItem = tab;
+                            if (tab.Content is BPGraphViewer viewer)
+                            {
+                                int statementIndex = int.Parse(parts[2]);
+                                viewer.GraphViewModel.CurrentDebuggerNode =
+                                    viewer.GraphViewModel.Nodes.FirstOrDefault(o => o.StatementIndex == statementIndex);
+
+                                // skip all instructions which are not correspond to any node
+                                if (viewer.GraphViewModel.CurrentDebuggerNode != null)
+                                {
+                                    foundNode = true;
+                                    
+                                    List<string> stack = [];
+                                    List<(string, string)> locals = [];
+                        
+                                    int index = 5;
+                                    while (index < parts.Length && parts[index] != "LOCALS")
+                                    {
+                                        stack.Add(parts[index]);
+                                        index++;
+                                    }
+                                    index++;
+                                    while (index + 1 < parts.Length)
+                                    {
+                                        locals.Add((parts[index], parts[index+1]));
+                                        index += 2;
+                                    }
+                                    
+                                    string funcShortName = funcName.SubstringAfterLast(':');
+                                    var func = viewer.VM.Asset.Asset?.Functions.FirstOrDefault(o => o.Name == funcShortName);
+                                
+                                    viewer.GraphViewModel.DebuggerStack = string.Join('\n', stack);
+                                    viewer.GraphViewModel.DebuggerLocals = locals.Select(o =>
+                                        new AssetPropertyViewModel(
+                                            new PropertyData(func!.ChildProperties.FirstOrDefault(f => f.Name == o.Item1) as FProperty, func!)
+                                            {
+                                                DefaultValue = o.Item2
+                                            }
+                                        )
+                                        {
+                                        }).ToList();
+                                }
+                                else
+                                {
+                                    viewer.GraphViewModel.DebuggerStack = "";
+                                    viewer.GraphViewModel.DebuggerLocals = [];
+                                }
+                                
+                                
+                                // force rerender viewer to update selection
+                                viewer.FirstViewer.InvalidateVisual();
+                            }
+                        }
+
+                        if (!foundNode)
+                        {
+                            await DebuggerOutput!.WriteLineAsync("DEBUGGER - NEXT");
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                new DialogWindow($"{e.Message}\n{e.StackTrace}", "Error while reading debugger messages").Show();
+            }
+        }
+        
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
@@ -135,6 +298,9 @@ namespace UEBlueprintGraphViewer
         {
             base.OnClosing(e);
             PersistOpenTabs();
+
+            DebuggerOutput?.Dispose();
+            DebuggerPipeClient?.Dispose();
         }
 
         private void PersistOpenTabs()

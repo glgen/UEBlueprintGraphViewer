@@ -43,6 +43,8 @@ namespace UEBlueprintGraphViewer
         public static bool DrawDebugGraph;
 
         public static bool ExperimentalExecStraightening;
+        
+        public static bool DebuggerMode = false;
 
         [JsonIgnore]
         public Dictionary<string, BPGraph> Macros = [];

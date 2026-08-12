@@ -60,6 +60,18 @@ namespace UEBlueprintGraphViewer.ViewModels
         
         [ObservableProperty]
         private string _detailsNodeText;
+        
+        [ObservableProperty]
+        private List<BPNode> _debuggerBreakpoints = [];
+        
+        [ObservableProperty]
+        private string _debuggerStack;
+        
+        [ObservableProperty]
+        private List<AssetPropertyViewModel> _debuggerLocals = [];
+        
+        [ObservableProperty]
+        private BPNode? _currentDebuggerNode;
 
         
         public void RemoveNode(BPNode node)

@@ -46,8 +46,12 @@
 		<TabControl Grid.Column="2" x:Name="BPTabControl" Margin="0,5,0,0">
 			<TabItem Header="Decompiled">
 				<Grid ColumnDefinitions="*,5,280" Margin="0,5,0,0" Background="{StaticResource Background1}">
-					<Grid Grid.Column="0">
-						<Grid x:Name="ViewersGrid">
+					<Grid Grid.Column="0" RowDefinitions="Auto, *" Background="{StaticResource Background2}">
+						<StackPanel Margin="5" Spacing="5" DataContext="{Binding #Viewer.GraphViewModel}" IsVisible="{x:Static local:Settings.DebuggerMode}" Orientation="Horizontal">
+							<Button Content="Continue" Click="PlayButton_OnClick" IsEnabled="{Binding CurrentDebuggerNode, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+							<Button Content="Next" Click="NextButton_OnClick" IsEnabled="{Binding CurrentDebuggerNode, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+						</StackPanel>
+						<Grid x:Name="ViewersGrid" Grid.Row="1">
 							<local:GraphView2 Grid.Row="0"
 							                  x:Name="FirstViewer"/>
 							<Button Grid.Row="0"
@@ -62,7 +66,7 @@
 							</Grid>
 						</Grid>
 
-						<Grid IsVisible="{Binding IsProgressVisible}" Background="#33202080">
+						<Grid IsVisible="{Binding IsProgressVisible}" Grid.RowSpan="2" Background="#33202080">
 							<StackPanel VerticalAlignment="Center" Spacing="7">
 								<TextBlock Text="{Binding ProgressMessage}"
 								           FontSize="24"
@@ -224,6 +228,28 @@
 												</DataTemplate>
 											</ItemsControl.ItemTemplate>
 										</ItemsControl>
+									</Grid>
+								</ScrollViewer>
+							</TabItem>
+							<TabItem Header="Debugger details" IsVisible="{x:Static local:Settings.DebuggerMode}">
+								<ScrollViewer Margin="0,5,0,0">
+									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+										<TextBlock Text="Stack"
+										           Classes="HeaderSmall"
+										           Grid.Row="1"/>
+										<TextBlock Grid.Row="2"
+										           TextWrapping="Wrap"
+										           Text="{Binding #Viewer.GraphViewModel.DebuggerStack}" />
+										<TextBlock Text="Locals"
+										           Classes="HeaderSmall"
+										           Grid.Row="3"/>
+										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+										         ItemsSource="{Binding #Viewer.GraphViewModel.DebuggerLocals}"
+										         Margin="0"
+										         Padding="0"
+										         Grid.Row="4"
+										         DoubleTapped="InputElement_OnDoubleTapped"
+										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
 									</Grid>
 								</ScrollViewer>
 							</TabItem>

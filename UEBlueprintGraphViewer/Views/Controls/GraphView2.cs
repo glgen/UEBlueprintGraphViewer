@@ -329,6 +329,8 @@ public class GraphView2 : ContentControl
         private static readonly SKPaint NodeBorder = SkiaUtils.MakeStroke(SKColors.Black, 1);
         private static readonly SKPaint NodeSelectedBorder = SkiaUtils.MakeStroke(SKColors.Orange, 1);
         private static readonly SKPaint NodeSearchResultBorder = SkiaUtils.MakeStroke(SKColors.White, 3);
+        private static readonly SKPaint NodeBreakpointBorder = SkiaUtils.MakeStroke(SKColors.Firebrick, 5);
+        private static readonly SKPaint NodeHitBreakpointBorder = SkiaUtils.MakeStroke(SKColors.Orange, 5);
         private static readonly SKPaint NodeValue = SkiaUtils.MakePaint(34,34,34);
         private static readonly SKPaint NodeValueBorder = SkiaUtils.MakeStroke(1, 153, 153, 153);
         private static readonly SKPaint Selection = SkiaUtils.MakePaint(30,50,80, 70);
@@ -402,6 +404,18 @@ public class GraphView2 : ContentControl
                                 node.NodeWidth, node.NodeHeight, 5, 5, NodeSelectedBorder);
                         }
                         
+                        foreach (var node in view.Editor.DebuggerBreakpoints)
+                        {
+                            canvas.DrawRoundRect(node.X, node.Y,
+                                node.NodeWidth, node.NodeHeight, 5, 5, NodeBreakpointBorder);
+                        }
+
+                        if (view.Editor.CurrentDebuggerNode is { } debuggerNode)
+                        {
+                            canvas.DrawRoundRect(debuggerNode.X, debuggerNode.Y,
+                                debuggerNode.NodeWidth, debuggerNode.NodeHeight, 5, 5, NodeHitBreakpointBorder);
+                        }
+                        
                         foreach (var node in view.Editor.SearchResult)
                         {
                             canvas.DrawRoundRect(node.X, node.Y,
@@ -468,10 +482,21 @@ public class GraphView2 : ContentControl
                             
             canvas.DrawRect(rect, paint);
 
-            if (pin.Value.Length > 55)
+            SKRect popupRect = new SKRect((float)view._mousePosOnGraph.X, (float)view._mousePosOnGraph.Y + 15,
+                (float)view._mousePosOnGraph.X + 400, (float)view._mousePosOnGraph.Y + 200);
+            if (Settings.DebuggerMode && pin is { IsConnected: true, Property: not null } && view.Editor != null)
             {
-                SKRect popupRect = new SKRect((float)view._mousePosOnGraph.X, (float)view._mousePosOnGraph.Y + 15,
-                    (float)view._mousePosOnGraph.X + 400, (float)view._mousePosOnGraph.Y + 200);
+                string text = $"{pin.Property.Name} -> {view.Editor.DebuggerLocals.FirstOrDefault(o => o.Name == pin.Property.Name)?.DefaultValue}";
+                
+                SkiaUtils.DrawTextWithWrapping(canvas, text, popupRect, TextFont, TextPaint, height =>
+                {
+                    SKRect popupRect2 = new SKRect(popupRect.Left - 5, popupRect.Top - 5, popupRect.Right + 5, popupRect.Top + 5 + height);
+                    canvas.DrawRoundRect(popupRect2, 5, 5, NodeValue);
+                    canvas.DrawRoundRect(popupRect2, 5, 5, NodeValueBorder);
+                });
+            }
+            else if (pin.Value.Length > 55)
+            {
                 string formatted = JsonConvert.SerializeObject(pin.Value).Trim('"');
                 SkiaUtils.DrawTextWithWrapping(canvas, formatted, popupRect, TextFont, TextPaint, height =>
                 {

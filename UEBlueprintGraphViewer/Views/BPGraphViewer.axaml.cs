@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
 using Avalonia.VisualTree;
@@ -145,6 +147,7 @@ namespace UEBlueprintGraphViewer.Views
 
         public async Task OpenFunction(AssetFunctionViewModel func)
         {
+            VM.CurrentFunction = func;
             if (Settings.Instance.IsInCompareMode)
             {
                 await DecompileFunctionCompare(func);
@@ -355,6 +358,31 @@ namespace UEBlueprintGraphViewer.Views
                 await MainWindow.Instance.LoadAsset(new AssetFile(path.SubstringAfterLast('/'),path));
             }
         }
+
+        private async void PlayButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            GraphViewModel.CurrentDebuggerNode = null;
+            await MainWindow.DebuggerOutput!.WriteLineAsync("DEBUGGER - UNPAUSE");
+        }
+        
+        private async void NextButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            GraphViewModel.CurrentDebuggerNode = null;
+            await MainWindow.DebuggerOutput!.WriteLineAsync("DEBUGGER - NEXT");
+        }
+
+        private async void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
+        {
+            var window = await DialogWindow.Show("Input a new property value", "Set local value", true, true);
+            if (window.Result == DialogWindowResult.Ok)
+            {
+                if ((sender as ListBox).SelectedValue is AssetPropertyViewModel prop)
+                {
+                    await MainWindow.DebuggerOutput!.WriteLineAsync($"DEBUGGER - SET VALUE | {prop.Name} | {window.ValueTextBox.Text}");
+                    prop.DefaultValue = window.ValueTextBox.Text ?? "";
+                }
+            }
+        }
     }
 
     public partial class BPGraphViewerViewModel : ObservableObject
@@ -378,5 +406,9 @@ namespace UEBlueprintGraphViewer.Views
         
         [ObservableProperty]
         private GridLength _blueprintDetailsValueColumnWidth = new(120, GridUnitType.Pixel);
+        
+        
+        [ObservableProperty]
+        private AssetFunctionViewModel? _currentFunction;
     }
 }
