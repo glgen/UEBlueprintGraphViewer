@@ -25,7 +25,7 @@
         <Grid RowDefinitions="30,*">
 			<Grid ColumnSpacing="5" ColumnDefinitions="*,*,*" VerticalAlignment="Top">
 				<Button Grid.Column="0" Content="Settings" Click="SettingsButton_Click"/>
-				<Button Grid.Column="1" Content="Compare" Click="CompareButton_Click"/>
+				<Button Grid.Column="1" Content="Compare" Click="CompareButton_Click" IsEnabled="{Binding !., Source={x:Static local:Settings.DebuggerMode}}"/>
 				<Button Grid.Column="2" Content="Macros" Click="MacrosButton_Click"/>
 			</Grid>
 			<TabControl x:Name="AssetsTabControl" Grid.Row="1">

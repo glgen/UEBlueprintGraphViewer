@@ -44,7 +44,7 @@ namespace UEBlueprintGraphViewer
 
         public static bool ExperimentalExecStraightening;
         
-        public static bool DebuggerMode = false;
+        public static bool DebuggerMode;
 
         [JsonIgnore]
         public Dictionary<string, BPGraph> Macros = [];
@@ -58,6 +58,9 @@ namespace UEBlueprintGraphViewer
             if (GameSettings.IsConfigExists(settings.GameProfileName))
                 settings.Game = GameSettings.ReadConfig(settings.GameProfileName);
 
+            if (DebuggerMode)
+                settings.IsInCompareMode = false;
+            
             LoadMacros(settings);
             return settings;
         }
