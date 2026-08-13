@@ -119,6 +119,10 @@ namespace UEBlueprintGraphViewer.Views
                 {
                     ToggleBreakpoint(breakpoint);
                 }
+                if (GraphViewModel.CurrentDebuggerNode != null)
+                {
+                    DebuggerContinue();
+                }
             }
         }
 
@@ -167,9 +171,9 @@ namespace UEBlueprintGraphViewer.Views
 
         public async Task DecompileFunction(AssetFunctionViewModel func)
         {
-            if (GraphViewModel.DebuggerBreakpoints.Count > 0)
+            if (GraphViewModel.DebuggerBreakpoints.Count > 0 || GraphViewModel.CurrentDebuggerNode != null)
             {
-                var dialog = await DialogWindow.Show("All current breakpoints will be removed. Continue?", "Info", true);
+                var dialog = await DialogWindow.Show("All current breakpoints will be removed and the execution will continue. Are you sure?", "Info", true);
                 if (dialog.Result == DialogWindowResult.Cancel)
                     return;
             }
@@ -373,13 +377,16 @@ namespace UEBlueprintGraphViewer.Views
             }
         }
 
-        private async void PlayButton_OnClick(object? sender, RoutedEventArgs e)
+        private async void PlayButton_OnClick(object? sender, RoutedEventArgs e) => await DebuggerContinue();
+        private async void NextButton_OnClick(object? sender, RoutedEventArgs e) => await DebuggerNext();
+
+        private async Task DebuggerContinue()
         {
             GraphViewModel.CurrentDebuggerNode = null;
             await MainWindow.DebuggerOutput!.WriteLineAsync("DEBUGGER - UNPAUSE");
         }
         
-        private async void NextButton_OnClick(object? sender, RoutedEventArgs e)
+        private async Task DebuggerNext()
         {
             GraphViewModel.CurrentDebuggerNode = null;
             await MainWindow.DebuggerOutput!.WriteLineAsync("DEBUGGER - NEXT");
