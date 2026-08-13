@@ -89,6 +89,8 @@ namespace UEBlueprintGraphViewer.Views
             SKPinsColors.Select(o => new KeyValuePair<PinType, SKColor>(
                 o.Key, BlendOver(o.Value.Color, NodeBaseColor, 0.18f))).ToFrozenDictionary();
 
+        public static SKFont TextFont = SkiaUtils.MakeFont(12.5f);
+        
         public static SKColor GetNodeTintColor(PinType? type)
         {
             if (type != null && NodeTintColors.TryGetValue(type.Value, out SKColor color))
