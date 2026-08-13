@@ -63,32 +63,11 @@ public partial class NodeContextMenu : UserControl
         GetBPGraphViewer()?.OpenInDisassemblyButton_Click(sender, e);
     }
     
-    private async void ToggleBreakpoint_OnClick(object? sender, RoutedEventArgs e)
+    private void ToggleBreakpoint_OnClick(object? sender, RoutedEventArgs e)
     {
         if (editor.Editor?.SelectedNodes.FirstOrDefault() is {} node && MainWindow.DebuggerOutput != null)
         {
-            BPGraphViewerViewModel vm = GetBPGraphViewer()!.VM;
-            var selectedObj = AssetsUtils.FixAssetPath(vm.Asset.Asset!.GeneratedClass!.GetPathName());
-            var selectedFunc = vm.CurrentFunction?.Function;
-            if (vm.Asset.Asset!.IsEvent(selectedFunc))
-            {
-                selectedFunc = vm.Asset.Asset.UbergraphFunction;
-            }
-            string functionPath =
-                $"Function {selectedObj}:{selectedFunc.Name}";
-            
-            if (editor.Editor?.DebuggerBreakpoints.Contains(node) == true)
-            {
-                editor.Editor?.DebuggerBreakpoints.Remove(node);
-                //Console.WriteLine($"DEBUGGER - REMOVE BREAKPOINT | {functionPath} | {node.StatementIndex}");
-                await MainWindow.DebuggerOutput.WriteLineAsync($"DEBUGGER - REMOVE BREAKPOINT | {functionPath} | {node.StatementIndex}");
-            }
-            else
-            {
-                editor.Editor?.DebuggerBreakpoints.Add(node);
-                //Console.WriteLine($"DEBUGGER - ADD BREAKPOINT | {functionPath} | {node.StatementIndex}");
-                await MainWindow.DebuggerOutput.WriteLineAsync($"DEBUGGER - ADD BREAKPOINT | {functionPath} | {node.StatementIndex}");
-            }
+            GetBPGraphViewer()!.ToggleBreakpoint(node);
             flyout.Hide();
         }
     }

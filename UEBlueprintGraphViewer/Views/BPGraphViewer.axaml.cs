@@ -113,6 +113,13 @@ namespace UEBlueprintGraphViewer.Views
         {
             GraphViewModel.ClearGraph();
             GraphViewModel2.ClearGraph();
+            if (Settings.DebuggerMode)
+            {
+                foreach (var breakpoint in GraphViewModel.DebuggerBreakpoints)
+                {
+                    ToggleBreakpoint(breakpoint);
+                }
+            }
         }
 
         public void AddNodesToLoad(BPGraph graph1, BPGraph graph2)
@@ -160,6 +167,13 @@ namespace UEBlueprintGraphViewer.Views
 
         public async Task DecompileFunction(AssetFunctionViewModel func)
         {
+            if (GraphViewModel.DebuggerBreakpoints.Count > 0)
+            {
+                var dialog = await DialogWindow.Show("All current breakpoints will be removed. Continue?", "Info", true);
+                if (dialog.Result == DialogWindowResult.Cancel)
+                    return;
+            }
+            
             if (!VM.Asset.Asset.IsEvent(_lastFunc) || !VM.Asset.Asset.IsEvent(func.Function))
                 await Decompile(func);
 
@@ -380,6 +394,32 @@ namespace UEBlueprintGraphViewer.Views
                 {
                     await MainWindow.DebuggerOutput!.WriteLineAsync($"DEBUGGER - SET VALUE | {prop.Name} | {window.ValueTextBox.Text}");
                     prop.DefaultValue = window.ValueTextBox.Text ?? "";
+                }
+            }
+        }
+
+        public async void ToggleBreakpoint(BPNode node)
+        {
+            if (MainWindow.DebuggerOutput != null)
+            {
+                var selectedObj = AssetsUtils.FixAssetPath(VM.Asset.Asset!.GeneratedClass!.GetPathName());
+                var selectedFunc = VM.CurrentFunction?.Function;
+                if (VM.Asset.Asset!.IsEvent(selectedFunc))
+                {
+                    selectedFunc = VM.Asset.Asset.UbergraphFunction;
+                }
+                string functionPath =
+                    $"Function {selectedObj}:{selectedFunc.Name}";
+            
+                if (GraphViewModel.DebuggerBreakpoints.Contains(node))
+                {
+                    GraphViewModel.DebuggerBreakpoints.Remove(node);
+                    await MainWindow.DebuggerOutput.WriteLineAsync($"DEBUGGER - REMOVE BREAKPOINT | {functionPath} | {node.StatementIndex}");
+                }
+                else
+                {
+                    GraphViewModel.DebuggerBreakpoints.Add(node);
+                    await MainWindow.DebuggerOutput.WriteLineAsync($"DEBUGGER - ADD BREAKPOINT | {functionPath} | {node.StatementIndex}");
                 }
             }
         }
