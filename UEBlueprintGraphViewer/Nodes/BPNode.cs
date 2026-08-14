@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using UEBlueprintGraphViewer.Comparing;
-using UEBlueprintGraphViewer.Views;
 using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.EngineEnums;
 using static UEBlueprintGraphViewer.Engine.Utils;
@@ -115,7 +114,7 @@ namespace UEBlueprintGraphViewer.Nodes
         {
             //Approximate size
 
-            int charSize = (int)ViewData.TextFont.Metrics.AverageCharacterWidth;
+            const int charSize = 7;
             const int charSizeBodyText = 15;
             const int padding = 32;
             const int valueBoxMinSize = 30;

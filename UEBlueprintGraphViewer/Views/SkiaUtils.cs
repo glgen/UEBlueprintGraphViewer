@@ -66,7 +66,7 @@ public static class SkiaUtils
     }
     
     // adapted from https://www.mrumpler.at/the-trouble-with-text-rendering-in-skiasharp-and-harfbuzz/
-    public static float DrawText2(this SKCanvas canvas, string text,
+    public static void DrawText2(this SKCanvas canvas, string text,
         float x,
         float y,
         SKTextAlign textAlign,
@@ -76,7 +76,7 @@ public static class SkiaUtils
         if (font.ContainsGlyphs(text))
         {
             canvas.DrawText(text, x, y, textAlign, font, paint);
-            return 0;
+            return;
         }
         
         int start = 0;
@@ -112,19 +112,12 @@ public static class SkiaUtils
             }
         }
 
-        float width = 0;
-        
         SKFont? fallbackFont = null;
         if (fallback != null)
-        {
             fallbackFont = new SKFont(fallback, font.Size);
-            //fallbackFont.ScaleX = font.Metrics.AverageCharacterWidth / fallbackFont.Metrics.AverageCharacterWidth;
-            width = fallbackFont.MeasureText(text);
-        }
         
         canvas.DrawText(text, x, y, fallbackFont ?? font, paint);
         fallbackFont?.Dispose();
-        return width;
     }
     
     public static void DrawPathAtLocation(SKCanvas canvas, SKPath p, float x, float y,

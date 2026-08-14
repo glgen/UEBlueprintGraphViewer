@@ -341,6 +341,7 @@ public class GraphView2 : ContentControl
         private const byte NodeBodyAlpha = 235;
         private const byte CompactNodeBodyAlpha = 175;
 
+        private static readonly SKFont TextFont = SkiaUtils.MakeFont(12.5f);
         private static readonly SKFont TextFontBody = SkiaUtils.MakeFont( 28);
         
         
@@ -440,8 +441,8 @@ public class GraphView2 : ContentControl
 
                 canvas.DrawRect( new SKRect(0, (float)Bounds.Height - 25, (float)Bounds.Width, (float)Bounds.Height), DarkerBackgroundPaint);
                 float textY = (float)Bounds.Height - 8;
-                canvas.DrawText2($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, ViewData.TextFont, TextPaint);
-                canvas.DrawText2($"FPS: {Math.Round(1000f / view._deltaTimeMs)}", 120, textY, SKTextAlign.Left, ViewData.TextFont, TextPaint);
+                canvas.DrawText2($"Zoom: {view.Scaling:N2}", 5, textY, SKTextAlign.Left, TextFont, TextPaint);
+                canvas.DrawText2($"FPS: {Math.Round(1000f / view._deltaTimeMs)}", 120, textY, SKTextAlign.Left, TextFont, TextPaint);
                 
                 stopWatch.Stop();
                 view.CustomDrawOperationTime = stopWatch.Elapsed.TotalMilliseconds;
@@ -458,9 +459,9 @@ public class GraphView2 : ContentControl
             float width = 35;
             if (!pin.IsNameHidden)
             {
-                width += ViewData.TextFont.MeasureText(pin.PinFriendlyName);
+                width += TextFont.MeasureText(pin.PinFriendlyName);
                 if (pin.IsInput && !pin.IsConnected)
-                    width += Math.Clamp(ViewData.TextFont.MeasureText(pin.Value), 30, 400) + 10;
+                    width += Math.Clamp(TextFont.MeasureText(pin.Value), 30, 400) + 10;
             }
 
             if (pin.IsOutput)
@@ -487,7 +488,7 @@ public class GraphView2 : ContentControl
             {
                 string text = $"{pin.Property.Name} -> {view.Editor.DebuggerLocals.FirstOrDefault(o => o.Name == pin.Property.Name)?.DefaultValue}";
                 
-                SkiaUtils.DrawTextWithWrapping(canvas, text, popupRect, ViewData.TextFont, TextPaint, height =>
+                SkiaUtils.DrawTextWithWrapping(canvas, text, popupRect, TextFont, TextPaint, height =>
                 {
                     SKRect popupRect2 = new SKRect(popupRect.Left - 5, popupRect.Top - 5, popupRect.Right + 5, popupRect.Top + 5 + height);
                     canvas.DrawRoundRect(popupRect2, 5, 5, NodeValue);
@@ -497,7 +498,7 @@ public class GraphView2 : ContentControl
             else if (pin.Value.Length > 55)
             {
                 string formatted = JsonConvert.SerializeObject(pin.Value).Trim('"');
-                SkiaUtils.DrawTextWithWrapping(canvas, formatted, popupRect, ViewData.TextFont, TextPaint, height =>
+                SkiaUtils.DrawTextWithWrapping(canvas, formatted, popupRect, TextFont, TextPaint, height =>
                 {
                     SKRect popupRect2 = new SKRect(popupRect.Left - 5, popupRect.Top - 5, popupRect.Right + 5, popupRect.Top + 5 + height);
                     canvas.DrawRoundRect(popupRect2, 5, 5, NodeValue);
@@ -593,7 +594,7 @@ public class GraphView2 : ContentControl
                     using SKRoundRect a = new(nodeHeaderRect, 0);
                     a.SetNinePatch(nodeHeaderRect, 5,5,5,0);
                     canvas.DrawRoundRect(a, headerPaint);
-                    canvas.DrawText2(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, ViewData.TextFont, TextPaint);
+                    canvas.DrawText2(node.Name, node.HeaderCenter ? node.NodeWidth / 2f : 7, 17, node.HeaderCenter ? SKTextAlign.Center : SKTextAlign.Left, TextFont, TextPaint);
                 }
                 else
                 {
@@ -607,7 +608,7 @@ public class GraphView2 : ContentControl
                     canvas.DrawText2(node.Name, node.NodeWidth / 2f, node.NodeHeight / 2f + 10, SKTextAlign.Center, TextFontBody, TextPaint2);
                 
                 if (node.CompactTitle)
-                    canvas.DrawText2(node.Name, node.NodeWidth / 2f, 22, SKTextAlign.Center, ViewData.TextFont, TextPaint);
+                    canvas.DrawText2(node.Name, node.NodeWidth / 2f, 22, SKTextAlign.Center, TextFont, TextPaint);
 
                 canvas.DrawRoundRect(nodeRect, 5,5, NodeBorder);
 
@@ -633,20 +634,20 @@ public class GraphView2 : ContentControl
             float nameWidth = 35;
             if (!pin.IsNameHidden)
             {
-                canvas.DrawText2(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, ViewData.TextFont, TextPaint);
-                nameWidth = ViewData.TextFont.MeasureText(pin.PinFriendlyName) + 35;
+                canvas.DrawText2(pin.PinFriendlyName, pin.IsOutput ? node.NodeWidth - 35 : 35, textY, pin.IsOutput ? SKTextAlign.Right : SKTextAlign.Left, TextFont, TextPaint);
+                nameWidth = TextFont.MeasureText(pin.PinFriendlyName) + 35;
             }
             
             if (pin is { IsInput: true, IsConnected: false, PinType.PinCategory: not EngineBPData.PinType.exec })
             {
                 var valueFormatted = JsonConvert.SerializeObject(pin.Value).Trim('"');
-                
-                string value = valueFormatted.Length > 55 ? $"{valueFormatted[..55]}..." : valueFormatted;
-                var w = canvas.DrawText2(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, ViewData.TextFont, TextPaint);
-                
-                var valueWidth = Math.Clamp(w > 0 ? w : ViewData.TextFont.MeasureText(valueFormatted), 30, 400) + 10;
+                var valueWidth = Math.Clamp(TextFont.MeasureText(valueFormatted), 30, 400) + 10;
                 var rect = SKRect.Create(nameWidth + 5, connectorY - 10, valueWidth, 20);
+                canvas.DrawRoundRect(rect, 5,5, NodeValue);
                 canvas.DrawRoundRect(rect, 5,5, NodeValueBorder);
+                    
+                string value = valueFormatted.Length > 55 ? $"{valueFormatted[..55]}..." : valueFormatted;
+                canvas.DrawText2(value, nameWidth + 5 + 5, textY, SKTextAlign.Left, TextFont, TextPaint);
             }
         }
         
