@@ -29,7 +29,7 @@ namespace UEBlueprintGraphViewer.Assets
         public Dictionary<string, UFunction> Events = [];
         public readonly List<UFunction> Functions = [];
         public readonly Dictionary<string, PropertyData> LoadedProperties = new(StringComparer.OrdinalIgnoreCase);
-        public readonly Dictionary<string, PropertyData> ParentProperties = new(StringComparer.OrdinalIgnoreCase);
+        public readonly List<PropertyData> ParentProperties = [];
 
         public readonly List<InputEventData> InputEvents = [];
         public readonly List<TimelineData> Timelines = [];
@@ -298,7 +298,7 @@ namespace UEBlueprintGraphViewer.Assets
                         {
                             if (ClassDefaultObject != null)
                                 prop.SetPropertyDefaults(ClassDefaultObject);
-                            ParentProperties.Add(prop.Name, prop);
+                            ParentProperties.Add(prop);
                         }
                         
                     }
@@ -312,7 +312,7 @@ namespace UEBlueprintGraphViewer.Assets
                 {
                     if (ClassDefaultObject != null)
                         prop.SetPropertyDefaults(ClassDefaultObject);
-                    ParentProperties.Add(prop.Name, prop);
+                    ParentProperties.Add(prop);
                 }
             }
             

@@ -72,7 +72,7 @@ namespace UEBlueprintGraphViewer.ViewModels
             Functions = [.. asset.Functions.Select(o => new AssetFunctionViewModel(null, o))];
             asset.LoadAllProperties();
             Properties = [.. asset.LoadedProperties.Values.Select(o => new AssetPropertyViewModel(o))];
-            ParentProperties = [.. asset.ParentProperties.Values
+            ParentProperties = [.. asset.ParentProperties
                 .Select(o => new AssetPropertyViewModel(o))
                 .GroupBy(o => o.Property.Owner)
                 .Select(o => new AssetBPDetailsViewModel()
