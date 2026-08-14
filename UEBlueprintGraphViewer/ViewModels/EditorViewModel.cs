@@ -74,9 +74,39 @@ namespace UEBlueprintGraphViewer.ViewModels
         private List<AssetPropertyViewModel> _debuggerLocals = [];
         
         [ObservableProperty]
+        private List<AssetPropertyViewModel> _debuggerLocalsFiltered = [];
+        
+        [ObservableProperty]
         private BPNode? _currentDebuggerNode;
 
+        private string? _filterTextDebugger;
+        public string? FilterTextDebugger
+        {
+            get => _filterTextDebugger;
+            set
+            {
+                _filterTextDebugger = value;
+                ApplyFilter(_filterTextDebugger);
+            }
+        }
         
+        private void ApplyFilter(string? filter)
+        {
+            if (string.IsNullOrEmpty(filter))
+            {
+                DebuggerLocalsFiltered = DebuggerLocals;
+                return;
+            }
+
+            DebuggerLocalsFiltered = [.. DebuggerLocals.Where(o => o.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))];
+        }
+
+        partial void OnDebuggerLocalsChanged(List<AssetPropertyViewModel> value)
+        {
+            ApplyFilter(FilterTextDebugger);
+        }
+
+
         public void RemoveNode(BPNode node)
         {
             Nodes.Remove(node);

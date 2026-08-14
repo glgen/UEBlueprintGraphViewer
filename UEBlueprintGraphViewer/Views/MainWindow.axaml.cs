@@ -146,6 +146,8 @@ namespace UEBlueprintGraphViewer
                                 // skip all instructions which are not correspond to any node
                                 if (viewer.GraphViewModel.CurrentDebuggerNode != null)
                                 {
+                                    viewer.DetailsTabControl.SelectedIndex = 2;
+                                    
                                     foundNode = true;
                                     
                                     List<string> stack = [];

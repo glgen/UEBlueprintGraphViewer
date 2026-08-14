@@ -81,7 +81,7 @@
 					<GridSplitter Grid.Column="1"/>
 		
 					<Grid Grid.Column="2">
-						<TabControl Margin="0,5,0,0">
+						<TabControl Margin="0,5,0,0" x:Name="DetailsTabControl">
 							<TabItem Header="Details">
 								<ContentControl x:Name="DetailsContent" Content="{Binding SelectedObject}"
 								                Margin="0,5,0,0">
@@ -186,8 +186,11 @@
 							</TabItem>
 							<TabItem Header="Blueprint details">
 								<ScrollViewer Margin="0,5,0,0">
-									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
-										<StackPanel Orientation="Vertical">
+									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+										<Grid Background="{StaticResource Background3}">
+											<TextBox Classes="Search" Margin="5,0,5,5" Text="{Binding Asset.FilterTextDefaults}"/>
+										</Grid>
+										<StackPanel Grid.Row="1" Orientation="Vertical" Background="{StaticResource Background2}">
 											<TextBlock Text="{Binding Asset.Name}"
 											           Classes="HeaderSmall"/>
 											<TextBlock Text="Parent class:" Margin="5" VerticalAlignment="Center" TextWrapping="Wrap"/>
@@ -203,19 +206,19 @@
 										</StackPanel>
 										<TextBlock Text="Defaults"
 										           Classes="HeaderSmall"
-										           Grid.Row="1"/>
+										           Grid.Row="2"/>
 										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-										         ItemsSource="{Binding Asset.Properties}"
-										         Grid.Row="2"
+										         ItemsSource="{Binding Asset.PropertiesFilteredDetails}"
+										         Grid.Row="3"
 										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
 										<TextBlock Text="Parents properties defaults"
 										           Classes="HeaderSmall"
-										           Grid.Row="3"/>
+										           Grid.Row="4"/>
 										<ItemsControl ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-											          ItemsSource="{Binding Asset.ParentProperties}"
+											          ItemsSource="{Binding Asset.ParentPropertiesFiltered}"
 											          Margin="0"
 											          Padding="0"
-											          Grid.Row="4">
+											          Grid.Row="5">
 											<ItemsControl.ItemTemplate>
 												<DataTemplate>
 													<StackPanel>
@@ -234,6 +237,9 @@
 							<TabItem Header="Debugger details" IsVisible="{x:Static local:Settings.DebuggerMode}">
 								<ScrollViewer Margin="0,5,0,0">
 									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+										<Grid Background="{StaticResource Background3}">
+											<TextBox Classes="Search" Grid.Row="0" Margin="5,0,5,5" Text="{Binding #Viewer.GraphViewModel.FilterTextDebugger}"/>
+										</Grid>
 										<TextBlock Text="Current object"
 										           Classes="HeaderSmall"
 										           Grid.Row="1"/>
@@ -244,15 +250,15 @@
 										<TextBlock Text="Stack"
 										           Classes="HeaderSmall"
 										           Grid.Row="3"/>
-										<TextBlock Grid.Row="4"
-										           TextWrapping="Wrap"
-										           Margin="5"
-										           Text="{Binding #Viewer.GraphViewModel.DebuggerStack}" />
+										<SelectableTextBlock Grid.Row="4"
+												            TextWrapping="Wrap"
+												            Margin="5"
+												            Text="{Binding #Viewer.GraphViewModel.DebuggerStack}" />
 										<TextBlock Text="Locals"
 										           Classes="HeaderSmall"
 										           Grid.Row="5"/>
 										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-										         ItemsSource="{Binding #Viewer.GraphViewModel.DebuggerLocals}"
+										         ItemsSource="{Binding #Viewer.GraphViewModel.DebuggerLocalsFiltered}"
 										         Margin="5,0"
 										         Padding="0"
 										         Grid.Row="6"

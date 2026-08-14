@@ -107,7 +107,7 @@
 			         Classes="Prop"
 			         Grid.Row="1"
 			         SelectionChanged="PropertyList_OnSelectionChanged"
-			         ItemsSource="{Binding Properties}">
+			         ItemsSource="{Binding PropertiesFiltered}">
 				<ListBox.ContextMenu>
 					<ContextMenu>
 						<MenuItem Header="Find in current graph"

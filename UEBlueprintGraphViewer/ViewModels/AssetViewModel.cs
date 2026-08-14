@@ -40,9 +40,18 @@ namespace UEBlueprintGraphViewer.ViewModels
         
         [ObservableProperty]
         private List<AssetPropertyViewModel> _properties;
+
+        [ObservableProperty]
+        List<AssetPropertyViewModel> _propertiesFiltered;
+        
+        [ObservableProperty]
+        List<AssetPropertyViewModel> _propertiesFilteredDetails;
         
         [ObservableProperty]
         private List<AssetBPDetailsViewModel> _parentProperties;
+        
+        [ObservableProperty]
+        private List<AssetBPDetailsViewModel> _parentPropertiesFiltered;
         
         [ObservableProperty]
         private string _superStruct;
@@ -61,6 +70,17 @@ namespace UEBlueprintGraphViewer.ViewModels
             {
                 _filterText = value;
                 ApplyFilter(_filterText);
+            }
+        }
+        
+        private string? _filterTextDefaults;
+        public string? FilterTextDefaults
+        {
+            get => _filterTextDefaults;
+            set
+            {
+                _filterTextDefaults = value;
+                ApplyFilterDefaults(_filterTextDefaults);
             }
         }
 
@@ -83,6 +103,9 @@ namespace UEBlueprintGraphViewer.ViewModels
             SuperStruct = asset.SuperStruct;
             EventsFiltered = Events;
             FunctionsFiltered = Functions;
+            PropertiesFiltered = Properties;
+            PropertiesFilteredDetails = Properties;
+            ParentPropertiesFiltered = ParentProperties;
             Flags = asset.GeneratedClass?.Flags ?? EObjectFlags.RF_NoFlags;
             ClassFlags = asset.GeneratedClass?.ClassFlags ?? EClassFlags.CLASS_None;
             ApplyFilter(null);
@@ -112,6 +135,9 @@ namespace UEBlueprintGraphViewer.ViewModels
             Properties = [];
             EventsFiltered = Events;
             FunctionsFiltered = Functions;
+            PropertiesFiltered = Properties;
+            PropertiesFilteredDetails = Properties;
+            ParentPropertiesFiltered = ParentProperties;
 
             foreach (var e in events)
             {
@@ -140,17 +166,32 @@ namespace UEBlueprintGraphViewer.ViewModels
             ApplyFilter(null);
         }
 
+        private void ApplyFilterDefaults(string? filter)
+        {
+            if (string.IsNullOrEmpty(filter))
+            {
+                PropertiesFilteredDetails = Properties;
+                ParentPropertiesFiltered = ParentProperties;
+                return;
+            }
+
+            PropertiesFilteredDetails = [.. Properties.Where(o => o.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))];
+            ParentPropertiesFiltered = [.. ParentProperties.Where(o => o.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))];
+        }
+        
         private void ApplyFilter(string? filter)
         {
             if (string.IsNullOrEmpty(filter))
             {
                 EventsFiltered = Events;
                 FunctionsFiltered = Functions;
+                PropertiesFiltered = Properties;
                 return;
             }
 
             EventsFiltered = [.. Events.Where(o => o.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))];
             FunctionsFiltered = [.. Functions.Where(o => o.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))];
+            PropertiesFiltered = [.. Properties.Where(o => o.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))];
         }
 
         private async void CheckWithDecompiler(Asset asset1, Asset asset2)
