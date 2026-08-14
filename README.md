@@ -15,6 +15,8 @@ Blueprint decompilation:
 - Functions with multiple exec pins: not yet
 - Anim BPs: not yet
 
+Blueprint debugger
+
 References search:
 - Basic asset reference search: done
 - Search for unreferenced assets: done but might be inaccurate
@@ -23,7 +25,6 @@ References search:
 
 Not sure if i will do that:
 - Blueprints compilation
-- Runtime blueprint debugger
 
 ### How to use
 
@@ -41,6 +42,16 @@ To use the tool you need to create a dump from the game process using [jmap_dump
 ### Loops and macros
 
 Several engine's control flow nodes (including loops) are actually just BP macros, and they are getting inlined during compilation. The tool tries to find all possible macro instances in a graph and replace them with macro calls. The tool is shipped with some of the engine built-in macros. Creating your own macros is possible but very limited for now.
+
+### Blueprint debugger
+To debug a blueprint in runtime:
+1. Install latest experimental dev version of [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS) and a BlueprintDebbuger mod to your game.
+2. Replace content of file config/uebpv.txt with a path to your UE Blueprint Graph Viewer installation.
+   - If you are on linux and running a game through Proton, you need to specify path to windows version of the tool.
+3. Close UE Blueprint Graph Viewer if it is opened.
+4. Launch the game. Start the debugger by pressing a button in Blueprint Debugger tab on UE4SS's debug window.
+
+To set a breakpoint, press "Toggle breakpoint" in node context menu. Use 2 buttons above graph view to navigate when breakpoint is hit. Mouse over a pin to find out its current value and a local variable name. Change a current variable value by double clicking its name in Debugger details tab.
 
 ### Compare two game builds
 
