@@ -113,17 +113,6 @@ namespace UEBlueprintGraphViewer.Views
         {
             GraphViewModel.ClearGraph();
             GraphViewModel2.ClearGraph();
-            if (Settings.DebuggerMode)
-            {
-                foreach (var breakpoint in GraphViewModel.DebuggerBreakpoints)
-                {
-                    ToggleBreakpoint(breakpoint);
-                }
-                if (GraphViewModel.CurrentDebuggerNode != null)
-                {
-                    DebuggerContinue();
-                }
-            }
         }
 
         public void AddNodesToLoad(BPGraph graph1, BPGraph graph2)
@@ -153,11 +142,27 @@ namespace UEBlueprintGraphViewer.Views
 
         public async void AssetInfoPanel_FunctionChoosen(object sender, AssetFunctionViewModel func)
         {
-            OpenFunction(func);
+            await OpenFunction(func);
         }
 
         public async Task OpenFunction(AssetFunctionViewModel func)
         {
+            if (Settings.DebuggerMode && GraphViewModel.DebuggerBreakpoints.Count > 0 || GraphViewModel.CurrentDebuggerNode != null)
+            {
+                var dialog = await DialogWindow.Show("All current breakpoints will be removed and the execution will continue. Are you sure?", "Info", true);
+                if (dialog.Result == DialogWindowResult.Cancel)
+                    return;
+                foreach (var breakpoint in GraphViewModel.DebuggerBreakpoints.ToArray())
+                {
+                    await ToggleBreakpoint(breakpoint);
+                }
+
+                if (GraphViewModel.CurrentDebuggerNode != null)
+                {
+                    await DebuggerContinue();
+                }
+            }
+            
             VM.CurrentFunction = func;
             if (Settings.Instance.IsInCompareMode)
             {
@@ -169,15 +174,8 @@ namespace UEBlueprintGraphViewer.Views
             }
         }
 
-        public async Task DecompileFunction(AssetFunctionViewModel func)
+        private async Task DecompileFunction(AssetFunctionViewModel func)
         {
-            if (GraphViewModel.DebuggerBreakpoints.Count > 0 || GraphViewModel.CurrentDebuggerNode != null)
-            {
-                var dialog = await DialogWindow.Show("All current breakpoints will be removed and the execution will continue. Are you sure?", "Info", true);
-                if (dialog.Result == DialogWindowResult.Cancel)
-                    return;
-            }
-            
             if (!VM.Asset.Asset.IsEvent(_lastFunc) || !VM.Asset.Asset.IsEvent(func.Function))
                 await Decompile(func);
 
@@ -187,7 +185,7 @@ namespace UEBlueprintGraphViewer.Views
             RepositionViewport(SecondViewer, _graph2.FindFuncStartNode(func.Name));
         }
 
-        public async Task DecompileFunctionCompare(AssetFunctionViewModel func)
+        private async Task DecompileFunctionCompare(AssetFunctionViewModel func)
         {
             await Decompile(func);
 
@@ -405,7 +403,7 @@ namespace UEBlueprintGraphViewer.Views
             }
         }
 
-        public async void ToggleBreakpoint(BPNode node)
+        public async Task ToggleBreakpoint(BPNode node)
         {
             if (MainWindow.DebuggerOutput != null)
             {

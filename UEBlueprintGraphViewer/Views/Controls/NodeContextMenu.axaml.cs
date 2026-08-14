@@ -63,11 +63,11 @@ public partial class NodeContextMenu : UserControl
         GetBPGraphViewer()?.OpenInDisassemblyButton_Click(sender, e);
     }
     
-    private void ToggleBreakpoint_OnClick(object? sender, RoutedEventArgs e)
+    private async void ToggleBreakpoint_OnClick(object? sender, RoutedEventArgs e)
     {
         if (editor.Editor?.SelectedNodes.FirstOrDefault() is {} node && MainWindow.DebuggerOutput != null)
         {
-            GetBPGraphViewer()!.ToggleBreakpoint(node);
+            await GetBPGraphViewer()!.ToggleBreakpoint(node);
             flyout.Hide();
         }
     }
