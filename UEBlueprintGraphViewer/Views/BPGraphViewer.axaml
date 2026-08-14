@@ -233,21 +233,29 @@
 							</TabItem>
 							<TabItem Header="Debugger details" IsVisible="{x:Static local:Settings.DebuggerMode}">
 								<ScrollViewer Margin="0,5,0,0">
-									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
-										<TextBlock Text="Stack"
+									<Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" Background="{StaticResource Background2}">
+										<TextBlock Text="Current object"
 										           Classes="HeaderSmall"
 										           Grid.Row="1"/>
-										<TextBlock Grid.Row="2"
+										<TextBlock Text="{Binding #Viewer.GraphViewModel.DebuggerContextObject}"
 										           TextWrapping="Wrap"
+										           Margin="5"
+										           Grid.Row="2"/>
+										<TextBlock Text="Stack"
+										           Classes="HeaderSmall"
+										           Grid.Row="3"/>
+										<TextBlock Grid.Row="4"
+										           TextWrapping="Wrap"
+										           Margin="5"
 										           Text="{Binding #Viewer.GraphViewModel.DebuggerStack}" />
 										<TextBlock Text="Locals"
 										           Classes="HeaderSmall"
-										           Grid.Row="3"/>
+										           Grid.Row="5"/>
 										<ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 										         ItemsSource="{Binding #Viewer.GraphViewModel.DebuggerLocals}"
-										         Margin="0"
+										         Margin="5,0"
 										         Padding="0"
-										         Grid.Row="4"
+										         Grid.Row="6"
 										         DoubleTapped="InputElement_OnDoubleTapped"
 										         ItemTemplate="{StaticResource PropsWithDefaultTemplate}"/>
 									</Grid>

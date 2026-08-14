@@ -68,6 +68,9 @@ namespace UEBlueprintGraphViewer.ViewModels
         private string _debuggerStack;
         
         [ObservableProperty]
+        private string _debuggerContextObject;
+        
+        [ObservableProperty]
         private List<AssetPropertyViewModel> _debuggerLocals = [];
         
         [ObservableProperty]

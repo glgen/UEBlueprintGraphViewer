@@ -166,7 +166,8 @@ namespace UEBlueprintGraphViewer
                                     
                                     string funcShortName = funcName.SubstringAfterLast(':');
                                     var func = viewer.VM.Asset.Asset?.Functions.FirstOrDefault(o => o.Name == funcShortName);
-                                
+
+                                    viewer.GraphViewModel.DebuggerContextObject = parts[3];
                                     viewer.GraphViewModel.DebuggerStack = string.Join('\n', stack);
                                     viewer.GraphViewModel.DebuggerLocals = locals.Select(o =>
                                         new AssetPropertyViewModel(
