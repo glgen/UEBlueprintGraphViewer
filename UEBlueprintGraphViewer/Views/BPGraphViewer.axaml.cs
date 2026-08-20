@@ -253,13 +253,13 @@ namespace UEBlueprintGraphViewer.Views
             if (!result.IsSuccessful)
             {
                 using StringWriter sw = new();
-                await sw.WriteLineAsync($"Decompiling function {name} failed:\n");
+                await sw.WriteLineAsync($"Decompiling function {name} {(result.HasCriticalErrors ? "failed" : "completed with warnings")}:\n");
                 foreach (var problem in result.Problems)
                 {
                     int index = problem.Context?.GetInstr().StatementIndex ?? -1;
                     await sw.WriteLineAsync($"{problem.Message}\nAt statement index {index}\n");
                 }
-                await DialogWindow.Show(sw.ToString(), "Decompiling error");
+                await DialogWindow.Show(sw.ToString(), "Decompiling result");
             }
         }
 
