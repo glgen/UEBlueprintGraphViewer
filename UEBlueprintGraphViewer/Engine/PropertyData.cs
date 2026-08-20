@@ -228,7 +228,7 @@ namespace UEBlueprintGraphViewer.Engine
                         FPackageIndex a => a.ResolvedObject?.GetFullName() ?? a.ToString(),
                         FScriptStruct { StructType: FStructFallback f } => $"({string.Join("; ", f.Properties.Select(o => $"{o.Name}={TagToValueString(o)}"))})",
                         FScriptStruct a => a.ToString(),
-                        FMulticastScriptDelegate a => a.ToString(),
+                        FMulticastScriptDelegate a => $"({string.Join("; ", a.InvocationList.Select(o => $"{o.Object.ResolvedObject?.GetPathName()}:{o.FunctionName}"))})",
                         _ => rawValue.ToString(),
                     };
                 }
