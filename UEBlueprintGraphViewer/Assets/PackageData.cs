@@ -23,7 +23,7 @@ namespace UEBlueprintGraphViewer
 
         public PackageData(GameSettings game)
         {
-            Provider = new DefaultFileProvider(game.PaksFolder, SearchOption.TopDirectoryOnly, new VersionContainer(game.UEVersion));
+            Provider = new DefaultFileProvider(game.PaksFolder, SearchOption.AllDirectories, new VersionContainer(game.UEVersion));
             Provider.MappingsContainer = new JmapTypeMappingsProvider(game.ObjectDump);
             Provider.Initialize();
             Provider.SubmitKey(new FGuid(), new FAesKey(game.EncryptionKey));
