@@ -73,11 +73,21 @@ namespace UEBlueprintGraphViewer.Engine
             MakePinType(prop);
             if (prop.New is FMulticastInlineDelegateProperty d)
             {
-                DelegateSignatureFunction = d.SignatureFunction.Name;
-                DelegateSignatureObjectPath = d.SignatureFunction.ResolvedObject?.Outer?.GetPathName() ??
-                                              throw new DecompilerException("Delegate signature function object is null");
-                DelegateSignatureObject = d.SignatureFunction.ResolvedObject.Outer.Load();
+                SetDelegateSignature(d.SignatureFunction);
             }
+            else if (prop.Old is UMulticastInlineDelegateProperty d2)
+            {
+                SetDelegateSignature(d2.SignatureFunction);
+            }
+
+            void SetDelegateSignature(FPackageIndex sig)
+            {
+                DelegateSignatureFunction = sig.Name;
+                DelegateSignatureObjectPath = sig.ResolvedObject?.Outer?.GetPathName() ??
+                                              throw new DecompilerException("Delegate signature function object is null");
+                DelegateSignatureObject = sig.ResolvedObject.Outer.Load();
+            }
+            
             prop.Clear();
         }
 
@@ -170,7 +180,26 @@ namespace UEBlueprintGraphViewer.Engine
             }
             else
             {
-                throw new NotImplementedException();
+                propContainer = prop.Old switch
+                {
+                    UMapProperty p => new PropertyContainer(p.KeyProp.Load<UProperty>()!),
+                    USetProperty p => new PropertyContainer(p.ElementProp.Load<UProperty>()!),
+                    UArrayProperty p => new PropertyContainer(p.Inner.Load<UProperty>()!),
+                    _ => prop,
+                };
+
+                PinType.ContainerType = prop.Old switch
+                {
+                    UMapProperty => EPinContainerType.Map,
+                    USetProperty => EPinContainerType.Set,
+                    UArrayProperty => EPinContainerType.Array,
+                    _ => EPinContainerType.None,
+                };
+
+                if (prop.Old is UMapProperty map)
+                {
+                    PinType.PinSubCategory = PropTypeToPinType(new PropertyContainer(map.ValueProp.Load<UProperty>()!).GetPropType());
+                }
             }
 
             PinType.PinCategory = PropTypeToPinType(propContainer.GetPropType());

@@ -144,12 +144,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                 eventsList.RemoveAll(o => o.Name == inputEvent.UpdateFunctionName || o.Name == inputEvent.FinishedFunctionName);
 
             // preloading all ubergraph properties
-            foreach (FProperty prop in GlobalContext.CurrentAsset.UbergraphFunction!.ChildProperties)
-            {
-                // TODO: handle UProperty
-                PropertyData property = new PropertyData(new PropertyContainer(prop), GlobalContext.CurrentAsset.UbergraphFunction!);
-                GlobalContext.FunctionLocals.Add(property);
-            }
+            GlobalContext.FunctionLocals.AddRange(GetStructProperties(GlobalContext.CurrentAsset.UbergraphFunction!));
             
             LocalVariablesStorage tempVars = new();
             InitTempVariables(tempVars);
@@ -244,7 +239,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                 // looks bad but i can't find a way other than hardcode it
                 if (data.Type == InputEventType.Key)
                 {
-                    if (jump.Destination.Instructions[0] is EX_Let let)
+                    if (jump.Destination.Instructions[0] is EX_Let let && ToName(let.Property).StartsWith("Temp_struct_Variable"))
                     {
                         BindTempInputVars(ToName(let.Property), tempVars, inputPins, 0);
                         GlobalContext.MarkAsParsed(let.StatementIndex);
@@ -337,10 +332,8 @@ namespace UEBlueprintGraphViewer.Decompiler
         {
             LocalVariablesStorage localVars = new();
 
-            foreach (FProperty prop in function.ChildProperties)
+            foreach (PropertyData property in GetStructProperties(function))
             {
-                // TODO: handle UProperty
-                PropertyData property = new PropertyData(new PropertyContainer(prop), function);
                 GlobalContext.FunctionLocals.Add(property);
 
                 if (!property.IsFunctionParam()) continue;
@@ -900,7 +893,7 @@ namespace UEBlueprintGraphViewer.Decompiler
             {
                 return new FunctionData(func.Name, func.FunctionFlags)
                 {
-                    Params = GetUFunctionProperties(func, outer),
+                    Params = GetStructProperties(func),
                     Outer = new ObjectData(outer)
                 };
             }

@@ -42,7 +42,7 @@ namespace UEBlueprintGraphViewer.Engine
                 properties = [.. props!.Where(o => !o.Flags.HasFlag(EPropertyFlags.Transient)).Select(o => o.Name)];
             
             if (properties == null && struc is UStruct str)
-                properties = [.. str.ChildProperties.Where(o => o is FProperty prop && !prop.PropertyFlags.HasFlag(EPropertyFlags.Transient)).Select(o => o.Name.ToString())];
+                properties = [.. PropertiesUtils.GetStructProperties(str).Where(o => !o.Flags.HasFlag(EPropertyFlags.Transient)).Select(o => o.Name)];
             
             if (properties == null)
                 throw new DecompilerException($"Failed to find struct EX_StructConst is referencing to. Struct: {PackageIndexToName(ex.Struct)}");

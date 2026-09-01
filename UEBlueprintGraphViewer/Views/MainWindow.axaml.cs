@@ -478,7 +478,7 @@ namespace UEBlueprintGraphViewer
             }
             catch (Exception ex)
             {
-                await DialogWindow.Show(ex.Message, "Failed to open asset");
+                await DialogWindow.Show($"{ex.Message}\n{ex.StackTrace}", "Failed to open asset");
             }
         }
 

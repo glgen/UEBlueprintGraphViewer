@@ -165,13 +165,23 @@ public class JmapData
         return _enums.Find(o => o.Name.EqualsFName(Name));
     }
     
-    public bool TryFindProperty(string Name, FPackageIndex objIndex, out PropertyData? prop)
+    public bool TryFindProperty(string name, FPackageIndex objIndex, out PropertyData? prop)
     {
         prop = null;
         if (!TryFindObject(objIndex, out ObjectData? obj))
             return false;
 
-        prop = obj!.GetObjectProperty(Name);
+        prop = obj!.GetObjectProperty(name);
+        return prop != null;
+    }
+    
+    public bool TryFindProperty(string name, string objPath, out PropertyData? prop)
+    {
+        prop = null;
+        if (GetObjectData(objPath) is not {} obj)
+            return false;
+
+        prop = obj.GetObjectProperty(name);
         return prop != null;
     }
     

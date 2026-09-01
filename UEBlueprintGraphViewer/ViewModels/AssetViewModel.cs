@@ -9,6 +9,7 @@ using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Comparing;
 using UEBlueprintGraphViewer.Decompiler;
 using UEBlueprintGraphViewer.Engine;
+using static UEBlueprintGraphViewer.Engine.PropertiesUtils;
 
 namespace UEBlueprintGraphViewer.ViewModels
 {
@@ -270,8 +271,7 @@ namespace UEBlueprintGraphViewer.ViewModels
             Function = func;
             Name = name ?? Function.Name;
             Flags = Function.FunctionFlags;
-            Properties = func.ChildProperties.Select(o =>
-                new AssetPropertyViewModel(new(o as FProperty, func))).ToList();
+            Properties = GetStructProperties(func).Select(o => new AssetPropertyViewModel(o)).ToList();
             Inputs = Properties.Where(o => o.Property.IsInputParam()).ToList();
             Outputs = Properties.Where(o => o.Property.IsOutParam()).ToList();
             Locals = Properties.Where(o => !o.Property.IsFunctionParam()).ToList();

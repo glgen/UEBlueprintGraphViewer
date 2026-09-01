@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.Utils;
+using UEBlueprintGraphViewer.Assets;
 using UEBlueprintGraphViewer.Decompiler;
 
 namespace UEBlueprintGraphViewer.Engine
@@ -30,11 +31,10 @@ namespace UEBlueprintGraphViewer.Engine
             if (global.FunctionLocals.Find(o => o.Name == name) is { } data)
                 return data;
 
-            if (global.CurrentFunction.ChildProperties.FirstOrDefault(o => o.Name.Text == name) is FProperty prop)
+            if (GetStructProperties(global.CurrentFunction).FirstOrDefault(o => o.Name == name) is { } prop)
             {
-                var newData = new PropertyData(prop, global.CurrentFunction);
-                global.FunctionLocals.Add(newData);
-                return newData;
+                global.FunctionLocals.Add(prop);
+                return prop;
             }
 
             throw new DecompilerException($"Failed to find property local var {name}");
@@ -42,9 +42,11 @@ namespace UEBlueprintGraphViewer.Engine
         
         
 
-        public static List<PropertyData> GetUFunctionProperties(UFunction function, UObject outer)
+        public static List<PropertyData> GetStructProperties(UStruct str)
         {
-            return [.. function.ChildProperties.Select(o => new PropertyData(o as FProperty, outer))];
+            return [.. str?.ChildProperties != null
+                ? str!.ChildProperties.OfType<FProperty>().Select(o => new PropertyData(o, str))
+                : str!.Children.Select(o => o.Load<UProperty>()).OfType<UProperty>().Select(o => new PropertyData(o, str))];
         }
         
         // Get property data from kismet pointer using caching
@@ -75,6 +77,12 @@ namespace UEBlueprintGraphViewer.Engine
                         return prop!;
                 }
             }
+            else
+            {
+                var outer = pointer.Old!.ResolvedObject?.Outer?.GetPathName();
+                if (outer?.Starts("/Script/") == true && global.Game.Jmap.TryFindProperty(name, outer, out PropertyData? prop))
+                    return prop!;
+            }
             
             PropertyData newProp = ToProperty(pointer);
             return newProp;
@@ -83,44 +91,40 @@ namespace UEBlueprintGraphViewer.Engine
         public static PropertyData KismetPointerToPropertyUnknownType(FKismetPropertyPointer pointer, GameSettings game)
         {
             // trying to find property in cache
-            if (pointer.bNew)
+            FPackageIndex? ownerObj = pointer.New != null ? pointer.New!.ResolvedOwner : pointer.Old;
+            ResolvedObject? ownerResolved = ownerObj?.ResolvedObject;
+            if (ownerResolved != null)
             {
-                FPackageIndex? ownerObj = pointer.New!.ResolvedOwner;
-                ResolvedObject? ownerResolved = ownerObj?.ResolvedObject;
-                if (ownerResolved != null)
+                // assume that after : is a function name, otherwise it is regular object
+                if (ownerObj?.ResolvedObject?.GetPathName().SubstringAfterLast(":") == ownerObj?.Name)
                 {
-                    // assume that after : is a function name, otherwise it is regular object
-                    if (ownerObj?.ResolvedObject?.GetPathName().SubstringAfterLast(":") == ownerObj?.Name)
+                    string funcName = ownerResolved.Name.ToString();
+                    List<PropertyData> props = [];
+                    string? pathName = ownerResolved.Outer?.GetPathName();
+                    if (pathName?.Starts("/Script/") == true && game.Jmap.GetFunctionData(pathName, funcName) is {} functionData)
                     {
-                        string funcName = ownerResolved.Name.ToString();
-                        List<PropertyData> props = [];
-                        string? pathName = ownerResolved.Outer?.GetPathName();
-                        if (pathName?.Starts("/Script/") == true && game.Jmap.GetFunctionData(pathName, funcName) is {} functionData)
-                        {
-                            props = functionData.Params;
-                        }
-                        else
-                        {
-                            UObject? outer = ownerResolved.Outer?.Load();
-                            props = GetUFunctionProperties(ownerResolved.Load() as UFunction, outer);
-                        }
-
-                        string name = ToName(pointer);
-                        PropertyData? localVar = props.Find(o => o.Name.EqualsFName(name));
-                        localVar.Name = name;
-                        return localVar;
+                        props = functionData.Params;
                     }
                     else
                     {
-                        if (game.Jmap.TryFindProperty(ToName(pointer), ownerObj, out PropertyData? prop))
-                        {
-                            return prop!;
-                        }
-                        PropertyData newProp = ToProperty(pointer);
-                        return newProp;
+                        props = GetStructProperties(ownerResolved.Load() as UFunction);
                     }
 
+                    string name = ToName(pointer);
+                    PropertyData? localVar = props.Find(o => o.Name.EqualsFName(name));
+                    localVar.Name = name;
+                    return localVar;
                 }
+                else
+                {
+                    if (game.Jmap.TryFindProperty(ToName(pointer), ownerObj, out PropertyData? prop))
+                    {
+                        return prop!;
+                    }
+                    PropertyData newProp = ToProperty(pointer);
+                    return newProp;
+                }
+
             }
 
             throw new DecompilerException($"KismetPointerToPropertyUnknownType: failed to convert {pointer.New!.ResolvedOwner.ResolvedObject.GetPathName()}");
@@ -162,7 +166,7 @@ namespace UEBlueprintGraphViewer.Engine
             }
             else
             {
-                throw new NotImplementedException();
+                return value.Old!.Name;
             }
         }
 

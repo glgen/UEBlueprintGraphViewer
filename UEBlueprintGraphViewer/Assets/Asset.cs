@@ -9,8 +9,8 @@ using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 using CUE4Parse.Utils;
 using UEBlueprintGraphViewer.Engine;
-using static UEBlueprintGraphViewer.Engine.EngineBPData;
 using static UEBlueprintGraphViewer.Engine.Utils;
+using static UEBlueprintGraphViewer.Engine.PropertiesUtils;
 
 namespace UEBlueprintGraphViewer.Assets
 {
@@ -274,11 +274,11 @@ namespace UEBlueprintGraphViewer.Assets
             }
             return -1;
         }
-
+        
         public void LoadAllProperties()
         {
             if (GeneratedClass == null) return;
-            foreach (var prop in GeneratedClass.ChildProperties.OfType<FProperty>().Select(o => new PropertyData(o, GeneratedClass)))
+            foreach (var prop in GetStructProperties(GeneratedClass))
             {
                 if (ClassDefaultObject != null)
                     prop.SetPropertyDefaults(ClassDefaultObject);
