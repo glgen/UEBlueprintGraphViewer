@@ -36,7 +36,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
 
             // get spawn function parameters
             EX_FinalFunction spawnCall = GetSpawnCall(spawnInstr);
-            var func = Context.Decompiler.FindFunctionInAsset(spawnCall.StackNode.ResolvedObject.Outer.Load(), spawnCall.StackNode.ResolvedObject.Outer.GetPathName(), spawnCall.StackNode.Name);
+            var func = Context.Global.Game.Jmap.GetFunctionData(spawnCall.StackNode.ResolvedObject.Outer.GetPathName(), spawnCall.StackNode.Name);
             List<GraphPin> parms = Context.Decompiler.ParseArgs(spawnCall.Parameters, func.Params);
 
             _returnPin = parms.Last();

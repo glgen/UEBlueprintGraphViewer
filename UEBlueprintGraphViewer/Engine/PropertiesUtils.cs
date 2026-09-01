@@ -13,15 +13,15 @@ namespace UEBlueprintGraphViewer.Engine
     public static class PropertiesUtils
     {
         // Convert variable expression to property
-        public static PropertyData VarInstrToProperty(KismetExpression Instr, GlobalDecompilerContext global)
+        public static PropertyData VarInstrToProperty(KismetExpression instr, GlobalDecompilerContext global)
         {
-            if (Instr is not EX_VariableBase Variable)
-                throw new DecompilerException($"VarInstrToProperty: Instruction is not EX_VariableBase, but is {Instr.GetType()}");
+            if (instr is not EX_VariableBase variable)
+                throw new DecompilerException($"VarInstrToProperty: Instruction is not EX_VariableBase, but is {instr.GetType()}");
 
-            if (Instr is EX_LocalVariable or EX_LocalOutVariable)
-                return LocalVarKismetPointerToProperty(Variable.Variable, global);
+            if (instr is EX_LocalVariable or EX_LocalOutVariable)
+                return LocalVarKismetPointerToProperty(variable.Variable, global);
 
-            return KismetPointerToProperty(Variable.Variable, global);
+            return KismetPointerToProperty(variable.Variable, global);
         }
 
         public static PropertyData LocalVarKismetPointerToProperty(FKismetPropertyPointer pointer, GlobalDecompilerContext global)
@@ -44,7 +44,7 @@ namespace UEBlueprintGraphViewer.Engine
 
         public static List<PropertyData> GetUFunctionProperties(UFunction function, UObject outer)
         {
-            return function.ChildProperties.Select(o => new PropertyData(o as FProperty, outer)).ToList();
+            return [.. function.ChildProperties.Select(o => new PropertyData(o as FProperty, outer))];
         }
         
         // Get property data from kismet pointer using caching
@@ -141,7 +141,7 @@ namespace UEBlueprintGraphViewer.Engine
             {
                 if (GetPropNew(value.New!, out UField? owner) is FProperty property)
                 {
-                    return new PropertyData(property, owner);
+                    return new PropertyData(property, owner!);
                 }
             }
             else

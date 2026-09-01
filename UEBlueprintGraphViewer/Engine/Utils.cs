@@ -289,21 +289,6 @@ namespace UEBlueprintGraphViewer.Engine
             parts.RemoveRange(parts.Count - 2, 2);
             return string.Join("_", parts);
         }
-        
-        public static string MatrixToString(bool[,] matrix)
-        {
-            StringBuilder sb = new();
-            for (int i = 0; i < matrix.GetLength(0); i++) 
-            {
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    sb.Append($"{(matrix[i, j] ? "1" : "0")} ");
-                }
-                sb.AppendLine();
-            }
-
-            return sb.ToString();
-        }
 
         public static string ToValidFileName(string fileName)
         {
@@ -328,13 +313,6 @@ namespace UEBlueprintGraphViewer.Engine
         public static bool EqualsFName(this string str, string compare)
         {
             return str.Equals(compare, StringComparison.OrdinalIgnoreCase);
-        }
-        
-        public static T? GetValueOfType<T>(this JObject obj, string name)
-        {
-            var value = obj.GetValue(name, StringComparison.Ordinal);
-            if (value != null) return value.Value<T>();
-            return default;
         }
     }
 }

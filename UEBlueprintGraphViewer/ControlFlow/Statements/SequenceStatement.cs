@@ -30,7 +30,7 @@ namespace UEBlueprintGraphViewer.ControlFlow.Statements
             int branchesCount = Points.Count;
 
             K2Node_ExecutionSequence node = new K2Node_ExecutionSequence(branchesCount, Context.GetInstr());
-            Context.Decompiler.Graph.AddNode(node);
+            Context.AddNode(node);
             Connect(Context.LastPin, node.ExecPin);
 
             for (int i = 1; i < branchesCount - 1; i++)

@@ -44,7 +44,7 @@ public class ObjectData
         
     public PropertyData? GetObjectProperty(string name)
     {
-        ObjectData obj = this;
+        ObjectData? obj = this;
         while (obj != null)
         {
             PropertyData? prop = obj!.Properties.GetValueOrDefault(name);
