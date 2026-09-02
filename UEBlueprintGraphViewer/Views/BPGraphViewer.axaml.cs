@@ -76,9 +76,10 @@ namespace UEBlueprintGraphViewer.Views
             GraphViewModel.IsSearchVisible = true;
         }
 
-        public BPGraphViewer(AssetViewModel asset) : this()
+        public BPGraphViewer(AssetViewModel asset, bool autoOpened = false) : this()
         {
             VM.Asset = asset;
+            _autoOpened = autoOpened;
         }
 
         private bool _autoOpened;

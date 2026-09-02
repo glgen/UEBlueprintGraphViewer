@@ -432,7 +432,7 @@ namespace UEBlueprintGraphViewer
                 await LoadAsset(item);
         }
 
-        public async Task LoadAsset(AssetFile item)
+        public async Task LoadAsset(AssetFile item, bool autoOpened = false)
         {
             if (AssetsTabs.Items.FirstOrDefault(o => o is TabItem t && t.Tag?.ToString() == item.FullPath) is { } foundTab)
             {
@@ -466,7 +466,7 @@ namespace UEBlueprintGraphViewer
                     asset = new(await Package.LoadAssetAndCheck(item.FullPath, name));
                 }
                 
-                var viewer = new BPGraphViewer(asset) { Margin = new Thickness(0, 5, 0, 0) };
+                var viewer = new BPGraphViewer(asset, autoOpened) { Margin = new Thickness(0, 5, 0, 0) };
                 
                 AddTab(new()
                 {

@@ -27,7 +27,7 @@ public partial class AssetReferencesResultView : UserControl
     {
         if (sender is Visual { DataContext: ReferenceResult result })
         {
-            await MainWindow.Instance.LoadAsset(result.File);
+            await MainWindow.Instance.LoadAsset(result.File, true);
             
             if (!string.IsNullOrEmpty(result.Function))
             {
