@@ -18,6 +18,7 @@ namespace UEBlueprintGraphViewer.Decompiler
         public readonly HashSet<int> ParsedInstructionsCanVisitAgain = [];
         
         public bool IsParsingMacros = true;
+        public bool IsClearingTempVars = true;
 
         public GlobalDecompilerContext(Asset asset, GameSettings game, UFunction function)
         {

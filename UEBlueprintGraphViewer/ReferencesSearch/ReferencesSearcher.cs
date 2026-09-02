@@ -198,6 +198,7 @@ public class ReferencesSearcher
             {
                 var decompiler = new FunctionDecompiler(asset, game, func);
                 decompiler.GlobalContext.IsParsingMacros = false;
+                decompiler.GlobalContext.IsClearingTempVars = false;
                 decompiler.Decompile(null);
                 return decompiler;
             }

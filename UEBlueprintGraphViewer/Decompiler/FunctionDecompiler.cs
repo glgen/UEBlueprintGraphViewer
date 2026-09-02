@@ -91,34 +91,37 @@ namespace UEBlueprintGraphViewer.Decompiler
                 Graph.ProcessMacros();
             
             // remove temp variables if only used once
-            List<BPNode> toRemove = [];
-            foreach (var node in Graph.Nodes.OfType<K2Node_TemporaryVariable>())
+            if (GlobalContext.IsClearingTempVars)
             {
-                var assignments = node.VarPin.LinkedTo.Select(o => o.ParentNode).OfType<K2Node_AssignmentStatement>().ToArray();
-                // check if this variable is used only once and have only one static value in this graph
-                // 0 static - default value, 1 static - constant value
-                if (assignments.Length <= 1 && node.VarPin.LinkedTo.Count - assignments.Length == 1)
+                List<BPNode> toRemove = [];
+                foreach (var node in Graph.Nodes.OfType<K2Node_TemporaryVariable>())
                 {
-                    toRemove.Add(node);
-                    if (assignments.Length == 1)
+                    var assignments = node.VarPin.LinkedTo.Select(o => o.ParentNode).OfType<K2Node_AssignmentStatement>().ToArray();
+                    // check if this variable is used only once and have only one static value in this graph
+                    // 0 static - default value, 1 static - constant value
+                    if (assignments.Length <= 1 && node.VarPin.LinkedTo.Count - assignments.Length == 1)
                     {
-                        assignments[0].ExecPin!.LinkedTo[0].Disconnect(assignments[0].ExecPin!);
-                        if (assignments[0].ExecOutPin!.LinkedTo.FirstOrDefault() != null)
+                        toRemove.Add(node);
+                        if (assignments.Length == 1)
                         {
-                            assignments[0].ExecOutPin!.LinkedTo[0].Disconnect(assignments[0].ExecOutPin!);
-                            Connect(assignments[0].ExecPin!.LinkedTo[0], assignments[0].ExecOutPin!.LinkedTo[0]);
+                            assignments[0].ExecPin!.LinkedTo[0].Disconnect(assignments[0].ExecPin!);
+                            if (assignments[0].ExecOutPin!.LinkedTo.FirstOrDefault() != null)
+                            {
+                                assignments[0].ExecOutPin!.LinkedTo[0].Disconnect(assignments[0].ExecOutPin!);
+                                Connect(assignments[0].ExecPin!.LinkedTo[0], assignments[0].ExecOutPin!.LinkedTo[0]);
+                            }
+                            toRemove.Add(assignments[0]);
+                            var usagePin = node.VarPin.LinkedTo.First(o => o.ParentNode is not K2Node_AssignmentStatement);
+                            usagePin.Value = assignments[0].ValuePin.Value;
+                            foreach (var graphPin in assignments[0].ValuePin.LinkedTo)
+                                Connect(graphPin, usagePin);
                         }
-                        toRemove.Add(assignments[0]);
-                        var usagePin = node.VarPin.LinkedTo.First(o => o.ParentNode is not K2Node_AssignmentStatement);
-                        usagePin.Value = assignments[0].ValuePin.Value;
-                        foreach (var graphPin in assignments[0].ValuePin.LinkedTo)
-                            Connect(graphPin, usagePin);
                     }
                 }
-            }
             
-            foreach (var node in toRemove)
-                Graph.RemoveNode(node);
+                foreach (var node in toRemove)
+                    Graph.RemoveNode(node);
+            }
             
             if (Graph.Nodes.Where(o => o is K2Node_TemporaryVariable or K2Node_AssignmentStatement) is {} tempNodes && tempNodes.Any())
                 _result.AddProblem($"Found direct local variables calls. " +
