@@ -15,7 +15,7 @@ namespace UEBlueprintGraphViewer.Comparing
 {
     internal class AssetsComparer
     {
-        public delegate void UpdateProgress(int count, int countMax);
+        public delegate void UpdateProgress(int count, int countMax, string infoText);
 
         private const string assetsCacheFile = "compareAssetsCache.txt";
 
@@ -46,7 +46,7 @@ namespace UEBlueprintGraphViewer.Comparing
 
             await Parallel.ForEachAsync(notNewNotRemoved, parallelOptions, async (asset, token) =>
             {
-                update?.Invoke(counter, notNewNotRemoved.Count);
+                update?.Invoke(counter, notNewNotRemoved.Count, asset.NameWithoutExtension);
                 counter++;
                 
                 try

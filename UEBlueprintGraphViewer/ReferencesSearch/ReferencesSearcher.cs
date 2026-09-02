@@ -22,7 +22,7 @@ public class ReferencesSearcher
 {
     private static ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     
-    public delegate void UpdateProgress(int count, int countMax);
+    public delegate void UpdateProgress(int count, int countMax, string currentAsset);
     
     public static async Task<GameFile[]> FindAssetReference(PackageData package, GameFile file, UpdateProgress? update)
     {
@@ -44,7 +44,7 @@ public class ReferencesSearcher
         
         await Parallel.ForEachAsync(allAssets, _parallelOptions, async (asset, token) =>
         {
-            update?.Invoke(counter, allAssets.Count);
+            update?.Invoke(counter, allAssets.Count, asset.NameWithoutExtension);
             counter++;
             
             try
@@ -96,7 +96,7 @@ public class ReferencesSearcher
         
         await Parallel.ForEachAsync(allAssets, _parallelOptions, async (asset, token) =>
         {
-            update?.Invoke(counter, allAssets.Length);
+            update?.Invoke(counter, allAssets.Length, asset.NameWithoutExtension);
             counter++;
             
             try
@@ -170,8 +170,7 @@ public class ReferencesSearcher
         
         await Parallel.ForEachAsync(allAssets, _parallelOptions, async (file, token) =>
         {
-            if (counter % 20 == 0)
-                update?.Invoke(counter, allAssets.Length);
+            update?.Invoke(counter, allAssets.Length, file.NameWithoutExtension);
             counter++;
             
             try

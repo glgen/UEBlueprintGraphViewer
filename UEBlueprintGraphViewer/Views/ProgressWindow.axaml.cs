@@ -23,18 +23,22 @@ public partial class ProgressWindow : Window
     public async void Open(Window parent) => await ShowDialog(parent);
     protected override void OnClosing(WindowClosingEventArgs e) => e.Cancel = !e.IsProgrammatic;
 
-    public void Update(int count, int countMax)
+    public void Update(int count, int countMax, string infoText)
     {
         vm.ProgressValue = count;
         vm.ProgressMax = countMax;
+        vm.InfoText = infoText;
     }
 }
 
 public partial class ProgressWindowViewModel : ObservableObject
 {
     [ObservableProperty]
-    private int progressValue;
+    private int _progressValue;
 
     [ObservableProperty]
-    private int progressMax;
+    private int _progressMax;
+    
+    [ObservableProperty]
+    private string _infoText = "";
 }
