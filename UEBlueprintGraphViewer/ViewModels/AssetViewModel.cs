@@ -211,7 +211,9 @@ namespace UEBlueprintGraphViewer.ViewModels
                 var names = BPGraph.TestUbergraphEquality(decompiler1.Graph, decompiler2.Graph);
                 foreach (var name in names)
                 {
-                    Events.Find(o => o.ToString() == name)!.ChangeStatus = ChangeStatus.Changed;
+                    var ev = Events.Find(o => o.ToString() == name)!;
+                    if (ev.ChangeStatus == ChangeStatus.None)
+                        ev.ChangeStatus = ChangeStatus.Changed;
                 }
             }
 
