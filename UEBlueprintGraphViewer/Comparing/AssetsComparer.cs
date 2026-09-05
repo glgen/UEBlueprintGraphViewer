@@ -131,8 +131,8 @@ namespace UEBlueprintGraphViewer.Comparing
                     return true;
             }
 
-            asset1.LoadAllProperties();
-            asset2.LoadAllProperties();
+            asset1.LoadAllProperties(game1);
+            asset2.LoadAllProperties(game2);
             // TODO: maybe also check for property type change?
             if (!asset1.LoadedProperties.Keys.ToHashSet().SetEquals(asset2.LoadedProperties.Keys.ToHashSet()))
                 return true;

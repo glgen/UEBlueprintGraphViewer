@@ -390,9 +390,9 @@ namespace UEBlueprintGraphViewer
             else
             {
                 var dialog = new ProgressWindow("Comparing", "Comparing assets:");
-                dialog.Open(this);
                 if (await LoadDumpAndPackage())
                 {
+                    dialog.Open(this);
                     result = await AssetsComparer.CompareAssets(Settings.Instance.CompareGame1!,
                         Settings.Instance.CompareGame2!,
                         PackageCompare1!,
@@ -420,6 +420,7 @@ namespace UEBlueprintGraphViewer
                     await TryLoadPackage(Settings.Instance.CompareGame2!) is not { } p2)
                     return false;
                 
+                viewModel.StatusText = "";
                 PackageCompare1 = p1;
                 PackageCompare2 = p2;
                 return true;

@@ -275,7 +275,7 @@ namespace UEBlueprintGraphViewer.Assets
             return -1;
         }
         
-        public void LoadAllProperties()
+        public void LoadAllProperties(GameSettings settings)
         {
             if (GeneratedClass == null) return;
             foreach (var prop in GetStructProperties(GeneratedClass))
@@ -291,8 +291,8 @@ namespace UEBlueprintGraphViewer.Assets
             {
                 if (superStruct is UScriptClass)
                 {
-                    if (Settings.Instance.Game != null! &&
-                        Settings.Instance.Game.Jmap.TryFindProperties(currentPackageIndex, out var properties))
+                    if (settings != null! &&
+                        settings.Jmap.TryFindProperties(currentPackageIndex, out var properties))
                     {
                         foreach (var prop in properties!)
                         {

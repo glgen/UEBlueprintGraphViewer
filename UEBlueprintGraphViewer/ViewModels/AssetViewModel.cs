@@ -91,7 +91,7 @@ namespace UEBlueprintGraphViewer.ViewModels
             Name = asset.ObjectName;
             Events = [.. asset.Events.Select(o => new AssetFunctionViewModel(o.Key, o.Value))];
             Functions = [.. asset.Functions.Select(o => new AssetFunctionViewModel(null, o))];
-            asset.LoadAllProperties();
+            asset.LoadAllProperties(Settings.Instance.Game);
             Properties = [.. asset.LoadedProperties.Values.Select(o => new AssetPropertyViewModel(o))];
             ParentProperties = [.. asset.ParentProperties
                 .Select(o => new AssetPropertyViewModel(o))
@@ -117,8 +117,8 @@ namespace UEBlueprintGraphViewer.ViewModels
             AssetCompare1 = asset1;
             AssetCompare2 = asset2;
             
-            asset1?.LoadAllProperties();
-            asset2?.LoadAllProperties();
+            asset1?.LoadAllProperties(Settings.Instance.CompareGame1!);
+            asset2?.LoadAllProperties(Settings.Instance.CompareGame2!);
             
             List<UFunction> a1F = asset1?.Functions ?? [];
             List<UFunction> a2F = asset2?.Functions ?? [];
