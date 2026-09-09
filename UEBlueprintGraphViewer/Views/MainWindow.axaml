@@ -119,6 +119,9 @@
 								<StackPanel Orientation="Horizontal" Spacing="7" PointerPressed="Tab_OnPointerPressed">
 									<StackPanel.ContextMenu>
 										<ContextMenu>
+											<MenuItem Header="Copy asset name" Click="CopyAssetName_OnClick"/>
+											<MenuItem Header="Copy full path" Click="CopyFullPath_OnClick"/>
+											<MenuItem Header="Close tab" Click="CloseTab_OnClick"/>
 											<MenuItem Header="Close All Tabs" Click="CloseAllTabs_OnClick"/>
 										</ContextMenu>
 									</StackPanel.ContextMenu>

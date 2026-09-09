@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Input.Platform;
 using Avalonia.Platform;
 using Avalonia.Utilities;
 using Avalonia.LogicalTree;
@@ -554,9 +555,27 @@ namespace UEBlueprintGraphViewer
 
         private void CloseTab(Visual child)
         {
-            AssetsTabs.Items.Remove(child.GetVisualAncestors().OfType<TabItem>().FirstOrDefault());
+            AssetsTabs.Items.Remove(child.GetLogicalAncestors().OfType<TabItem>().FirstOrDefault());
         }
-
+        
+        private void CloseTab_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Visual v)
+                CloseTab(v);
+        }
+        
+        private void CopyAssetName_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Visual v)
+                Clipboard?.SetTextAsync(v.GetLogicalAncestors().OfType<TabItem>().FirstOrDefault()?.Header?.ToString());
+        }
+        
+        private void CopyFullPath_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Visual v)
+                Clipboard?.SetTextAsync(v.GetLogicalAncestors().OfType<TabItem>().FirstOrDefault()?.Tag?.ToString());
+        }
+        
         private void CloseAllTabs_OnClick(object? sender, RoutedEventArgs e)
         {
             var toClose = AssetsTabs.Items.OfType<TabItem>()
