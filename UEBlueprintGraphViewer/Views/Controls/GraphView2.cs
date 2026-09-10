@@ -196,6 +196,10 @@ public class GraphView2 : ContentControl
                     : _mouseOverNode.Output;
                 Editor?.MouseOverPin = pins.FirstOrDefault(o => !o.IsHidden && _mousePosOnGraph.Y < o.Y + 16);
             }
+            else
+            {
+                Editor?.MouseOverPin = null;
+            }
         }
         
         if (_isDragging)
