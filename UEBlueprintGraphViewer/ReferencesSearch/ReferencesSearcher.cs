@@ -161,6 +161,26 @@ public class ReferencesSearcher
         });
         return result.ToArray();
     }
+    
+    public static async Task<(GameFile, string, int)[]> FindTextInCode(PackageData package, GameSettings game, string text, UpdateProgress? update)
+    {
+        BlockingCollection<(GameFile, string, int)> result = [];
+        await IterateInstructions(package, game, update, (file, func, graph) =>
+        {
+            foreach (var node in graph.Nodes)
+            {
+                if (node.Name.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                    node.Input.Any(o => o.PinFriendlyName.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                                        (!o.IsConnected &&
+                                         o.Value.Contains(text, StringComparison.OrdinalIgnoreCase))) ||
+                    node.Output.Any(o => o.PinFriendlyName.Contains(text, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.Add((file, func, node.StatementIndex));
+                }
+            }
+        });
+        return result.ToArray();
+    }
 
     private static async Task IterateInstructions(PackageData package, GameSettings game, UpdateProgress? update, Action<GameFile, string, BPGraph> action)
     {

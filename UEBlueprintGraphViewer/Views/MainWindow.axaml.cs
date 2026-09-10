@@ -611,5 +611,31 @@ namespace UEBlueprintGraphViewer
                 
             dialog.Close();
         }
+        
+        private async void FindTextInCode_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var textDialog = await DialogWindow.Show("Enter text to find:", "Find in code", true, true);
+            if (textDialog.Result == DialogWindowResult.Cancel) return;
+            if (string.IsNullOrEmpty(textDialog.EnteredText)) return;
+            
+            var dialog = new ProgressWindow("Search", "Finding usages:");
+            dialog.Open(this);
+            var result = await ReferencesSearcher.FindTextInCode(Package, Settings.Instance.Game, textDialog.EnteredText, dialog.Update);
+            AddTab(new()
+            {
+                Header = $"Search in code: {textDialog.EnteredText}",
+                Classes = { "Closeable" },
+                Content = new AssetReferencesResultView(
+                    $"Found {result.Length} usages of \"{textDialog.EnteredText}\"",
+                    result.Select(o => new ReferenceResult()
+                    {
+                        File = new(o.Item1.Name, o.Item1.Path),
+                        Function = o.Item2,
+                        NodeStatementIndex = o.Item3
+                    }).ToList())
+            });
+                
+            dialog.Close();
+        }
     }
 }

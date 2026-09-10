@@ -136,7 +136,10 @@
 	            <TabItem Header="Main" Tag="MainTab">
 		            <Grid>
 			            <TextBlock Text="{Binding StatusText}" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-			            <Button Content="Find unreferenced assets" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Click="FindUnreferenced_OnClick"/>
+			            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20" Spacing="10">
+				            <Button Content="Find unreferenced assets" Click="FindUnreferenced_OnClick"/>
+				            <Button Content="Find text in code" Click="FindTextInCode_OnClick"/>
+			            </StackPanel>
 		            </Grid>
 	            </TabItem>
             </TabControl>
