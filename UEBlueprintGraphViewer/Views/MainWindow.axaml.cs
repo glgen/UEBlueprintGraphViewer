@@ -593,6 +593,12 @@ namespace UEBlueprintGraphViewer
 
         private async void FindUnreferenced_OnClick(object? sender, RoutedEventArgs e)
         {
+            if (Settings.Instance.IsInCompareMode)
+            {
+                await DialogWindow.Show("Exit compare mode to search", "Can't search");
+                return;
+            }
+            
             var dialog = new ProgressWindow("Search", "Finding references:");
             dialog.Open(this);
             var result = await ReferencesSearcher.FindUnreferencedAssets(Package, dialog.Update);
@@ -614,6 +620,12 @@ namespace UEBlueprintGraphViewer
         
         private async void FindTextInCode_OnClick(object? sender, RoutedEventArgs e)
         {
+            if (Settings.Instance.IsInCompareMode)
+            {
+                await DialogWindow.Show("Exit compare mode to search", "Can't search");
+                return;
+            }
+            
             var textDialog = await DialogWindow.Show("Enter text to find:", "Find in code", true, true);
             if (textDialog.Result == DialogWindowResult.Cancel) return;
             if (string.IsNullOrEmpty(textDialog.EnteredText)) return;
