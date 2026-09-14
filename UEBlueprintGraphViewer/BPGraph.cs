@@ -68,7 +68,7 @@ namespace UEBlueprintGraphViewer
             return Nodes.Find(o => o.StatementIndex == index && o.ExecPin != null);
         }
 
-        // Split graph on subgraps to layout them separately
+        // Split graph on subgraphs to layout them separately
         void FindClusters()
         {
             if (Clusters.Count > 0)
@@ -125,7 +125,7 @@ namespace UEBlueprintGraphViewer
                 while (found)
                 {
                     found = false;
-                    foreach (BPNode node in cluster.Where((o => !o.Pure)))/// && !o.HeaderHidden)))
+                    foreach (BPNode node in cluster.Where((o => !o.Pure)))// && !o.HeaderHidden)))
                     {
                         if (layers[node] != int.MinValue)
                             continue;
@@ -503,14 +503,14 @@ namespace UEBlueprintGraphViewer
                         i--;
                     }
 
-                    var min = cluster.Min(o => o.Y + o.NodeHeight).TruncToInt();
+                    var min = cluster.Min(o => o.Y).TruncToInt();
                     
                     // shift the cluster down if we have more clusters above
                     foreach (var node in cluster)
                         node.SetPosition(node.X, node.Y - min + yOffset);
                     
                     // calculate y offset of next cluster
-                    yOffset += cluster.Max(o => o.Y + o.NodeHeight).TruncToInt() - cluster.Min(o => o.Y + o.NodeHeight).TruncToInt() + 200;
+                    yOffset += cluster.Max(o => o.Y + o.NodeHeight).TruncToInt() - cluster.Min(o => o.Y).TruncToInt() + 200;
                 }
             }
 
