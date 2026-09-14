@@ -141,10 +141,12 @@ namespace UEBlueprintGraphViewer.Decompiler
                 eventsList.Remove(GlobalContext.FunctionToDecompile);
                 eventsList.Insert(0, GlobalContext.FunctionToDecompile);
             }
-            foreach (var inputEvent in GlobalContext.CurrentAsset.InputEvents)
-                eventsList.RemoveAll(o => o.Name == inputEvent.FunctionName);
-            foreach (var inputEvent in GlobalContext.CurrentAsset.Timelines)
-                eventsList.RemoveAll(o => o.Name == inputEvent.UpdateFunctionName || o.Name == inputEvent.FinishedFunctionName);
+            foreach (var e in GlobalContext.CurrentAsset.ComponentDelegates)
+                eventsList.RemoveAll(o => o.Name == e.FunctionName);
+            foreach (var e in GlobalContext.CurrentAsset.InputEvents)
+                eventsList.RemoveAll(o => o.Name == e.FunctionName);
+            foreach (var e in GlobalContext.CurrentAsset.Timelines)
+                eventsList.RemoveAll(o => o.Name == e.UpdateFunctionName || o.Name == e.FinishedFunctionName);
 
             // preloading all ubergraph properties
             GlobalContext.FunctionLocals.AddRange(GetStructProperties(GlobalContext.CurrentAsset.UbergraphFunction!));
@@ -193,6 +195,17 @@ namespace UEBlueprintGraphViewer.Decompiler
                 StartDecompilation(localVars, entryNode.ExecOutPin!, flowContext, entryPoints[func]);
             }
 
+            foreach (var data in GlobalContext.CurrentAsset.ComponentDelegates.Where(o => o.FunctionName != "None"))
+            {
+                UFunction func = GlobalContext.CurrentAsset.SortedEvents.Find(o => o.Name.ToString() == data.FunctionName)!;
+                LocalVariablesStorage localVars = GetEventParamPins(func);
+                BPNode entryNode = new K2Node_ComponentBoundEvent(func.Name, $"{data.DelegateName} ({data.ComponentName})", localVars.GetLocalPins(), null);
+                Graph.AddNode(entryNode);
+                foreach (var tempVar in tempVars.GetLocalVars())
+                    localVars.Create(tempVar.VarName, tempVar.ParamPin);
+                StartDecompilation(localVars, entryNode.ExecOutPin!, flowContext, entryPoints[func]);
+            }
+            
             Dictionary<string, BPNode> inputEventEntries = [];
             foreach (var data in GlobalContext.CurrentAsset.InputEvents.Where(o => o.FunctionName != "None"))
             {

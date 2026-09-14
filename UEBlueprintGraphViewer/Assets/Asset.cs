@@ -31,6 +31,7 @@ namespace UEBlueprintGraphViewer.Assets
         public readonly Dictionary<string, PropertyData> LoadedProperties = new(StringComparer.OrdinalIgnoreCase);
         public readonly List<PropertyData> ParentProperties = [];
 
+        public readonly List<ComponentDelegateData> ComponentDelegates = [];
         public readonly List<InputEventData> InputEvents = [];
         public readonly List<TimelineData> Timelines = [];
         
@@ -84,17 +85,33 @@ namespace UEBlueprintGraphViewer.Assets
             SortedEvents = Settings.Instance.ReorderEvents ? _events.OrderBy(o => GetUbergraphEntryPoint(o.ScriptBytecode)).ToList() : _events;
             Events = SortedEvents.ToDictionary(o => o.Name, o => o);
 
+            // get dynamic bindings
             foreach (var index in GeneratedClass.DynamicBindingObjects)
             {
-                if (index.ResolvedObject?.Object?.Value.Class?.Name.ToString() == "ComponentDelegateBinding")
+                var bindingObj = index?.ResolvedObject?.Object?.Value;
+                if (bindingObj == null) continue;
+                if (bindingObj.Class?.Name.ToString() == "ComponentDelegateBinding")
                 {
-                    // TODO
+                    ComponentDelegates.AddRange(GetComponentEvents(bindingObj));
                 }
                 else
                 {
-                    InputEvents.AddRange(GetInputEvents(index.ResolvedObject?.Object?.Value));
+                    InputEvents.AddRange(GetInputEvents(bindingObj));
                 }
             }
+            
+            // rename component delegate event to friendly name
+            foreach (var delegateData in ComponentDelegates.Where(o => o.FunctionName != "None"))
+            {
+                Events.Remove(delegateData.FunctionName);
+                string eventName = $"{delegateData.DelegateName} ({delegateData.ComponentName})";
+                if (!Events.ContainsKey(eventName))
+                {
+                    Events[eventName] = _events.Find(o => o.Name == delegateData.FunctionName)!;
+                }
+            }
+            
+            // rename input event to friendly name
             foreach (var inputEvent in InputEvents.Where(o => o.FunctionName != "None"))
             {
                 Events.Remove(inputEvent.FunctionName);
@@ -106,7 +123,7 @@ namespace UEBlueprintGraphViewer.Assets
 
             foreach (var index in GeneratedClass.Timelines)
             {
-                Timelines.Add(GetTimelineData(index.ResolvedObject?.Object?.Value));
+                Timelines.Add(GetTimelineData(index?.ResolvedObject?.Object?.Value));
             }
 
             foreach (var timeline in Timelines)
@@ -130,6 +147,26 @@ namespace UEBlueprintGraphViewer.Assets
                 return obj?.Properties.Select(o => o.GenericValue).OfType<T>() ?? [];
             }
 
+            List<ComponentDelegateData> GetComponentEvents(UObject? obj)
+            {
+                List<ComponentDelegateData> result = [];
+                
+                if (obj?.Properties.FirstOrDefault()?.Tag?.GenericValue is UScriptArray eventsArray)
+                {
+                    foreach (var eventInfo in GetPropsValues<FScriptStruct>(eventsArray).Select(o => o.StructType).OfType<FStructFallback>())
+                    {
+                        result.Add(new()
+                        {
+                            DelegateName = GetPropValueName(eventInfo, "DelegatePropertyName"),
+                            FunctionName = GetPropValueName(eventInfo, "FunctionNameToBind"),
+                            ComponentName = GetPropValueName(eventInfo, "ComponentPropertyName")
+                        });
+                    }
+                }
+
+                return result;
+            }
+            
             List<InputEventData> GetInputEvents(UObject? obj)
             {
                 List<InputEventData> result = [];

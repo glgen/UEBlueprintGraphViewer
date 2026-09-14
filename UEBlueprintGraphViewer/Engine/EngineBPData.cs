@@ -242,6 +242,13 @@ namespace UEBlueprintGraphViewer.Engine
         public InputEventPinType PinType;
         public InputEventType Type;
     }
+    
+    public struct ComponentDelegateData
+    {
+        public string ComponentName;
+        public string DelegateName;
+        public string FunctionName;
+    }
 
     public struct TimelineData
     {

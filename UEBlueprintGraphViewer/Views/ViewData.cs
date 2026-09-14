@@ -60,6 +60,7 @@ namespace UEBlueprintGraphViewer.Views
             { "InputAxisKey", FromColor(new SKColor(160, 27, 43)) },
             { "InputAxisEvent", FromColor(new SKColor(160, 27, 43)) },
             { "EnhancedInputAction", FromColor(new SKColor(160, 27, 43)) },
+            { "ComponentBoundEvent", FromColor(new SKColor(160, 27, 43)) },
             { "FunctionEntry", FromColor(new SKColor(134, 39, 159)) },
             { "FunctionResult", FromColor(new SKColor(134, 39, 159)) },
             { "IfThenElse", FromColor(new SKColor(130, 130, 130)) },
