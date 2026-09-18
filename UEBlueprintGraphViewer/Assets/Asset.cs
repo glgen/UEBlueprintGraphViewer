@@ -345,7 +345,7 @@ namespace UEBlueprintGraphViewer.Assets
                 
                 currentPackageIndex = superStruct.SuperStruct;
                 
-                foreach (var prop in superStruct.ChildProperties.OfType<FProperty>().Select(o => new PropertyData(o, superStruct)))
+                foreach (var prop in GetStructProperties(superStruct))
                 {
                     if (ClassDefaultObject != null)
                         prop.SetPropertyDefaults(ClassDefaultObject);
