@@ -211,17 +211,17 @@ namespace UEBlueprintGraphViewer.Views
             else
             {
                 _graph = new();
-                if (VM.Asset.AssetCompare1 != null)
+                if (VM.Asset.AssetCompare1 != null && func.FunctionCompare1 != null)
                 {
-                    var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare1, Settings.Instance.CompareGame1!, func.FunctionCompare1 ?? VM.Asset.AssetCompare1.SortedEvents.First());
+                    var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare1, Settings.Instance.CompareGame1!, func.FunctionCompare1);
                     await DecompileAndCheck(func, decompiler);
                     _graph = decompiler.Graph;
                 }
 
                 _graph2 = new();
-                if (VM.Asset.AssetCompare2 != null)
+                if (VM.Asset.AssetCompare2 != null && func.FunctionCompare2 != null)
                 {
-                    var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare2, Settings.Instance.CompareGame2!, func.FunctionCompare2 ?? VM.Asset.AssetCompare2.SortedEvents.First());
+                    var decompiler = new FunctionDecompiler(VM.Asset.AssetCompare2, Settings.Instance.CompareGame2!, func.FunctionCompare2);
                     await DecompileAndCheck(func, decompiler);
                     _graph2 = decompiler.Graph;
                 }
