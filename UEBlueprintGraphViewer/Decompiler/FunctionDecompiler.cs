@@ -228,6 +228,8 @@ namespace UEBlueprintGraphViewer.Decompiler
                             new K2Node_InputKey(func.Name, data.Name, localVars.GetLocalPins(), null),
                         InputEventType.InputAxisKey =>
                             new K2Node_InputKey(func.Name, data.Name, localVars.GetLocalPins(), null),
+                        InputEventType.WidgetAnimationEvent =>
+                            new K2Node_WidgetAnimationEvt(func.Name, data.Name, localVars.GetLocalPins(), null),
                         _ => throw new ArgumentOutOfRangeException()
                     };
                     Graph.AddNode(entryNode);
@@ -244,6 +246,7 @@ namespace UEBlueprintGraphViewer.Decompiler
                     InputEventPinType.Canceled => 3,
                     InputEventPinType.Completed => 4,
                     InputEventPinType.AxisExec => 0,
+                    InputEventPinType.WidgetAnimExec => 0,
                     _ => throw new ArgumentOutOfRangeException()
                 };
 

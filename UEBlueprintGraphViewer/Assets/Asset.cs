@@ -177,6 +177,7 @@ namespace UEBlueprintGraphViewer.Assets
                     "InputActionDelegateBinding" => InputEventType.InputAction,
                     "InputAxisDelegateBinding" => InputEventType.InputAxisAction,
                     "EnhancedInputActionDelegateBinding" => InputEventType.EnhancedInputAction,
+                    "WidgetAnimationDelegateBinding" => InputEventType.WidgetAnimationEvent,
                     _ => InputEventType.Key,
                 };
                 
@@ -188,6 +189,7 @@ namespace UEBlueprintGraphViewer.Assets
                         
                         string name = eventType switch
                         {
+                            InputEventType.WidgetAnimationEvent => funcName.SubstringBefore("_K2Node_").SubstringAfter("WidgetAnimationEvt_").Replace('_', ' '),
                             InputEventType.Key => funcName.SubstringBefore("_K2Node_").SubstringAfter("InpActEvt_").Replace('_', ' '),
                             InputEventType.InputAxisKey => funcName.SubstringBefore("_K2Node_").SubstringAfter("InpAxisKeyEvt_").Replace('_', ' '),
                             InputEventType.InputAction => $"InputAction {GetPropValueName(eventInfo, "InputActionName")}",
@@ -230,6 +232,11 @@ namespace UEBlueprintGraphViewer.Assets
                                     "ETriggerEvent::Completed" => InputEventPinType.Completed,
                                     _ => throw new ArgumentOutOfRangeException(),
                                 };
+                                break;
+                            }
+                            case InputEventType.WidgetAnimationEvent:
+                            {
+                                pinType = InputEventPinType.WidgetAnimExec;
                                 break;
                             }
                             default:
