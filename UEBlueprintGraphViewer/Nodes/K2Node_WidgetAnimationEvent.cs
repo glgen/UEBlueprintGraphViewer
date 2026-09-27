@@ -10,14 +10,15 @@ namespace UEBlueprintGraphViewer.Nodes
 {
     internal class K2Node_WidgetAnimationEvent : K2Node_Event
     {
-        public GraphPin WidgetAnimExec;
-        public readonly string InputEventName;
+        public readonly string AnimationPropertyName;
+        public readonly WidgetAnimationEventType Action;
 
-        public K2Node_WidgetAnimationEvent(string funcName, string eventName, List<GraphPin> parms, KismetExpression? instr) : base(funcName, parms,
+        public K2Node_WidgetAnimationEvent(string funcName, WidgetAnimationEventType action, string animationName, KismetExpression? instr) : base(funcName, [],
             instr)
         {
-            Name = eventName;
-            InputEventName = eventName;
+            Name = $"Animation {(action == WidgetAnimationEventType.Started ? "Started" : "Finished")} ({animationName})";
+            Action = action;
+            AnimationPropertyName = animationName;
         }
     }
 }
