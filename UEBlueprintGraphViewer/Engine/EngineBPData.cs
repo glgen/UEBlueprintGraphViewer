@@ -274,6 +274,7 @@ namespace UEBlueprintGraphViewer.Engine
         InputAction,
         InputAxisAction,
         EnhancedInputAction,
+        WidgetAnimationEvent,
     }
         
     public enum InputEventPinType
@@ -286,5 +287,6 @@ namespace UEBlueprintGraphViewer.Engine
         Canceled,
         Completed,
         AxisExec,
+        WidgetAnimExec,
     }
 }
