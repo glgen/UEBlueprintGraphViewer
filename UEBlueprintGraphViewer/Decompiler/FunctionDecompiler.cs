@@ -145,6 +145,8 @@ namespace UEBlueprintGraphViewer.Decompiler
                 eventsList.RemoveAll(o => o.Name == e.FunctionName);
             foreach (var e in GlobalContext.CurrentAsset.InputEvents)
                 eventsList.RemoveAll(o => o.Name == e.FunctionName);
+            foreach (var e in GlobalContext.CurrentAsset.WidgetAnimationEvents)
+                eventsList.RemoveAll(o => o.Name == e.FunctionName);
             foreach (var e in GlobalContext.CurrentAsset.Timelines)
                 eventsList.RemoveAll(o => o.Name == e.UpdateFunctionName || o.Name == e.FinishedFunctionName);
 
@@ -206,6 +208,14 @@ namespace UEBlueprintGraphViewer.Decompiler
                 StartDecompilation(localVars, entryNode.ExecOutPin!, flowContext, entryPoints[func]);
             }
             
+            foreach (var data in GlobalContext.CurrentAsset.WidgetAnimationEvents.Where(o => o.FunctionName != "None"))
+            {
+                UFunction func = GlobalContext.CurrentAsset.SortedEvents.Find(o => o.Name.ToString() == data.FunctionName)!;
+                BPNode entryNode = new K2Node_WidgetAnimationEvt(func.Name, $"Animation {(data.Type == WidgetAnimationEventType.Started ? "Started" : "Finished")} ({data.AnimationName})", [], null);
+                Graph.AddNode(entryNode);
+                StartDecompilation(new(), entryNode.ExecOutPin!, flowContext, entryPoints[func]);
+            }
+            
             Dictionary<string, BPNode> inputEventEntries = [];
             foreach (var data in GlobalContext.CurrentAsset.InputEvents.Where(o => o.FunctionName != "None"))
             {
@@ -228,8 +238,6 @@ namespace UEBlueprintGraphViewer.Decompiler
                             new K2Node_InputKey(func.Name, data.Name, localVars.GetLocalPins(), null),
                         InputEventType.InputAxisKey =>
                             new K2Node_InputKey(func.Name, data.Name, localVars.GetLocalPins(), null),
-                        InputEventType.WidgetAnimationEvent =>
-                            new K2Node_WidgetAnimationEvt(func.Name, data.Name, localVars.GetLocalPins(), null),
                         _ => throw new ArgumentOutOfRangeException()
                     };
                     Graph.AddNode(entryNode);
@@ -246,7 +254,6 @@ namespace UEBlueprintGraphViewer.Decompiler
                     InputEventPinType.Canceled => 3,
                     InputEventPinType.Completed => 4,
                     InputEventPinType.AxisExec => 0,
-                    InputEventPinType.WidgetAnimExec => 0,
                     _ => throw new ArgumentOutOfRangeException()
                 };
 

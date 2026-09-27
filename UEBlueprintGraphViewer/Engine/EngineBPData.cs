@@ -243,6 +243,13 @@ namespace UEBlueprintGraphViewer.Engine
         public InputEventType Type;
     }
     
+    public struct WidgetAnimationEventData
+    {
+        public string FunctionName;
+        public string AnimationName;
+        public WidgetAnimationEventType Type;
+    }
+    
     public struct ComponentDelegateData
     {
         public string ComponentName;
@@ -274,7 +281,6 @@ namespace UEBlueprintGraphViewer.Engine
         InputAction,
         InputAxisAction,
         EnhancedInputAction,
-        WidgetAnimationEvent,
     }
         
     public enum InputEventPinType
@@ -287,6 +293,11 @@ namespace UEBlueprintGraphViewer.Engine
         Canceled,
         Completed,
         AxisExec,
-        WidgetAnimExec,
+    }
+    
+    public enum WidgetAnimationEventType
+    {
+        Started,
+        Finished,
     }
 }

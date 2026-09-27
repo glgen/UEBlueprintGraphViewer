@@ -33,6 +33,7 @@ namespace UEBlueprintGraphViewer.Assets
 
         public readonly List<ComponentDelegateData> ComponentDelegates = [];
         public readonly List<InputEventData> InputEvents = [];
+        public readonly List<WidgetAnimationEventData> WidgetAnimationEvents = [];
         public readonly List<TimelineData> Timelines = [];
         
         public readonly string SuperStruct;
@@ -94,6 +95,10 @@ namespace UEBlueprintGraphViewer.Assets
                 {
                     ComponentDelegates.AddRange(GetComponentEvents(bindingObj));
                 }
+                else if (bindingObj.Class?.Name.ToString() == "WidgetAnimationDelegateBinding")
+                {
+                    WidgetAnimationEvents.AddRange(GetWidgetAnimationEvents(bindingObj));
+                }
                 else
                 {
                     InputEvents.AddRange(GetInputEvents(bindingObj));
@@ -150,10 +155,11 @@ namespace UEBlueprintGraphViewer.Assets
             List<ComponentDelegateData> GetComponentEvents(UObject? obj)
             {
                 List<ComponentDelegateData> result = [];
-                
+
                 if (obj?.Properties.FirstOrDefault()?.Tag?.GenericValue is UScriptArray eventsArray)
                 {
-                    foreach (var eventInfo in GetPropsValues<FScriptStruct>(eventsArray).Select(o => o.StructType).OfType<FStructFallback>())
+                    foreach (var eventInfo in GetPropsValues<FScriptStruct>(eventsArray).Select(o => o.StructType)
+                                 .OfType<FStructFallback>())
                     {
                         result.Add(new()
                         {
@@ -164,6 +170,29 @@ namespace UEBlueprintGraphViewer.Assets
                     }
                 }
 
+                return result;
+            }
+
+            List<WidgetAnimationEventData> GetWidgetAnimationEvents(UObject? obj)
+            {
+                List<WidgetAnimationEventData> result = [];
+                if (GetPropValue<UScriptArray>(obj, "WidgetAnimationDelegateBindings") is { } array)
+                {
+                    result.AddRange(GetPropsValues<FScriptStruct>(array)
+                        .Select(o => o.StructType)
+                        .OfType<FStructFallback>()
+                        .Select(ev => new WidgetAnimationEventData()
+                        {
+                            FunctionName = GetPropValueName(ev, "FunctionNameToBind"),
+                            AnimationName = GetPropValueName(ev, "AnimationToBind"),
+                            Type = GetPropValueName(ev, "Action") switch
+                            {
+                                "EWidgetAnimationEvent::Started" or "Started" => WidgetAnimationEventType.Started,
+                                "EWidgetAnimationEvent::Finished" or "Finished" => WidgetAnimationEventType.Finished,
+                                _ => throw new ArgumentOutOfRangeException(),
+                            }
+                        }));
+                }
                 return result;
             }
             
@@ -177,8 +206,7 @@ namespace UEBlueprintGraphViewer.Assets
                     "InputActionDelegateBinding" => InputEventType.InputAction,
                     "InputAxisDelegateBinding" => InputEventType.InputAxisAction,
                     "EnhancedInputActionDelegateBinding" => InputEventType.EnhancedInputAction,
-                    "WidgetAnimationDelegateBinding" => InputEventType.WidgetAnimationEvent,
-                    _ => InputEventType.Key,
+                    _ => throw new ArgumentOutOfRangeException(),
                 };
                 
                 if (obj?.Properties.FirstOrDefault()?.Tag?.GenericValue is UScriptArray eventsArray)
@@ -189,7 +217,6 @@ namespace UEBlueprintGraphViewer.Assets
                         
                         string name = eventType switch
                         {
-                            InputEventType.WidgetAnimationEvent => funcName.SubstringBefore("_K2Node_").SubstringAfter("WidgetAnimationEvt_").Replace('_', ' '),
                             InputEventType.Key => funcName.SubstringBefore("_K2Node_").SubstringAfter("InpActEvt_").Replace('_', ' '),
                             InputEventType.InputAxisKey => funcName.SubstringBefore("_K2Node_").SubstringAfter("InpAxisKeyEvt_").Replace('_', ' '),
                             InputEventType.InputAction => $"InputAction {GetPropValueName(eventInfo, "InputActionName")}",
@@ -232,11 +259,6 @@ namespace UEBlueprintGraphViewer.Assets
                                     "ETriggerEvent::Completed" => InputEventPinType.Completed,
                                     _ => throw new ArgumentOutOfRangeException(),
                                 };
-                                break;
-                            }
-                            case InputEventType.WidgetAnimationEvent:
-                            {
-                                pinType = InputEventPinType.WidgetAnimExec;
                                 break;
                             }
                             default:

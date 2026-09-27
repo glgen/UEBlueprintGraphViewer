@@ -19,13 +19,5 @@ namespace UEBlueprintGraphViewer.Nodes
             Name = eventName;
             InputEventName = eventName;
         }
-
-        protected override void MakePins(bool needExec, bool needThen, List<GraphPin> parms)
-        {
-            GraphPinType execPinType = MakePinType(PinType.exec);
-            WidgetAnimExec = new GraphPin("", EngineEnums.EEdGraphPinDirection.EGPD_Output, execPinType);
-            AddOutputPin(WidgetAnimExec);
-            MakePins(false, false, parms, null);
-        }
     }
 }
