@@ -8,12 +8,12 @@ using static UEBlueprintGraphViewer.Engine.Utils;
 
 namespace UEBlueprintGraphViewer.Nodes
 {
-    internal class K2Node_WidgetAnimationEvt : K2Node_Event
+    internal class K2Node_WidgetAnimationEvent : K2Node_Event
     {
         public GraphPin WidgetAnimExec;
         public readonly string InputEventName;
 
-        public K2Node_WidgetAnimationEvt(string funcName, string eventName, List<GraphPin> parms, KismetExpression? instr) : base(funcName, parms,
+        public K2Node_WidgetAnimationEvent(string funcName, string eventName, List<GraphPin> parms, KismetExpression? instr) : base(funcName, parms,
             instr)
         {
             Name = eventName;

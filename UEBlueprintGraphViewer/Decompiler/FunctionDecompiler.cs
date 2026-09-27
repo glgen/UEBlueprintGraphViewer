@@ -211,7 +211,7 @@ namespace UEBlueprintGraphViewer.Decompiler
             foreach (var data in GlobalContext.CurrentAsset.WidgetAnimationEvents.Where(o => o.FunctionName != "None"))
             {
                 UFunction func = GlobalContext.CurrentAsset.SortedEvents.Find(o => o.Name.ToString() == data.FunctionName)!;
-                BPNode entryNode = new K2Node_WidgetAnimationEvt(func.Name, $"Animation {(data.Type == WidgetAnimationEventType.Started ? "Started" : "Finished")} ({data.AnimationName})", [], null);
+                BPNode entryNode = new K2Node_WidgetAnimationEvent(func.Name, $"Animation {(data.Type == WidgetAnimationEventType.Started ? "Started" : "Finished")} ({data.AnimationName})", [], null);
                 Graph.AddNode(entryNode);
                 StartDecompilation(new(), entryNode.ExecOutPin!, flowContext, entryPoints[func]);
             }
