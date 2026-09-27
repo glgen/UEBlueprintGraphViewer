@@ -190,7 +190,8 @@ namespace UEBlueprintGraphViewer.Assets
                                 "EWidgetAnimationEvent::Started" or "Started" => WidgetAnimationEventType.Started,
                                 "EWidgetAnimationEvent::Finished" or "Finished" => WidgetAnimationEventType.Finished,
                                 _ => throw new ArgumentOutOfRangeException(),
-                            }
+                            },
+                            UserTag = GetPropValueName(ev, "UserTag")
                         }));
                 }
                 return result;

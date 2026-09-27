@@ -248,6 +248,7 @@ namespace UEBlueprintGraphViewer.Engine
         public string FunctionName;
         public string AnimationName;
         public WidgetAnimationEventType Type;
+        public string UserTag;
     }
     
     public struct ComponentDelegateData
